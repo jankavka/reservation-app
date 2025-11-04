@@ -1,6 +1,6 @@
 package cz.reservation.constant;
 
-import lombok.Getter;
+import lombok.*;
 
 @Getter
 public enum Handedness {
@@ -12,4 +12,6 @@ public enum Handedness {
     Handedness(String hand){
         this.hand = hand;
     }
+
+
 }

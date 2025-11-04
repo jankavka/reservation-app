@@ -4,9 +4,10 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    open-in-view: true
   datasource:
     platform: postgres
-    url: jdbc:postgresql://localhost:5432/reservation?createDatabaseIfNotExists=true
+    url: jdbc:postgresql://localhost:5432/reservation
     username:
     password:
     driverClassName: org.postgresql.Driver

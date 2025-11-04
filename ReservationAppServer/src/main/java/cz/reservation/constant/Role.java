@@ -12,7 +12,7 @@ public enum Role {
 
     private final String spec;
 
-    private Role(String spec){
+    Role(String spec){
         this.spec = spec;
     }
 }
