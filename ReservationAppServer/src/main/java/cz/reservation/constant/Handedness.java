@@ -9,7 +9,7 @@ public enum Handedness {
 
     private final String hand;
 
-    Handedness(String hand){
+    Handedness(String hand) {
         this.hand = hand;
     }
 
