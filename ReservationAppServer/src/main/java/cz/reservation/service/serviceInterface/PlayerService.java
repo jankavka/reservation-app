@@ -1,8 +1,15 @@
 package cz.reservation.service.serviceInterface;
 
 import cz.reservation.dto.PlayerDTO;
+import org.springframework.http.ResponseEntity;
 
-public class PlayerService {
+import java.util.List;
 
-    PlayerDTO getPlayer;
+public interface PlayerService {
+
+    PlayerDTO getPlayer(Long id);
+
+    ResponseEntity<PlayerDTO> createPlayer(PlayerDTO playerDTO);
+
+    List<PlayerDTO> getAllPlayers();
 }

@@ -11,6 +11,7 @@ public record UserDTO(
         String password,
         String fullName,
         Set<Role> roles,
-        Date createdAt
+        Date createdAt,
+        boolean isAdmin
 ) {
 }
