@@ -1,5 +1,6 @@
 package cz.reservation.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.reservation.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,10 @@ public class UserEntity {
 
     @Column
     private Date createdAt;
+
+    @Column
+    @JsonProperty("isAdmin")
+    private boolean isAdmin;
 
 
 
