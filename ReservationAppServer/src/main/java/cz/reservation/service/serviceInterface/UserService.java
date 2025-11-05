@@ -9,7 +9,7 @@ public interface UserService {
 
     UserDTO getUser(Long id);
 
-    List<UserDTO> getAllUsers(Long id);
+    List<UserDTO> getAllUsers();
 
-    ResponseEntity<UserDTO> createPlayer(UserDTO userDTO);
+    ResponseEntity<UserDTO> createUser(UserDTO userDTO);
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/player")
 public class PlayerController {
 
     private final PlayerService playerService;
@@ -21,12 +21,12 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
-    @GetMapping("/player/all")
+    @GetMapping("/all")
     public List<PlayerDTO> getAllPlayers(){
         return playerService.getAllPlayers();
     }
 
-    @GetMapping("/player/{id}")
+    @GetMapping("/{id}")
     public PlayerDTO getPlayer(@PathVariable Long id){
         return playerService.getPlayer(id);
     }

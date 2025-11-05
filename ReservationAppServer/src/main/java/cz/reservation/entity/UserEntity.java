@@ -1,6 +1,5 @@
 package cz.reservation.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.reservation.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,21 +32,15 @@ public class UserEntity {
     @Column
     private String fullName;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @ElementCollection
     private List<PlayerEntity> players;
 
     @Column
     private Date createdAt;
-
-    @Column
-    @JsonProperty("isAdmin")
-    private boolean isAdmin;
-
-
 
 
 }
