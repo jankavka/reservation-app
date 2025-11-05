@@ -12,3 +12,9 @@ spring:
     password:
     driverClassName: org.postgresql.Driver
 
+  liquibase:
+    enabled: true
+    drop-first: false
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: public
+
