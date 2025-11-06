@@ -3,23 +3,26 @@ package cz.reservation.service;
 import cz.reservation.dto.UserDTO;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
+import cz.reservation.entity.UserEntityDetails;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceInterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -29,10 +32,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
+
+
     @Autowired
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository) {
+    @Lazy
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +72,7 @@ public class UserServiceImpl implements UserService {
         System.out.println("New User: " + userDTO);
         UserEntity entityToSave = userMapper.toEntity(userDTO);
         entityToSave.setCreatedAt(new Date());
+        entityToSave.setPassword(passwordEncoder.encode(userDTO.password()));
         UserEntity savedEntity = userRepository.save(entityToSave);
 
         return ResponseEntity
@@ -70,6 +80,20 @@ public class UserServiceImpl implements UserService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(userMapper.toDTO(savedEntity));
 
+
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        Optional<UserEntity> userEntity = userRepository.findByEmail(username);
+
+        if(userEntity.isEmpty()){
+            throw new UsernameNotFoundException("User not found with email: " + username);
+        }
+        UserEntity user = userEntity.get();
+        UserEntityDetails details = new UserEntityDetails(user);
+        return new User(user.getEmail(), user.getPassword(), details.getAuthorities());
 
     }
 }
