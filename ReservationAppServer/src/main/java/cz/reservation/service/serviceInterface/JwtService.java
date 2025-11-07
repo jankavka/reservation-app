@@ -28,5 +28,7 @@ public interface JwtService {
 
     Boolean validateToken(String token, UserDetails userDetails);
 
+    long getJwtExpiration();
+
 
 }

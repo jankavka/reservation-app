@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.AuthRequestDTO;
+import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.dto.UserDTO;
 import cz.reservation.service.serviceInterface.JwtService;
 import cz.reservation.service.serviceInterface.UserService;
@@ -10,26 +11,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping
 public class UserController {
 
     private final UserService userService;
 
-    private final JwtService jwtService;
-
-    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
+
     }
 
     @GetMapping("/user/{id}")
@@ -42,21 +40,19 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PostMapping("/addNewUser")
+    @PostMapping("/auth/addNewUser")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO);
     }
 
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequestDTO.username(), authRequestDTO.password())
-        );
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequestDTO.username());
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
-        }
+    @PostMapping("/auth/generateToken")
+    public ResponseEntity<LoginResponseDto> authenticateAndGetToken(@RequestBody AuthRequestDTO authRequestDTO) {
+        return userService.authenticate(authRequestDTO);
+    }
+
+    @GetMapping("/user/current")
+    public ResponseEntity<User> showCurrentUser(){
+        return userService.getCurrentUser();
     }
 
 
