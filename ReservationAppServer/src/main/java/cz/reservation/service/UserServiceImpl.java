@@ -1,10 +1,12 @@
 package cz.reservation.service;
 
+import cz.reservation.dto.AuthRequestDTO;
+import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.dto.UserDTO;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
-import cz.reservation.entity.UserEntityDetails;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.serviceInterface.JwtService;
 import cz.reservation.service.serviceInterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,20 +40,39 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
 
     @Autowired
     @Lazy
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(
+            UserMapper userMapper,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService
+
+    ) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserDTO getUser(Long id) {
-        return userMapper.toDTO(userRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+        UserDTO userDTO = userMapper.toDTO(userRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+        return new UserDTO(
+                userDTO.id(),
+                userDTO.email(),
+                "---protected---",
+                userDTO.fullName(),
+                userDTO.roles(),
+                userDTO.createdAt());
 
     }
 
@@ -55,11 +80,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> getAllUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
-        if(userEntities.isEmpty()){
+        if (userEntities.isEmpty()) {
             log.warn("There are no users in database");
             return List.of();
         }
-        return userEntities.stream().map(userMapper::toDTO).toList();
+        return userEntities.stream()
+                .map(userMapper::toDTO)
+                .map(o -> new UserDTO(
+                        o.id(),
+                        o.email(),
+                        "---protected--",
+                        o.fullName(),
+                        o.roles(),
+                        o.createdAt()))
+                .toList();
     }
 
     @Transactional
@@ -83,17 +117,49 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequestDTO.username(),
+                        authRequestDTO.password())
+        );
+        if (authentication.isAuthenticated()) {
+            String token = jwtService.generateToken(authRequestDTO.username());
+            LoginResponseDto responseDto = new LoginResponseDto(
+                    token,
+                    jwtService.getJwtExpiration());
+            return ResponseEntity.ok(responseDto);
+        } else {
+            throw new UsernameNotFoundException("Invalid user request");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ResponseEntity<User> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        System.out.println("Uživatel:" + authentication.getPrincipal());
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(currentUser);
+
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<UserEntity> userEntity = userRepository.findByEmail(username);
 
-        if(userEntity.isEmpty()){
+        if (userEntity.isEmpty()) {
             throw new UsernameNotFoundException("User not found with email: " + username);
         }
         UserEntity user = userEntity.get();
-        UserEntityDetails details = new UserEntityDetails(user);
-        return new User(user.getEmail(), user.getPassword(), details.getAuthorities());
+        return new User(user.getEmail(), user.getPassword(), user.getAuthorities());
 
     }
 }
