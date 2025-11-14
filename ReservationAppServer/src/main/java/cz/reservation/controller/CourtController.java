@@ -22,7 +22,7 @@ public class CourtController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> createCourt(@RequestBody @Valid CourtDto courtDto){
+    public ResponseEntity<CourtDto> createCourt(@RequestBody @Valid CourtDto courtDto){
         return courtService.createCourt(courtDto);
     }
 

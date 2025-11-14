@@ -1,6 +1,7 @@
 package cz.reservation.dto;
 
 import cz.reservation.constant.Handedness;
+import cz.reservation.entity.UserEntity;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +19,7 @@ public record PlayerDto(
 
         Handedness handedness,
 
-        Long parentUserId,
+        UserDto parent,
 
         String note
 

@@ -2,11 +2,10 @@ package cz.reservation.controller;
 
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.service.serviceinterface.PlayerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public List<PlayerDto> getAllPlayers(){
         return playerService.getAllPlayers();
     }
@@ -29,5 +28,10 @@ public class PlayerController {
     @GetMapping("/{id}")
     public PlayerDto getPlayer(@PathVariable Long id){
         return playerService.getPlayer(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto){
+        return playerService.createPlayer(playerDto);
     }
 }

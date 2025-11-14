@@ -65,7 +65,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public UserDto getUser(Long id) {
-        UserDto userDTO = userMapper.toDto(userRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+        UserDto userDTO = userMapper.toDto(userRepository
+                .findById(id)
+                .orElseThrow(EntityNotFoundException::new));
+
         return new UserDto(
                 userDTO.id(),
                 userDTO.email(),
