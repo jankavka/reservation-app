@@ -27,11 +27,9 @@ public class CourtEntity {
     Surface surface;
 
     @Column
-//    @JsonDeserialize(using = NumberDeserializers.BooleanDeserializer.class)
     Boolean indoor;
 
     @Column
-//    @JsonDeserialize(using = NumberDeserializers.BooleanDeserializer.class)
     Boolean lighting;
 
 }

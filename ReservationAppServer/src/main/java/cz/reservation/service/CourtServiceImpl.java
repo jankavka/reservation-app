@@ -30,10 +30,10 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> createCourt(CourtDto courtDto) throws NullPointerException {
+    public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) throws NullPointerException {
         if (courtDto != null) {
-            courtRepository.save(courtMapper.toEntity(courtDto));
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            CourtEntity savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
+            return ResponseEntity.ok(courtMapper.toDto(savedEntity));
 
         } else {
             throw new NullPointerException("Internal server error. Court must not be null");

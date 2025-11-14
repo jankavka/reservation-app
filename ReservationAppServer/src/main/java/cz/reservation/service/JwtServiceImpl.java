@@ -39,7 +39,6 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                //.setExpiration(new Date(jwtExpiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

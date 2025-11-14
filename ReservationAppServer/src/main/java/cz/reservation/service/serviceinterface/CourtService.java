@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CourtService {
 
-    ResponseEntity<HttpStatus> createCourt(CourtDto courtDto);
+    ResponseEntity<CourtDto> createCourt(CourtDto courtDto);
 
     ResponseEntity<CourtDto> getCourt(Long id) throws EntityNotFoundException;
 
