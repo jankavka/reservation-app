@@ -1,13 +1,13 @@
 package cz.reservation.dto.mapper;
 
-import cz.reservation.dto.PlayerDTO;
+import cz.reservation.dto.PlayerDto;
 import cz.reservation.entity.PlayerEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PlayerMapper {
 
-    PlayerDTO toDTO(PlayerEntity playerEntity);
+    PlayerDto toDto(PlayerEntity playerEntity);
 
-    PlayerEntity toEntity(PlayerDTO playerDTO);
+    PlayerEntity toEntity(PlayerDto playerDTO);
  }

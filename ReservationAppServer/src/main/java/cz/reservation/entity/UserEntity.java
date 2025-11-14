@@ -38,7 +38,7 @@ public class UserEntity implements UserDetails {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @ElementCollection
-    private List<PlayerEntity> players;
+    private transient List<PlayerEntity> players;
 
     @Column
     private Date createdAt;

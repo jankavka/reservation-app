@@ -2,12 +2,12 @@ package cz.reservation.service;
 
 import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.UserDTO;
+import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
-import cz.reservation.service.serviceInterface.JwtService;
-import cz.reservation.service.serviceInterface.UserService;
+import cz.reservation.service.serviceinterface.JwtService;
+import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,9 +64,9 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDTO getUser(Long id) {
-        UserDTO userDTO = userMapper.toDTO(userRepository.findById(id).orElseThrow(EntityNotFoundException::new));
-        return new UserDTO(
+    public UserDto getUser(Long id) {
+        UserDto userDTO = userMapper.toDto(userRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+        return new UserDto(
                 userDTO.id(),
                 userDTO.email(),
                 "---protected---",
@@ -78,15 +78,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
         if (userEntities.isEmpty()) {
             log.warn("There are no users in database");
             return List.of();
         }
         return userEntities.stream()
-                .map(userMapper::toDTO)
-                .map(o -> new UserDTO(
+                .map(userMapper::toDto)
+                .map(o -> new UserDto(
                         o.id(),
                         o.email(),
                         "---protected--",
@@ -98,12 +98,12 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public ResponseEntity<UserDTO> createUser(UserDTO userDTO) {
+    public ResponseEntity<UserDto> createUser(UserDto userDTO) {
 
         if (userDTO == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        System.out.println("New User: " + userDTO);
+        log.info("New user: {}", userDTO);
         UserEntity entityToSave = userMapper.toEntity(userDTO);
         entityToSave.setCreatedAt(new Date());
         entityToSave.setPassword(passwordEncoder.encode(userDTO.password()));
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(userMapper.toDTO(savedEntity));
+                .body(userMapper.toDto(savedEntity));
 
 
     }
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        System.out.println("Uživatel:" + authentication.getPrincipal());
+        log.info("Current user: {}", authentication.getPrincipal());
 
         User currentUser = (User) authentication.getPrincipal();
 

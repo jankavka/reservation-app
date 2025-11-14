@@ -1,6 +1,6 @@
 package cz.reservation.service;
 
-import cz.reservation.service.serviceInterface.JwtService;
+import cz.reservation.service.serviceinterface.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
 
     @Value("${security.jwt.secret}")
-    private String SECRET;
+    private String secret;
 
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
@@ -39,13 +39,14 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                //.setExpiration(new Date(jwtExpiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     @Override
     public Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
