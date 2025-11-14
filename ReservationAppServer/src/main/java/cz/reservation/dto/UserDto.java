@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Set;
 
 
-public record UserDTO(
+public record UserDto(
         Long id,
 
         @NotNull
@@ -17,7 +17,7 @@ public record UserDTO(
         String email,
 
         @NotNull
-        @Size(min = 6)
+        @Size(min = 6, message = "Password has to have minimum 6 characters")
         String password,
 
         @NotNull

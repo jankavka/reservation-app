@@ -23,24 +23,25 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Autowired
-    public SecurityConfiguration(JwtAuthFilter jwtAuthFilter, AuthenticationProvider authenticationProvider){
+    public SecurityConfiguration(JwtAuthFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
 
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/addNewUser", "/auth/generateToken")
-                            .permitAll()
+//                        .requestMatchers("/auth/addNewUser", "/auth/generateToken")
+//                            .permitAll()
+//                        .requestMatchers("/**").permitAll()
+//                        .requestMatchers("/auth/user/**").hasAnyAuthority("USER")y
+//                        .requestMatchers("/auth/admin/**").hasAnyAuthority("ADMIN")
+//
+//                        .anyRequest().authenticated()
                         .requestMatchers("/**").permitAll()
-                        .requestMatchers("/auth/user/**").hasAnyAuthority("USER")
-                        .requestMatchers("/auth/admin/**").hasAnyAuthority("ADMIN")
-
-                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -49,8 +50,6 @@ public class SecurityConfiguration {
         return http.build();
 
     }
-
-
 
 
 }

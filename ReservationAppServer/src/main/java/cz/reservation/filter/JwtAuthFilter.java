@@ -1,6 +1,7 @@
 package cz.reservation.filter;
 
-import cz.reservation.service.serviceInterface.JwtService;
+import cz.reservation.service.serviceinterface.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,20 +38,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String userName = null;
 
 
         if(authHeader != null && authHeader.startsWith("Bearer ")){
-            token = authHeader.substring(7);
-            userName = jwtService.extractUserName(token);
+            try {
+                token = authHeader.substring(7);
+                userName = jwtService.extractUserName(token);
+
+                //temporary solution because generating new token is not triggered with the old one still existing
+            } catch (ExpiredJwtException e){
+                jwtService.generateToken(userName);
+            }
         }
 
         if(userName != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-            if(jwtService.validateToken(token, userDetails)){
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            if(Boolean.TRUE.equals(jwtService.validateToken(token, userDetails))){
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

@@ -1,4 +1,4 @@
-package cz.reservation.service.serviceInterface;
+package cz.reservation.service.serviceinterface;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;

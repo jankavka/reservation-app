@@ -2,20 +2,19 @@ package cz.reservation.controller;
 
 import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.UserDTO;
-import cz.reservation.service.serviceInterface.JwtService;
-import cz.reservation.service.serviceInterface.UserService;
+import cz.reservation.dto.UserDto;
+import cz.reservation.service.serviceinterface.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -31,17 +30,17 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public UserDTO getUser(@PathVariable Long id) {
+    public UserDto getUser(@PathVariable Long id) {
         return userService.getUser(id);
     }
 
     @GetMapping("/user/all")
-    public List<UserDTO> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PostMapping("/auth/addNewUser")
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDTO) {
         return userService.createUser(userDTO);
     }
 
@@ -53,6 +52,15 @@ public class UserController {
     @GetMapping("/user/current")
     public ResponseEntity<User> showCurrentUser(){
         return userService.getCurrentUser();
+    }
+
+    @DeleteMapping("/user/logout")
+    public ResponseEntity<Map<String,String>> logout(HttpServletRequest req) throws ServletException {
+        req.logout();
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Logged out");
+        return ResponseEntity.ok(response);
+
     }
 
 

@@ -1,10 +1,10 @@
 package cz.reservation.service;
 
-import cz.reservation.dto.PlayerDTO;
+import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
 import cz.reservation.entity.repository.PlayerRepository;
-import cz.reservation.service.serviceInterface.PlayerService;
+import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,24 +29,24 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public PlayerDTO getPlayer(Long id) {
-        return playerMapper.toDTO(playerRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+    public PlayerDto getPlayer(Long id) {
+        return playerMapper.toDto(playerRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
     @Override
-    public ResponseEntity<PlayerDTO> createPlayer(PlayerDTO playerDTO) {
+    public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
         return null;
     }
 
     @Override
-    public List<PlayerDTO> getAllPlayers() {
+    public List<PlayerDto> getAllPlayers() {
 
         List<PlayerEntity> playerEntities = playerRepository.findAll();
         if(playerEntities.isEmpty()){
             log.warn("There are no players in database");
             return List.of();
         }
-        return playerEntities.stream().map(playerMapper::toDTO).toList();
+        return playerEntities.stream().map(playerMapper::toDto).toList();
 
 
     }
