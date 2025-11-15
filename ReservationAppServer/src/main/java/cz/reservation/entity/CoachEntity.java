@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -26,6 +28,10 @@ public class CoachEntity {
 
     @Column
     private String certification;
+
+    @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL)
+    @ElementCollection
+    private List<GroupEntity> groups;
 
 
 

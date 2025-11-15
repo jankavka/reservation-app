@@ -2,6 +2,8 @@ package cz.reservation.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
+
 public record CoachDto(
         Long id,
 
@@ -11,6 +13,8 @@ public record CoachDto(
         String bio,
 
         @NotBlank(message = "This field can not be blank")
-        String certification
+        String certification,
+
+        List<GroupDto> groups
 ) {
 }

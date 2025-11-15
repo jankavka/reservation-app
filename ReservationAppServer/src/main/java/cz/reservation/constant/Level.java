@@ -4,9 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum Level {
-    BEGINNER("3"),
-    INTERMEDIATE("2"),
-    ADVANCED("1");
+    BEGINNER("beginner"),
+    INTERMEDIATE("intermediate"),
+    ADVANCED("advanced"),
+    PRO("pro");
 
     private final String actualLevel;
 
