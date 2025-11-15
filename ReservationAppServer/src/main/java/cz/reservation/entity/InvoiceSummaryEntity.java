@@ -1,5 +1,6 @@
 package cz.reservation.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,29 +8,36 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeasonEntity {
+public class InvoiceSummaryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
     @Column
-    private String name;
+    private Date month;
 
-    @Column(name = "date_from")
-    private Date dateFrom;
+    @Column
+    private Double totalAmount;
 
-    @Column(name = "date_until")
-    private Date dateUntil;
+    @Column
+    private String currency;
 
-    @OneToMany(mappedBy = "season",cascade = CascadeType.ALL)
-    @ElementCollection
-    private List<GroupEntity> groups;
+    @Column
+    private Date generatedAt;
+
+
+
+
+
 }

@@ -1,26 +1,26 @@
 package cz.reservation.dto;
 
-import cz.reservation.constant.Handedness;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
-public record PlayerDto(
+public record InvoiceSummaryDto(
         Long id,
 
+        @NotNull
+        UserDto user,
+
+        @NotNull
+        Date month,
+
+        @NotNull
+        Double totalAmount,
+
         @NotBlank
-        String fullName,
+        String currency,
 
         @NotNull
-        Date birthDate,
-
-        @NotNull
-        Handedness handedness,
-
-        UserDto parent,
-
-        String note
-
+        Date generatedAt
 ) {
 }

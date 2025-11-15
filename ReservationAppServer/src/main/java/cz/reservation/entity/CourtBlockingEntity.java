@@ -1,41 +1,34 @@
 package cz.reservation.entity;
 
-import cz.reservation.constant.Surface;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class CourtEntity {
+@AllArgsConstructor
+public class CourtBlockingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "court_id")
+    private CourtEntity court;
 
     @Column
-    private Surface surface;
+    private Date blockedFrom;
 
     @Column
-    private Boolean indoor;
+    private Date blockedTo;
 
     @Column
-    private Boolean lighting;
-
-    @OneToMany(mappedBy = "court")
-    @ElementCollection
-    private List<CourtBlockingEntity> blocks;
-
-
-
+    private String reason;
 }

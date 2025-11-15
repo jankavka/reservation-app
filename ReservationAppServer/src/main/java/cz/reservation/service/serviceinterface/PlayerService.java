@@ -8,9 +8,13 @@ import java.util.List;
 
 public interface PlayerService {
 
-    PlayerDto getPlayer(Long id);
+    ResponseEntity<PlayerDto> getPlayer(Long id);
 
     ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO);
 
     List<PlayerDto> getAllPlayers();
+
+    ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id);
+
+    ResponseEntity<HttpStatus> deletePLayer(Long id);
 }

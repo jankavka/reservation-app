@@ -10,16 +10,14 @@ import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
@@ -47,21 +45,20 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    @Transactional
-    public PlayerDto getPlayer(Long id) {
-        return playerMapper.toDto(playerRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+    @Transactional(readOnly = true)
+    public ResponseEntity<PlayerDto> getPlayer(Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(playerMapper.toDto(playerRepository
+                        .findById(id)
+                        .orElseThrow(EntityNotFoundException::new)));
     }
 
     @Override
     @Transactional
     public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
         User currentUser = userService.getCurrentUser().getBody();
-        if (playerDTO == null) {
-            throw new EntityNotFoundException("Player must not be null");
-        }
-        else if (currentUser == null) {
-            throw new EntityNotFoundException("Entity of parent or admin not found");
-        } else {
+        if (playerDTO != null && currentUser != null) {
             String authorities = currentUser.getAuthorities().stream()
                     .map(String::valueOf)
                     .toList()
@@ -77,14 +74,24 @@ public class PlayerServiceImpl implements PlayerService {
 
             } else if (authorities.contains("PARENT")) {
                 entityToSave = playerMapper.toEntity(playerDTO);
-                entityToSave.setParent(userRepository.findByEmail(currentUser
-                                .getUsername())
+                entityToSave.setParent(userRepository
+                        .findByEmail(currentUser.getUsername())
                         .orElseThrow(EntityNotFoundException::new));
                 savedEntity = playerRepository.save(entityToSave);
 
             }
 
-            return ResponseEntity.ok(playerMapper.toDto(savedEntity));
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(playerMapper.toDto(savedEntity));
+
+        } else {
+            if (playerDTO == null) {
+                throw new IllegalArgumentException("Player can not be null");
+
+            } else {
+                throw new IllegalArgumentException("Current user can not be null");
+            }
         }
 
     }
@@ -99,6 +106,31 @@ public class PlayerServiceImpl implements PlayerService {
         }
         return playerEntities.stream().map(playerMapper::toDto).toList();
 
+    }
 
+    @Override
+    @Transactional
+    public ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id) {
+        if (playerRepository.existsById(id)) {
+            PlayerEntity entityToEdit = playerMapper.toEntity(playerDto);
+            entityToEdit.setId(id);
+            PlayerEntity savedEntity = playerRepository.save(entityToEdit);
+
+            return ResponseEntity.ok(playerMapper.toDto(savedEntity));
+
+        } else {
+            throw new EntityNotFoundException("Player not found");
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<HttpStatus> deletePLayer(Long id) {
+        if (playerRepository.existsById(id)) {
+            playerRepository.deleteById(id);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            throw new EntityNotFoundException("Player not found");
+        }
     }
 }

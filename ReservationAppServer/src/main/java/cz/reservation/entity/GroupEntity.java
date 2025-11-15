@@ -1,6 +1,5 @@
 package cz.reservation.entity;
 
-import cz.reservation.constant.Handedness;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,40 +7,35 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class PlayerEntity {
-
+@AllArgsConstructor
+public class GroupEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    private String fullName;
+    private String name;
 
-    @Column
-    private Date birthDate;
-
-    @Column
-    private Handedness handedness;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private UserEntity parent;
+    @JoinColumn(name = "coach_id")
+    private CoachEntity coach;
 
-    @OneToMany(mappedBy = "player")
+    @ManyToOne
+    @JoinColumn(name = "season_id")
+    private SeasonEntity season;
+
+    @OneToMany(mappedBy = "group")
     @ElementCollection
     private List<EnrollmentEntity> enrollments = new ArrayList<>();
 
     @Column
-    private String note;
-
-
+    private Integer capacity;
 }

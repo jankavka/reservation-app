@@ -3,12 +3,13 @@ package cz.reservation.constant;
 import lombok.Getter;
 
 @Getter
-public enum Surface {
-    CLAY("clay"), HARD("hard"), WIMBLEDON("wimbledon");
+public enum SlotsStatus {
+    OPEN("open"),
+    CANCELED("cancel");
 
     private final String code;
 
-    Surface( String code){
+    SlotsStatus(String code){
         this.code = code;
     }
 }

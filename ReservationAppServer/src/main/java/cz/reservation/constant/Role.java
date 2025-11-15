@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    ADMIN("A"),
-    COACH("C"),
-    PARENT("PA"),
-    PLAYER("PL");
+    ADMIN("admin"),
+    COACH("coach"),
+    PARENT("parent"),
+    PLAYER("player");
 
 
     private final String spec;

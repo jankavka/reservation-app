@@ -29,7 +29,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims,email);
+        return createToken(claims, email);
     }
 
     @Override

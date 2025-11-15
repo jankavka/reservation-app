@@ -4,8 +4,8 @@ import lombok.*;
 
 @Getter
 public enum Handedness {
-    LEFT("L"),
-    RIGHT("R");
+    LEFT("left"),
+    RIGHT("right");
 
     private final String hand;
 

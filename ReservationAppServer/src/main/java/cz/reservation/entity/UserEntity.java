@@ -43,6 +43,10 @@ public class UserEntity implements UserDetails {
     @Column
     private Date createdAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    @ElementCollection
+    private List<InvoiceSummaryEntity> invoices;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
