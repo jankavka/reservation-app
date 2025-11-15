@@ -3,13 +3,13 @@ package cz.reservation.constant;
 import lombok.Getter;
 
 @Getter
-public enum SlotsStatus {
+public enum SlotStatus {
     OPEN("open"),
     CANCELED("cancel");
 
     private final String code;
 
-    SlotsStatus(String code){
+    SlotStatus(String code){
         this.code = code;
     }
 }

@@ -1,6 +1,6 @@
 package cz.reservation.entity;
 
-import cz.reservation.constant.SlotsStatus;
+import cz.reservation.constant.SlotStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class TrainingSlotEntity {
 
     private Integer capacity;
 
-    private SlotsStatus status;
+    private SlotStatus status;
 
     private String price;
 

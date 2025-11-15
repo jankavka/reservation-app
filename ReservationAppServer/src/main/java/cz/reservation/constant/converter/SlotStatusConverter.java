@@ -1,16 +1,16 @@
 package cz.reservation.constant.converter;
 
-import cz.reservation.constant.SlotsStatus;
+import cz.reservation.constant.SlotStatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import java.util.stream.Stream;
 
 @Converter(autoApply = true)
-public class SlotsStatusConverter implements AttributeConverter<SlotsStatus, String> {
+public class SlotStatusConverter implements AttributeConverter<SlotStatus, String> {
 
     @Override
-    public String convertToDatabaseColumn(SlotsStatus slotsStatus) {
+    public String convertToDatabaseColumn(SlotStatus slotsStatus) {
         if (slotsStatus == null) {
             return null;
         }
@@ -18,11 +18,11 @@ public class SlotsStatusConverter implements AttributeConverter<SlotsStatus, Str
     }
 
     @Override
-    public SlotsStatus convertToEntityAttribute(String code) {
+    public SlotStatus convertToEntityAttribute(String code) {
         if (code == null) {
             return null;
         }
-        return Stream.of(SlotsStatus.values())
+        return Stream.of(SlotStatus.values())
                 .filter(status -> status.getCode().equals(code))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);

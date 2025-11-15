@@ -1,6 +1,6 @@
 package cz.reservation.dto;
 
-import cz.reservation.constant.SlotsStatus;
+import cz.reservation.constant.SlotStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,7 +27,7 @@ public record TrainingSlotDto(
         Integer capacity,
 
         @NotNull(message = "Status must not be null")
-        SlotsStatus status,
+        SlotStatus status,
 
         String price,
 
