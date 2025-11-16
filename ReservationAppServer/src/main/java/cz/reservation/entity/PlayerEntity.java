@@ -40,6 +40,10 @@ public class PlayerEntity {
     @ElementCollection
     private List<EnrollmentEntity> enrollments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "player")
+    @ElementCollection
+    private List<BookingEntity> bookings = new ArrayList<>();
+
     @Column
     private String note;
 

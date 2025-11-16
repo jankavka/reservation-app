@@ -2,6 +2,7 @@ package cz.reservation.service;
 
 import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
+import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
@@ -72,10 +73,11 @@ public class UserServiceImpl implements UserService {
         return new UserDto(
                 userDTO.id(),
                 userDTO.email(),
-                "---protected---",
                 userDTO.fullName(),
                 userDTO.roles(),
-                userDTO.createdAt());
+                userDTO.players(),
+                userDTO.createdAt(),
+                userDTO.invoices());
 
     }
 
@@ -92,24 +94,28 @@ public class UserServiceImpl implements UserService {
                 .map(o -> new UserDto(
                         o.id(),
                         o.email(),
-                        "---protected--",
                         o.fullName(),
                         o.roles(),
-                        o.createdAt()))
+                        o.players(),
+                        o.createdAt(),
+                        o.invoices()))
                 .toList();
     }
 
     @Transactional
     @Override
-    public ResponseEntity<UserDto> createUser(UserDto userDTO) {
+    public ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto) {
 
-        if (userDTO == null) {
+        if (registrationRequestDto == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        log.info("New user: {}", userDTO);
-        UserEntity entityToSave = userMapper.toEntity(userDTO);
+        log.info("New user: {}", registrationRequestDto);
+        UserEntity entityToSave = new UserEntity();
+        entityToSave.setEmail(registrationRequestDto.email());
+        entityToSave.setFullName(registrationRequestDto.fullName());
+        entityToSave.setRoles(registrationRequestDto.roles());
         entityToSave.setCreatedAt(new Date());
-        entityToSave.setPassword(passwordEncoder.encode(userDTO.password()));
+        entityToSave.setPassword(passwordEncoder.encode(registrationRequestDto.password()));
         UserEntity savedEntity = userRepository.save(entityToSave);
 
         return ResponseEntity

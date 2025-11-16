@@ -28,15 +28,25 @@ public class TrainingSlotEntity {
     @JoinColumn(name = "court_id")
     private CourtEntity court;
 
+    @Column
     private Date startAt;
 
-    private Date endAd;
+    @Column
+    private Date endAt;
 
+    @Column
     private Integer capacity;
 
+    @Column
     private SlotStatus status;
 
+    @Column
     private String price;
 
+    @Column
     private String currency;
+
+    @OneToOne(mappedBy = "trainingSlot")
+    @PrimaryKeyJoinColumn
+    private WeatherNotesEntity weatherNotes;
 }

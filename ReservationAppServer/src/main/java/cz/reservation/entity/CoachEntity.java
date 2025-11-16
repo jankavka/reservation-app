@@ -16,12 +16,13 @@ import java.util.List;
 public class CoachEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    @PrimaryKeyJoinColumn(name = "user")
     @OneToOne
-    private UserEntity userId;
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @Column
     private String bio;

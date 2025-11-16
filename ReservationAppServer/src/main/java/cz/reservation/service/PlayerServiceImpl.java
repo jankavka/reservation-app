@@ -67,17 +67,19 @@ public class PlayerServiceImpl implements PlayerService {
             PlayerEntity entityToSave;
             PlayerEntity savedEntity = new PlayerEntity();
 
-            if (authorities.contains("ADMIN")) {
-                entityToSave = playerMapper.toEntity(playerDTO);
-                savedEntity = playerRepository.save(entityToSave);
-
-
-            } else if (authorities.contains("PARENT")) {
+            if (authorities.contains("PARENT")) {
                 entityToSave = playerMapper.toEntity(playerDTO);
                 entityToSave.setParent(userRepository
                         .findByEmail(currentUser.getUsername())
                         .orElseThrow(EntityNotFoundException::new));
                 savedEntity = playerRepository.save(entityToSave);
+
+            }
+
+            else if (authorities.contains("ADMIN")) {
+                entityToSave = playerMapper.toEntity(playerDTO);
+                savedEntity = playerRepository.save(entityToSave);
+
 
             }
 

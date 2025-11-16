@@ -1,9 +1,12 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.Role;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.mapper.CoachMapper;
 import cz.reservation.entity.CoachEntity;
+import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.CoachRepository;
+import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +24,16 @@ public class CoachServiceImpl implements CoachService {
 
     private final CoachMapper coachMapper;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public CoachServiceImpl(CoachMapper coachMapper, CoachRepository coachRepository) {
+    public CoachServiceImpl(
+            CoachMapper coachMapper,
+            CoachRepository coachRepository,
+            UserRepository userRepository) {
         this.coachMapper = coachMapper;
         this.coachRepository = coachRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -32,7 +41,11 @@ public class CoachServiceImpl implements CoachService {
     @Transactional
     public ResponseEntity<CoachDto> createCoach(CoachDto coachDto) {
         if (coachDto != null) {
-            CoachEntity savedEntity = coachRepository.save(coachMapper.toEntity(coachDto));
+            CoachEntity entityToSave = coachMapper.toEntity(coachDto);
+            entityToSave.setUser(userRepository.getReferenceById(coachDto.user().id()));
+            entityToSave.getUser().getRoles().add(Role.COACH);
+
+            CoachEntity savedEntity = coachRepository.save(entityToSave);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(coachMapper.toDto(savedEntity));
@@ -65,6 +78,8 @@ public class CoachServiceImpl implements CoachService {
     @Transactional
     public ResponseEntity<HttpStatus> deleteCoach(Long id) {
         if (coachRepository.existsById(id)) {
+            UserEntity relatedUser = userRepository.getReferenceById(id);
+            relatedUser.getRoles().remove(Role.COACH);
             coachRepository.deleteById(id);
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
