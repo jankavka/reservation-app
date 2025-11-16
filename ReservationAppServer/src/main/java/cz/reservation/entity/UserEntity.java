@@ -38,14 +38,18 @@ public class UserEntity implements UserDetails {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @ElementCollection
-    private transient List<PlayerEntity> players;
+    private transient List<PlayerEntity> players = new ArrayList<>();
 
     @Column
     private Date createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     @ElementCollection
-    private List<InvoiceSummaryEntity> invoices;
+    private transient List<InvoiceSummaryEntity> invoices = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private transient CoachEntity coach;
 
 
     @Override

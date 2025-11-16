@@ -16,14 +16,12 @@ public record UserDto(
         String email,
 
         @NotNull
-        @Size(min = 6, message = "Password has to have minimum 6 characters")
-        String password,
-
-        @NotNull
         String fullName,
 
         @NotEmpty(message = "Roles must not be empty")
         Set<Role> roles,
+
+        List<PlayerDto> players,
 
         Date createdAt,
 

@@ -2,6 +2,7 @@ package cz.reservation.controller;
 
 import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
+import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.servlet.ServletException;
@@ -40,8 +41,8 @@ public class UserController {
     }
 
     @PostMapping("/auth/addNewUser")
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDTO) {
-        return userService.createUser(userDTO);
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody RegistrationRequestDto registrationRequestDto) {
+        return userService.createUser(registrationRequestDto);
     }
 
     @PostMapping("/auth/generateToken")
