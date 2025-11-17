@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,5 +32,5 @@ public class SeasonEntity {
 
     @OneToMany(mappedBy = "season",cascade = CascadeType.ALL)
     @ElementCollection
-    private List<GroupEntity> groups;
+    private List<GroupEntity> groups = new ArrayList<>();
 }

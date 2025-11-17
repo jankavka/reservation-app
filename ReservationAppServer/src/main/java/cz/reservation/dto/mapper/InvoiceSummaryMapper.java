@@ -4,7 +4,7 @@ import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface InvoiceSummaryMapper {
 
     InvoiceSummaryDto toDto(InvoiceSummaryEntity invoiceSummaryEntity);

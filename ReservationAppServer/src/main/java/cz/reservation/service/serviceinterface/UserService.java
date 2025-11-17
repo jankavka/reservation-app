@@ -4,6 +4,7 @@ import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,4 +22,6 @@ public interface UserService extends UserDetailsService {
     ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO);
 
     ResponseEntity<User> getCurrentUser();
+
+    ResponseEntity<HttpStatus> deleteUser(Long id);
 }
