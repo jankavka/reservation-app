@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "training_slots")
 public class TrainingSlotEntity {
 
     @Id

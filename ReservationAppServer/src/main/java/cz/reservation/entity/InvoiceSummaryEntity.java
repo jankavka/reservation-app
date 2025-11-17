@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "invoice_summaries")
 public class InvoiceSummaryEntity {
 
     @Id

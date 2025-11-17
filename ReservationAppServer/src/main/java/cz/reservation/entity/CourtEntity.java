@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "courts")
 public class CourtEntity {
 
     @Id
@@ -33,7 +34,6 @@ public class CourtEntity {
     private Boolean lighting;
 
     @OneToMany(mappedBy = "court")
-    @ElementCollection
     private List<CourtBlockingEntity> blocks;
 
 
