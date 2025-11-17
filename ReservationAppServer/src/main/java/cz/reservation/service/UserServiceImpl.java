@@ -6,6 +6,7 @@ import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
+import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.UserService;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,8 @@ public class UserServiceImpl implements UserService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final PlayerRepository playerRepository;
+
     private final JwtService jwtService;
 
 
@@ -53,6 +57,7 @@ public class UserServiceImpl implements UserService {
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
+            PlayerRepository playerRepository,
             JwtService jwtService
 
     ) {
@@ -60,25 +65,16 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.playerRepository = playerRepository;
         this.jwtService = jwtService;
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserDto getUser(Long id) {
-        UserDto userDTO = userMapper.toDto(userRepository
+        return userMapper.toDto(userRepository
                 .findById(id)
                 .orElseThrow(EntityNotFoundException::new));
-
-        return new UserDto(
-                userDTO.id(),
-                userDTO.email(),
-                userDTO.fullName(),
-                userDTO.roles(),
-                userDTO.players(),
-                userDTO.createdAt(),
-                userDTO.invoices());
-
     }
 
     @Transactional(readOnly = true)
@@ -91,14 +87,6 @@ public class UserServiceImpl implements UserService {
         }
         return userEntities.stream()
                 .map(userMapper::toDto)
-                .map(o -> new UserDto(
-                        o.id(),
-                        o.email(),
-                        o.fullName(),
-                        o.roles(),
-                        o.players(),
-                        o.createdAt(),
-                        o.invoices()))
                 .toList();
     }
 
@@ -156,6 +144,24 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(currentUser);
 
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<HttpStatus> deleteUser(Long id) {
+        if(userRepository.existsById(id)){
+            UserEntity entityToDelete = userRepository.getReferenceById(id);
+            entityToDelete.setPlayers(playerRepository.findByParentId(id));
+            try {
+                userRepository.delete(entityToDelete);
+//            userRepository.deleteById(id);
+            } catch(DataIntegrityViolationException e){
+                e.printStackTrace();
+            }
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            throw new EntityNotFoundException("User not found");
+        }
     }
 
     @Transactional(readOnly = true)

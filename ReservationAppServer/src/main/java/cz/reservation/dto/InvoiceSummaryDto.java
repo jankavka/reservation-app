@@ -20,7 +20,6 @@ public record InvoiceSummaryDto(
         @NotBlank
         String currency,
 
-        @NotNull
         Date generatedAt
 ) {
 }

@@ -23,8 +23,8 @@ public record UserDto(
 
         List<PlayerDto> players,
 
-        Date createdAt,
+        List<InvoiceSummaryDto> invoices,
 
-        List<InvoiceSummaryDto> invoices
+        Date createdAt
 ) {
 }

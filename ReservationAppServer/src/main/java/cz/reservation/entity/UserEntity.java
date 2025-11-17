@@ -1,5 +1,6 @@
 package cz.reservation.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.reservation.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class UserEntity implements UserDetails {
     private String email;
 
     @Column
+    @JsonIgnore
     private String password;
 
     @Column
@@ -36,20 +38,18 @@ public class UserEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    @ElementCollection
-    private transient List<PlayerEntity> players = new ArrayList<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlayerEntity> players = new ArrayList<>();
 
     @Column
     private Date createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    @ElementCollection
-    private transient List<InvoiceSummaryEntity> invoices = new ArrayList<>();
+    private List<InvoiceSummaryEntity> invoices = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private transient CoachEntity coach;
+    //@PrimaryKeyJoinColumn
+    private CoachEntity coach;
 
 
     @Override

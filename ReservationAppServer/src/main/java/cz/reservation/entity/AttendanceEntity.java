@@ -19,7 +19,7 @@ public class AttendanceEntity {
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_id", unique = true)
     private BookingEntity booking;
 
     @Column

@@ -1,8 +1,11 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
+import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.PlayerService;
@@ -16,6 +19,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -59,29 +66,15 @@ public class PlayerServiceImpl implements PlayerService {
     public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
         User currentUser = userService.getCurrentUser().getBody();
         if (playerDTO != null && currentUser != null) {
-            String authorities = currentUser.getAuthorities().stream()
-                    .map(String::valueOf)
-                    .toList()
-                    .get(0);
-
             PlayerEntity entityToSave;
-            PlayerEntity savedEntity = new PlayerEntity();
+            entityToSave = playerMapper.toEntity(playerDTO);
+            Long parentId = playerDTO.parent().id();
+            userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
+            entityToSave.setParent(userRepository
+                    .findById(playerDTO.parent().id())
+                    .orElseThrow(EntityNotFoundException::new));
 
-            if (authorities.contains("PARENT")) {
-                entityToSave = playerMapper.toEntity(playerDTO);
-                entityToSave.setParent(userRepository
-                        .findByEmail(currentUser.getUsername())
-                        .orElseThrow(EntityNotFoundException::new));
-                savedEntity = playerRepository.save(entityToSave);
-
-            }
-
-            else if (authorities.contains("ADMIN")) {
-                entityToSave = playerMapper.toEntity(playerDTO);
-                savedEntity = playerRepository.save(entityToSave);
-
-
-            }
+            PlayerEntity savedEntity = playerRepository.save(entityToSave);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)

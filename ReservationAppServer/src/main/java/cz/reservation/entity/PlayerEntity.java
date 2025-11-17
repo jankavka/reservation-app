@@ -36,12 +36,10 @@ public class PlayerEntity {
     @JoinColumn(name = "parent_id")
     private UserEntity parent;
 
-    @OneToMany(mappedBy = "player")
-    @ElementCollection
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<EnrollmentEntity> enrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player")
-    @ElementCollection
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<BookingEntity> bookings = new ArrayList<>();
 
     @Column
