@@ -149,15 +149,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseEntity<HttpStatus> deleteUser(Long id) {
-        if(userRepository.existsById(id)){
-            UserEntity entityToDelete = userRepository.getReferenceById(id);
-            entityToDelete.setPlayers(playerRepository.findByParentId(id));
-            try {
-                userRepository.delete(entityToDelete);
-//            userRepository.deleteById(id);
-            } catch(DataIntegrityViolationException e){
-                e.printStackTrace();
-            }
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
             throw new EntityNotFoundException("User not found");

@@ -13,6 +13,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "court_blocks")
 public class CourtBlockingEntity {
 
     @Id

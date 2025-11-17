@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "users")
 public class UserEntity implements UserDetails {
 
     @Id

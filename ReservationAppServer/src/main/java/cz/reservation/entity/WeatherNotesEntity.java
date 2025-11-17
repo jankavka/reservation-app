@@ -12,6 +12,7 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "weather_notes")
 public class WeatherNotesEntity {
 
     @Id
