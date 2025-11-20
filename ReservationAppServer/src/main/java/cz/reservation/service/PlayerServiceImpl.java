@@ -2,10 +2,8 @@ package cz.reservation.service;
 
 import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
-import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
-import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.PlayerService;
@@ -19,11 +17,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -64,8 +59,9 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional
     public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
-        User currentUser = userService.getCurrentUser().getBody();
-        if (playerDTO != null && currentUser != null) {
+        if (playerDTO == null) {
+            throw new IllegalArgumentException("Player can not be null");
+        } else {
             PlayerEntity entityToSave;
             entityToSave = playerMapper.toEntity(playerDTO);
             Long parentId = playerDTO.parent().id();
@@ -80,13 +76,6 @@ public class PlayerServiceImpl implements PlayerService {
                     .status(HttpStatus.CREATED)
                     .body(playerMapper.toDto(savedEntity));
 
-        } else {
-            if (playerDTO == null) {
-                throw new IllegalArgumentException("Player can not be null");
-
-            } else {
-                throw new IllegalArgumentException("Current user can not be null");
-            }
         }
 
     }
@@ -120,12 +109,27 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deletePLayer(Long id) {
+    public ResponseEntity<Map<String, String>> deletePLayer(Long id) {
         if (playerRepository.existsById(id)) {
             playerRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(Map.of("message", "Player with id " + id + " was deleted"));
         } else {
             throw new EntityNotFoundException("Player not found");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<PlayerDto>> getPlayersByParentId(Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(playerRepository.findByParentId(id)
+                        .stream()
+                        .map(playerMapper::toDto)
+                        .toList());
     }
 }

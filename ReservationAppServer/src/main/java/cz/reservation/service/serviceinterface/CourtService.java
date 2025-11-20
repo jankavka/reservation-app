@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CourtService {
 
@@ -15,7 +16,8 @@ public interface CourtService {
 
     ResponseEntity<List<CourtDto>> getAllCourts();
 
-    ResponseEntity<HttpStatus> deleteCourt(Long id) throws EntityNotFoundException, IllegalArgumentException;
+    ResponseEntity<Map<String,String>> deleteCourt(Long id)
+            throws EntityNotFoundException, IllegalArgumentException;
 
     ResponseEntity<HttpStatus> editCourt(CourtDto courtDto, Long id);
 }

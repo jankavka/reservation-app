@@ -8,15 +8,19 @@ import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Slf4j
 public class GroupServiceImpl implements GroupService {
 
     private final GroupMapper groupMapper;
@@ -43,14 +47,16 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public ResponseEntity<GroupDto> createGroup(GroupDto groupDto) {
-        if (groupDto != null) {
+        if (groupDto == null) {
+            throw new IllegalArgumentException("Group must not be null");
+
+        } else {
             GroupEntity entityToSave = groupMapper.toEntity(groupDto);
-            setForeignKeys(entityToSave,groupDto);
+            setForeignKeys(entityToSave, groupDto);
+            GroupEntity savedEntity = groupRepository.save(entityToSave);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(groupMapper.toDto(groupRepository.save(entityToSave)));
-        } else {
-            throw new IllegalArgumentException("Group must not be null");
+                    .body(groupMapper.toDto(savedEntity));
         }
     }
 
@@ -79,7 +85,7 @@ public class GroupServiceImpl implements GroupService {
     public ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id) {
         if (groupRepository.existsById(id)) {
             GroupEntity entityToSave = groupMapper.toEntity(groupDto);
-            setForeignKeys(entityToSave,groupDto);
+            setForeignKeys(entityToSave, groupDto);
             GroupEntity savedEntity = groupRepository.save(entityToSave);
             return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(savedEntity));
         } else {
@@ -89,18 +95,27 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deleteGroup(Long id) {
+    public ResponseEntity<Map<String, String>> deleteGroup(Long id) {
         if (groupRepository.existsById(id)) {
             groupRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+
+            Map<String, String> responseMessage = new HashMap<>();
+            responseMessage.put("message", "Group with id " + id + " was deleted");
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         } else {
             throw new EntityNotFoundException("Group doesn't exist.");
         }
 
     }
 
-    private void setForeignKeys(GroupEntity target, GroupDto source){
-        target.setSeason(seasonRepository.getReferenceById(source.season().getId()));
-        target.setCoach(coachRepository.getReferenceById(source.coach().id()));
+    private void setForeignKeys(GroupEntity target, GroupDto source) {
+        try {
+            target.setCoach(coachRepository.getReferenceById(source.coach().id()));
+            target.setSeason(seasonRepository.getReferenceById(source.season().id()));
+        } catch (NullPointerException e) {
+            log.warn("Coach id is null!");
+        }
+
     }
 }

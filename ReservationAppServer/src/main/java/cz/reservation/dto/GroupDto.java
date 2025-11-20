@@ -1,7 +1,7 @@
 package cz.reservation.dto;
 
 import cz.reservation.constant.Level;
-import cz.reservation.entity.SeasonEntity;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,13 +14,14 @@ public record GroupDto(
         @NotNull
         Level level,
 
-        @NotNull
+        @Nullable
         CoachDto coach,
 
         @NotNull
+        //@Size(max = 4, min = 1, message = "capacity is minimal 1 and maximal 4")
         Integer capacity,
 
         @NotNull
-        SeasonEntity season
+        SeasonDto season
 ) {
 }

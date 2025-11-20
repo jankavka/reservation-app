@@ -4,11 +4,11 @@ import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invoice-summary")
@@ -51,7 +51,7 @@ public class InvoiceSummaryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteSummary(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteSummary(@PathVariable Long id) {
         return invoiceSummaryService.deleteSummary(id);
     }
 

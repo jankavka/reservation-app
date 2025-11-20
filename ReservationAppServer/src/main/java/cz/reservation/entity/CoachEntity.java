@@ -1,10 +1,7 @@
 package cz.reservation.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,6 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "coaches")
 public class CoachEntity {
 
     @Id
@@ -30,9 +28,14 @@ public class CoachEntity {
     @Column
     private String certification;
 
-    @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL)
-    @ElementCollection
+    @OneToMany
     private List<GroupEntity> groups;
+
+
+    @Override
+    public String toString(){
+        return this.bio + " " + this.id;
+    }
 
 
 

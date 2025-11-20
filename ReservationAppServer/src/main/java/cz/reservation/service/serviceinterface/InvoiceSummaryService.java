@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InvoiceSummaryService {
 
@@ -18,5 +19,5 @@ public interface InvoiceSummaryService {
 
     ResponseEntity<List<InvoiceSummaryDto>> getAllSummariesByUser(Long userId);
 
-    ResponseEntity<HttpStatus> deleteSummary(Long id);
+    ResponseEntity<Map<String, String>> deleteSummary(Long id);
 }

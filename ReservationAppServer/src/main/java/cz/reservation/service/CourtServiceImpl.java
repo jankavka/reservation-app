@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CourtServiceImpl implements CourtService {
@@ -31,12 +33,12 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional
     public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) throws NullPointerException {
-        if (courtDto != null) {
-            CourtEntity savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
-            return ResponseEntity.ok(courtMapper.toDto(savedEntity));
+        if (courtDto == null) {
+            throw new NullPointerException("Internal server error. Court must not be null");
 
         } else {
-            throw new NullPointerException("Internal server error. Court must not be null");
+            CourtEntity savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
+            return ResponseEntity.ok(courtMapper.toDto(savedEntity));
 
         }
     }
@@ -59,17 +61,16 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deleteCourt(Long id) throws EntityNotFoundException, IllegalArgumentException {
-        if (id != null) {
-            if (courtRepository.existsById(id)) {
-                courtRepository.deleteById(id);
-            } else {
-                throw new EntityNotFoundException("Entity with id " + id + " not found");
-            }
+    public ResponseEntity<Map<String, String>> deleteCourt(Long id) throws EntityNotFoundException, IllegalArgumentException {
+        if (courtRepository.existsById(id)) {
+            courtRepository.deleteById(id);
 
-            return ResponseEntity.ok(HttpStatus.OK);
+            Map<String, String> responseMessage = new HashMap<>();
+            responseMessage.put("message", "Court with id " + id + " was deleted");
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         } else {
-            throw new IllegalArgumentException("Id must not be null");
+            throw new EntityNotFoundException("Entity with id " + id + " not found");
         }
 
 

@@ -1,6 +1,5 @@
 package cz.reservation.entity;
 
-import cz.reservation.constant.Surface;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +13,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "courts")
-public class CourtEntity {
+@Table(name = "venues")
+public class VenueEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,21 +24,11 @@ public class CourtEntity {
     private String name;
 
     @Column
-    private Surface surface;
+    private String address;
 
     @Column
-    private Boolean indoor;
+    private String phoneNumber;
 
-    @Column
-    private Boolean lighting;
-
-    @OneToMany(mappedBy = "court")
-    private List<CourtBlockingEntity> blocks;
-
-    @ManyToOne
-    @JoinColumn(name = "venue_id")
-    private VenueEntity venue;
-
-
-
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourtEntity> courts;
 }

@@ -4,11 +4,11 @@ import cz.reservation.dto.PlayerDto;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/player")
@@ -31,6 +31,11 @@ public class PlayerController {
         return playerService.getPlayer(id);
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<PlayerDto>> getPlayerByParentId(@PathVariable Long id){
+        return playerService.getPlayersByParentId(id);
+    }
+
     @PostMapping
     public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto){
         return playerService.createPlayer(playerDto);
@@ -42,7 +47,7 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deletePlayer(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deletePlayer(@PathVariable Long id){
         return playerService.deletePLayer(id);
     }
 }

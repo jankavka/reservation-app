@@ -4,11 +4,11 @@ import cz.reservation.dto.CoachDto;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/coach")
@@ -37,7 +37,7 @@ public class CoachController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteCoach(@PathVariable Long id){
+    public ResponseEntity<Map<String,String>> deleteCoach(@PathVariable Long id){
         return coachService.deleteCoach(id);
     }
 

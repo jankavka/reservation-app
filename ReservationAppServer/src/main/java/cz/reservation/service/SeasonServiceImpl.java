@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SeasonServiceImpl implements SeasonService {
@@ -31,13 +32,14 @@ public class SeasonServiceImpl implements SeasonService {
     @Override
     @Transactional
     public ResponseEntity<SeasonDto> createSeason(SeasonDto seasonDto) {
-        if (seasonDto != null) {
+        if (seasonDto == null) {
+            throw new IllegalArgumentException("Season must not be null");
+
+        } else {
             SeasonEntity savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(seasonMapper.toDto(savedEntity));
-        } else {
-            throw new IllegalArgumentException("Season must not be null");
         }
     }
 
@@ -57,6 +59,7 @@ public class SeasonServiceImpl implements SeasonService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id) {
         if (seasonRepository.existsById(id)) {
             SeasonEntity entityToSave = seasonMapper.toEntity(seasonDto);
@@ -70,10 +73,13 @@ public class SeasonServiceImpl implements SeasonService {
     }
 
     @Override
-    public ResponseEntity<HttpStatus> deleteSeason(Long id) {
+    @Transactional
+    public ResponseEntity<Map<String, String>> deleteSeason(Long id) {
         if (seasonRepository.existsById(id)) {
             seasonRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(Map.of("message", "Season with id " + " was deleted"));
         } else {
             throw new EntityNotFoundException("Season to delete not found");
         }
