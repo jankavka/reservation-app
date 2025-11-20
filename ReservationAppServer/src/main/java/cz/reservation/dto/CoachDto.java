@@ -15,8 +15,8 @@ public record CoachDto(
         String bio,
 
         @NotBlank(message = "This field can not be blank")
-        String certification,
+        String certification
 
-        List<GroupDto> groups
+        //List<GroupDto> groups
 ) {
 }

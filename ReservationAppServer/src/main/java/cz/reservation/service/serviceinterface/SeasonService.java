@@ -1,10 +1,10 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.SeasonDto;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SeasonService {
 
@@ -16,5 +16,5 @@ public interface SeasonService {
 
     ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id);
 
-    ResponseEntity<HttpStatus> deleteSeason(Long id);
+    ResponseEntity<Map<String, String>> deleteSeason(Long id);
 }

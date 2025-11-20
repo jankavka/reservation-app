@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
@@ -39,7 +40,10 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     @Override
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
-        if (invoiceSummaryDto != null) {
+        if (invoiceSummaryDto == null) {
+            throw new IllegalArgumentException("Invoice must not be null");
+
+        } else {
             InvoiceSummaryEntity entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
             entityToSave.setGeneratedAt(new Date());
             setForeignKeys(entityToSave, invoiceSummaryDto);
@@ -48,8 +52,6 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(invoiceSummaryMapper.toDto(savedEntity));
-        } else {
-            throw new IllegalArgumentException("Invoice must not be null");
         }
     }
 
@@ -103,10 +105,14 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deleteSummary(Long id) {
+    public ResponseEntity<Map<String, String>> deleteSummary(Long id) {
         if (invoiceSummaryRepository.existsById(id)) {
             invoiceSummaryRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+
+            Map<String, String> responseMessage = Map.of(
+                    "message", "Invoice summary with id " + id + " was deleted");
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         } else {
             throw new EntityNotFoundException("Invoice summary not found");
         }

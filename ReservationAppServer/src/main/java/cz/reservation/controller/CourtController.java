@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/court")
@@ -37,7 +38,7 @@ public class CourtController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteCourt(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deleteCourt(@PathVariable Long id){
         return courtService.deleteCourt(id);
     }
 

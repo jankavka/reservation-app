@@ -14,7 +14,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -45,8 +45,6 @@ public class UserServiceImpl implements UserService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final PlayerRepository playerRepository;
-
     private final JwtService jwtService;
 
 
@@ -57,7 +55,6 @@ public class UserServiceImpl implements UserService {
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            PlayerRepository playerRepository,
             JwtService jwtService
 
     ) {
@@ -65,7 +62,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.playerRepository = playerRepository;
         this.jwtService = jwtService;
     }
 
@@ -148,10 +144,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deleteUser(Long id) {
+    public ResponseEntity<Map<String, String>> deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(Map.of("message", "User with id " + id + " was deleted"));
         } else {
             throw new EntityNotFoundException("User not found");
         }

@@ -1,10 +1,10 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.PlayerDto;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PlayerService {
 
@@ -16,5 +16,7 @@ public interface PlayerService {
 
     ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id);
 
-    ResponseEntity<HttpStatus> deletePLayer(Long id);
+    ResponseEntity<Map<String, String>> deletePLayer(Long id);
+
+    ResponseEntity<List<PlayerDto>> getPlayersByParentId(Long id);
 }

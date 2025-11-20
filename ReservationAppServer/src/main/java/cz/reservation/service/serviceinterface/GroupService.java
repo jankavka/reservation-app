@@ -1,10 +1,10 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.GroupDto;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GroupService {
 
@@ -16,5 +16,5 @@ public interface GroupService {
 
     ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id);
 
-    ResponseEntity<HttpStatus> deleteGroup(Long id);
+    ResponseEntity<Map<String, String>> deleteGroup(Long id);
 }

@@ -37,19 +37,22 @@ public class UserEntity implements UserDetails {
     private String fullName;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "users"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PlayerEntity> players = new ArrayList<>();
 
     @Column
     private Date createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceSummaryEntity> invoices = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    //@PrimaryKeyJoinColumn
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private CoachEntity coach;
 
 

@@ -14,7 +14,7 @@
 
     </changeSet>
 
-    <changeSet id="3" author="john">
+    <!--<changeSet id="2" author="john_1">
         <addForeignKeyConstraint
             baseTableName="players"
             baseColumnNames="parent_id"
@@ -22,6 +22,6 @@
             referencedColumnNames="id"
             constraintName="fk_player_parent"
             onDelete="CASCADE"/>
-    </changeSet>
+    </changeSet>-->
 
 </databaseChangeLog>

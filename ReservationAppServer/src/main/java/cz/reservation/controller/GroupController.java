@@ -4,11 +4,11 @@ import cz.reservation.dto.GroupDto;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/group")
@@ -45,7 +45,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteGroup(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deleteGroup(@PathVariable Long id){
         return groupService.deleteGroup(id);
     }
 }

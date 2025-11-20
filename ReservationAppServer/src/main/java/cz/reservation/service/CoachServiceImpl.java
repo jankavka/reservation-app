@@ -6,16 +6,21 @@ import cz.reservation.dto.mapper.CoachMapper;
 import cz.reservation.entity.CoachEntity;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.CoachRepository;
+import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.NonUniqueObjectException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 @Service
 public class CoachServiceImpl implements CoachService {
@@ -26,21 +31,27 @@ public class CoachServiceImpl implements CoachService {
 
     private final UserRepository userRepository;
 
+    private final GroupRepository groupRepository;
+
     @Autowired
     public CoachServiceImpl(
             CoachMapper coachMapper,
             CoachRepository coachRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            GroupRepository groupRepository) {
         this.coachMapper = coachMapper;
         this.coachRepository = coachRepository;
         this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
     }
 
 
     @Override
     @Transactional
-    public ResponseEntity<CoachDto> createCoach(CoachDto coachDto) {
-        if (coachDto != null) {
+    public ResponseEntity<CoachDto> createCoach(CoachDto coachDto) throws NonUniqueObjectException {
+        if (coachDto == null) {
+            throw new IllegalArgumentException("Coach must not be null");
+        } else {
             CoachEntity entityToSave = coachMapper.toEntity(coachDto);
             entityToSave.setUser(userRepository.getReferenceById(coachDto.user().id()));
             entityToSave.getUser().getRoles().add(Role.COACH);
@@ -49,8 +60,6 @@ public class CoachServiceImpl implements CoachService {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(coachMapper.toDto(savedEntity));
-        } else {
-            throw new IllegalArgumentException("Coach must not be null");
         }
     }
 
@@ -74,14 +83,34 @@ public class CoachServiceImpl implements CoachService {
                         .toList());
     }
 
+    /**
+     * Method deletes coach from database while related user and group persists. Coach entity
+     * is set to null in every related group.
+     * @param id of coach entity which will be deleted
+     * @return ResponseEntity with status code 200
+     */
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> deleteCoach(Long id) {
+    public ResponseEntity<Map<String, String>> deleteCoach(Long id) {
         if (coachRepository.existsById(id)) {
-            UserEntity relatedUser = userRepository.getReferenceById(id);
+
+            //reference of entity which will be deleted
+            CoachEntity entityToDelete = coachRepository.getReferenceById(id);
+            //related user
+            UserEntity relatedUser = entityToDelete.getUser();
+            //removes role from related eser
             relatedUser.getRoles().remove(Role.COACH);
+            //removes coach from related groups
+            groupRepository.findByCoachId(id).forEach(groupEntity -> groupEntity.setCoach(null));
+            //deletes coach itself
             coachRepository.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+
+
+            // Message to return
+            Map<String, String> responseMessage = new HashMap<>();
+            responseMessage.put("message", "Coach with id " + id + " deleted");
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         } else {
             throw new EntityNotFoundException("Coach not found");
         }
