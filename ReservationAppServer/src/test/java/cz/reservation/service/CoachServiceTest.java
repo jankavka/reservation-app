@@ -8,6 +8,7 @@ import cz.reservation.entity.CoachEntity;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -141,6 +142,17 @@ class CoachServiceTest {
         var result = coachService.getCoach(1L);
 
         assertEquals(ResponseEntity.status(200).body(coachDto), result);
+        verify(coachRepository).findById(1L);
+        verifyNoMoreInteractions(coachMapper);
+        verifyNoMoreInteractions(coachRepository);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundException() {
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> coachService.getCoach(99L));
+        assertInstanceOf(EntityNotFoundException.class, exception);
     }
 
     @Test
@@ -150,7 +162,16 @@ class CoachServiceTest {
         var firstCoachDto = new CoachDto(1L, new UserDto(
                 1L, "a@b.com", "N", roles, date), "B", "C");
         var firstCoachEntity = new CoachEntity(1L, new UserEntity(
-                1L, "a@b.com", null, "M", roles, null, date, null, null), "B", "C", null);
+                1L,
+                "a@b.com",
+                null,
+                "M", roles,
+                null, date,
+                null,
+                null),
+                "B",
+                "C",
+                null);
         var coachesDto = List.of(firstCoachDto);
         var coachesEntities = List.of(firstCoachEntity);
 
@@ -165,5 +186,24 @@ class CoachServiceTest {
         verify(coachRepository).findAll();
         verifyNoMoreInteractions(coachRepository);
         verifyNoMoreInteractions(coachMapper);
+    }
+
+    @Test
+    void shouldReturnEmptyListNoException(){
+        when(coachRepository.findAll()).thenReturn(List.of());
+
+        var result = coachService.getAllCoaches();
+
+        assertEquals(ResponseEntity.ok(List.of()), result);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundExceptionWhileDeletingCoach(){
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> coachService.deleteCoach(99L));
+
+        assertEquals("Coach not found", exception.getMessage());
+
     }
 }
