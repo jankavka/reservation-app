@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers() {
-        List<UserEntity> userEntities = userRepository.findAll();
+        var userEntities = userRepository.findAll();
         if (userEntities.isEmpty()) {
             log.warn("There are no users in database");
             return List.of();
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("User must not be null");
         }
         log.info("New user: {}", registrationRequestDto);
-        UserEntity entityToSave = new UserEntity();
+        var entityToSave = new UserEntity();
         entityToSave.setEmail(registrationRequestDto.email());
         entityToSave.setFullName(registrationRequestDto.fullName());
         entityToSave.setRoles(registrationRequestDto.roles());
@@ -113,14 +113,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO) {
-        Authentication authentication = authenticationManager.authenticate(
+        var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequestDTO.username(),
                         authRequestDTO.password())
         );
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(authRequestDTO.username());
-            LoginResponseDto responseDto = new LoginResponseDto(
+            var token = jwtService.generateToken(authRequestDTO.username());
+            var responseDto = new LoginResponseDto(
                     token,
                     jwtService.getJwtExpiration());
             return ResponseEntity.ok(responseDto);
@@ -132,11 +132,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity<User> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Current user: {}", authentication.getPrincipal());
 
-        User currentUser = (User) authentication.getPrincipal();
+        var currentUser = (User) authentication.getPrincipal();
 
         return ResponseEntity.ok(currentUser);
 
@@ -159,12 +159,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<UserEntity> userEntity = userRepository.findByEmail(username);
+        var userEntity = userRepository.findByEmail(username);
 
         if (userEntity.isEmpty()) {
             throw new UsernameNotFoundException("User not found with email: " + username);
         }
-        UserEntity user = userEntity.get();
+        var user = userEntity.get();
         return new User(user.getEmail(), user.getPassword(), user.getAuthorities());
 
     }

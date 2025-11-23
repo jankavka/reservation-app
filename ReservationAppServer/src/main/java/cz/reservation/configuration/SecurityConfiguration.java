@@ -41,7 +41,8 @@ public class SecurityConfiguration {
 //                        .requestMatchers("/auth/admin/**").hasAnyAuthority("ADMIN")
 //
 //                        .anyRequest().authenticated()
-                        .requestMatchers("/**").permitAll()
+
+                                .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

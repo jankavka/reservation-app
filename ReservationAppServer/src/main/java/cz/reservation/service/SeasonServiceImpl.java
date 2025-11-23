@@ -36,7 +36,7 @@ public class SeasonServiceImpl implements SeasonService {
             throw new IllegalArgumentException("Season must not be null");
 
         } else {
-            SeasonEntity savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
+            var savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(seasonMapper.toDto(savedEntity));
@@ -62,9 +62,9 @@ public class SeasonServiceImpl implements SeasonService {
     @Transactional
     public ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id) {
         if (seasonRepository.existsById(id)) {
-            SeasonEntity entityToSave = seasonMapper.toEntity(seasonDto);
+            var entityToSave = seasonMapper.toEntity(seasonDto);
             entityToSave.setId(id);
-            SeasonEntity savedEntity = seasonRepository.save(entityToSave);
+            var savedEntity = seasonRepository.save(entityToSave);
             return ResponseEntity
                     .ok(seasonMapper.toDto(savedEntity));
         } else {

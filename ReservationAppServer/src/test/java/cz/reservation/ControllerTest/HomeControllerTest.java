@@ -2,40 +2,34 @@ package cz.reservation.ControllerTest;
 
 import cz.reservation.controller.HomeController;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//FIX!!! this is not good use
 @WebMvcTest(HomeController.class)
-@RunWith(SpringRunner.class)
+@AutoConfigureMockMvc(addFilters = false)
 class HomeControllerTest {
 
-    @Mock
-    HomeController homeController;
 
     @Autowired
     MockMvc mockMvc;
 
     @Test
-    void getMethodTest() {
+    void getMethodTest() throws Exception {
 
-        // default behavior
-        when(homeController.show()).thenReturn("OK");
-
-        //calling method
-        String result = homeController.show();
-
-        //assertation
-        assertEquals("OK", result);
-
-
+        mockMvc.perform(get("/"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("OK")));
 
 
 

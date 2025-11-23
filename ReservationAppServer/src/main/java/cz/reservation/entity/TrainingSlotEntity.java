@@ -48,6 +48,5 @@ public class TrainingSlotEntity {
     private String currency;
 
     @OneToOne(mappedBy = "trainingSlot")
-    @PrimaryKeyJoinColumn
     private WeatherNotesEntity weatherNotes;
 }

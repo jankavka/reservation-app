@@ -5,8 +5,10 @@ import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.CoachMapper;
 import cz.reservation.entity.CoachEntity;
+import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.CoachRepository;
+import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,9 @@ class CoachServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    GroupRepository groupRepository;
 
     @Mock
     CoachMapper coachMapper;
@@ -199,11 +204,83 @@ class CoachServiceTest {
 
     @Test
     void shouldThrowEntityNotFoundExceptionWhileDeletingCoach(){
-        EntityNotFoundException exception = assertThrows(
+        var exception = assertThrows(
                 EntityNotFoundException.class,
                 () -> coachService.deleteCoach(99L));
 
         assertEquals("Coach not found", exception.getMessage());
 
     }
+
+    @Test
+    void shouldReturnResponseEntityWithOkAndOkMessage(){
+        var id = 1L;
+        var roles = new HashSet<Role>();
+        roles.add(Role.ADMIN);
+        var relatedUserEntity = new UserEntity(
+                1L,
+                "a@b.com",
+                "123456",
+                "N",roles,
+                null,date,
+                null,
+                null);
+        var coachToDeleteEntity = new CoachEntity(
+                1L, relatedUserEntity,
+                "B",
+                "C",
+                null);
+        var groupEntity = List.of(new GroupEntity(
+                1L,
+                "G", coachToDeleteEntity,
+                null,
+                null,
+                4));
+
+        when(coachRepository.existsById(id)).thenReturn(true);
+        when(coachRepository.getReferenceById(id)).thenReturn(coachToDeleteEntity);
+        when(groupRepository.findByCoachId(1L)).thenReturn(groupEntity);
+
+
+        var result = coachService.deleteCoach(id);
+
+        assertEquals(ResponseEntity.ok(Map.of("message", "Coach with id 1 deleted")), result);
+    }
+
+    @Test
+    void ShouldThrowExceptionWhileEditingNoExistingCoach(){
+        var roles = new HashSet<Role>();
+        roles.add(Role.ADMIN);
+        var id = 99L;
+        var user = new UserDto(1L,"a@b.com","N", roles,date);
+        var coach = new CoachDto(99L,user,"B","C");
+        var exception = assertThrows(EntityNotFoundException.class, () -> coachService.editCoach(coach,id));
+
+        assertEquals("Coach not found", exception.getMessage());
+        assertInstanceOf(EntityNotFoundException.class,exception);
+
+    }
+
+    @Test
+    void shouldReturnResponseEntityWithEditCoachDto(){
+        var id = 1L;
+        var coachDtoToSave = new CoachDto(1L,null,"B","C");
+        var coachEntityToSave = new CoachEntity(1L, null, "B","C", List.of());
+        var savedEntity = new CoachEntity(1L,null,"B","C", List.of());
+        var savedDto = new CoachDto(1L, null,"B","C");
+        var returnedDto = new CoachDto(1L, null,"B","C");
+
+        when(coachRepository.existsById(id)).thenReturn(Boolean.TRUE);
+        when(coachMapper.toEntity(coachDtoToSave)).thenReturn(coachEntityToSave);
+        when(coachRepository.save(coachEntityToSave)).thenReturn(savedEntity);
+        when(coachMapper.toDto(savedEntity)).thenReturn(savedDto);
+
+        var result = coachService.editCoach(coachDtoToSave,id);
+
+        assertEquals(ResponseEntity.ok(returnedDto), result);
+        verify(coachRepository).save(coachEntityToSave);
+        verifyNoMoreInteractions(coachRepository);
+    }
+
+
 }

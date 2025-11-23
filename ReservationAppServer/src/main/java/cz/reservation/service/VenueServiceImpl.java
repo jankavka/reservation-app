@@ -36,8 +36,8 @@ public class VenueServiceImpl implements VenueService {
             throw new IllegalArgumentException("Venue must not be null");
         } else {
 
-            VenueEntity entityToSave = venueMapper.toEntity(venueDto);
-            VenueEntity savedEntity = venueRepository.save(entityToSave);
+            var entityToSave = venueMapper.toEntity(venueDto);
+            var savedEntity = venueRepository.save(entityToSave);
             return ResponseEntity.ok(venueMapper.toDto(savedEntity));
         }
     }
@@ -61,9 +61,9 @@ public class VenueServiceImpl implements VenueService {
             throw new EntityNotFoundException("Venue not found");
 
         } else {
-            VenueEntity entityToSave = venueMapper.toEntity(venueDto);
+            var entityToSave = venueMapper.toEntity(venueDto);
             entityToSave.setId(id);
-            VenueEntity savedEntity = venueRepository.save(entityToSave);
+            var savedEntity = venueRepository.save(entityToSave);
 
             return ResponseEntity.ok(venueMapper.toDto(savedEntity));
         }

@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,19 +28,15 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerMapper playerMapper;
 
-    private final UserService userService;
-
     private final UserRepository userRepository;
 
     @Autowired
     public PlayerServiceImpl(
             PlayerMapper playerMapper,
             PlayerRepository playerRepository,
-            UserService userService,
             UserRepository userRepository) {
         this.playerMapper = playerMapper;
         this.playerRepository = playerRepository;
-        this.userService = userService;
         this.userRepository = userRepository;
 
     }
@@ -62,15 +57,14 @@ public class PlayerServiceImpl implements PlayerService {
         if (playerDTO == null) {
             throw new IllegalArgumentException("Player can not be null");
         } else {
-            PlayerEntity entityToSave;
-            entityToSave = playerMapper.toEntity(playerDTO);
+            var entityToSave = playerMapper.toEntity(playerDTO);
             Long parentId = playerDTO.parent().id();
             userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
             entityToSave.setParent(userRepository
                     .findById(playerDTO.parent().id())
                     .orElseThrow(EntityNotFoundException::new));
 
-            PlayerEntity savedEntity = playerRepository.save(entityToSave);
+            var savedEntity = playerRepository.save(entityToSave);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -83,7 +77,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional(readOnly = true)
     public List<PlayerDto> getAllPlayers() {
-        List<PlayerEntity> playerEntities = playerRepository.findAll();
+        var playerEntities = playerRepository.findAll();
         if (playerEntities.isEmpty()) {
             log.warn("There are no players in database");
             return List.of();
@@ -96,9 +90,9 @@ public class PlayerServiceImpl implements PlayerService {
     @Transactional
     public ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id) {
         if (playerRepository.existsById(id)) {
-            PlayerEntity entityToEdit = playerMapper.toEntity(playerDto);
+            var entityToEdit = playerMapper.toEntity(playerDto);
             entityToEdit.setId(id);
-            PlayerEntity savedEntity = playerRepository.save(entityToEdit);
+            var savedEntity = playerRepository.save(entityToEdit);
 
             return ResponseEntity.ok(playerMapper.toDto(savedEntity));
 
