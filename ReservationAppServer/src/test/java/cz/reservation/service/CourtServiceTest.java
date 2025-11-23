@@ -1,0 +1,244 @@
+package cz.reservation.service;
+
+import cz.reservation.constant.Surface;
+import cz.reservation.dto.CourtDto;
+import cz.reservation.dto.mapper.CourtMapper;
+import cz.reservation.entity.CourtEntity;
+import cz.reservation.entity.repository.CourtRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class CourtServiceTest {
+
+    @Mock
+    CourtRepository courtRepository;
+
+    @Mock
+    CourtMapper courtMapper;
+
+    @InjectMocks
+    CourtServiceImpl courtService;
+
+
+    @Test
+    void shouldReturnResponseEntityWithCourtDto() {
+        var courtDtoToSave = new CourtDto(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE);
+        var courtEntityToSave = new CourtEntity(
+                1L, "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE,
+                null, null);
+        var savedCourtEntity = new CourtEntity(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE,
+                null,
+                null);
+        var returnedCourtDto = new CourtDto(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE);
+
+        when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
+        when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
+        when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
+
+        var result = courtService.createCourt(courtDtoToSave);
+
+        assertEquals(ResponseEntity.ok(returnedCourtDto), result);
+        verify(courtRepository).save(courtEntityToSave);
+        verifyNoMoreInteractions(courtRepository);
+
+    }
+
+    @Test
+    void shouldThrowNullPointerExceptionWhileDtoIsNull() {
+        var exception = assertThrows(
+                NullPointerException.class,
+                () -> courtService.createCourt(null));
+        assertInstanceOf(NullPointerException.class, exception);
+        assertEquals("Court must not be null", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldGetResponseEntityWithCourtDto() {
+        var id = 1L;
+        var courtEntity = new CourtEntity(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE,
+                null,
+                null);
+        var courtDto = new CourtDto(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE);
+
+        when(courtMapper.toDto(courtEntity)).thenReturn(courtDto);
+        when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
+
+        var result = courtService.getCourt(id);
+
+        assertEquals(ResponseEntity.ok(courtDto), result);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundExceptionWhileGettingCourt() {
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> courtService.getCourt(99L));
+
+        assertInstanceOf(EntityNotFoundException.class, exception);
+        assertEquals("Court not found", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldGetAllCourtDto() {
+        var court1dto = new CourtDto(1L, "N", Surface.CLAY, Boolean.FALSE, Boolean.TRUE);
+        var court2dto = new CourtDto(1L, "M", Surface.HARD, Boolean.TRUE, Boolean.TRUE);
+        var court1Entity = new CourtEntity(
+                1L,
+                "N",
+                Surface.CLAY,
+                Boolean.FALSE,
+                Boolean.TRUE,
+                null,
+                null);
+        var court2Entity = new CourtEntity(
+                2L, "M", Surface.HARD,
+                Boolean.TRUE,
+                Boolean.TRUE,
+                null,
+                null);
+
+        when(courtRepository.findAll()).thenReturn(List.of(court1Entity, court2Entity));
+        when(courtMapper.toDto(court1Entity)).thenReturn(court1dto);
+        when(courtMapper.toDto(court2Entity)).thenReturn(court2dto);
+
+        var result = courtService.getAllCourts();
+
+        assertEquals(ResponseEntity.ok(List.of(court1dto, court2dto)), result);
+        verify(courtRepository).findAll();
+        verifyNoMoreInteractions(courtRepository);
+
+    }
+
+    @Test
+    void shouldReturnResponseEntityAndOkMessage() {
+        var id = 1L;
+
+        when(courtRepository.existsById(id)).thenReturn(true);
+
+        var result = courtService.deleteCourt(id);
+
+        assertEquals(
+                ResponseEntity.ok(Map.of(
+                        "message",
+                        "Court with id " + id + " was deleted")),
+                result);
+
+        verify(courtRepository).existsById(id);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundExceptionWhileDeletingCourt() {
+        var id = 99L;
+        var exception = assertThrows(EntityNotFoundException.class, () -> courtService.deleteCourt(id));
+
+        assertInstanceOf(EntityNotFoundException.class, exception);
+        assertEquals("Court with id " + id + " not found", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldReturnResponseEntityWithHttpStatusWhileEditing() {
+        var id = 1L;
+        var dtoToSave = new CourtDto(
+                1L,
+                "N",
+                Surface.HARD,
+                Boolean.TRUE,
+                Boolean.TRUE);
+        var entityToSave = new CourtEntity(
+                1L,
+                "N",
+                Surface.HARD,
+                Boolean.TRUE,
+                Boolean.TRUE,
+                null,
+                null);
+        var savedEntity = new CourtEntity(
+                1L,
+                "N",
+                Surface.HARD,
+                Boolean.TRUE,
+                Boolean.TRUE,
+                null,
+                null
+        );
+
+        when(courtRepository.existsById(id)).thenReturn(true);
+        when(courtMapper.toEntity(dtoToSave)).thenReturn(entityToSave);
+        when(courtRepository.save(entityToSave)).thenReturn(savedEntity);
+
+        var result = courtService.editCourt(dtoToSave, id);
+
+        assertEquals(ResponseEntity.ok(HttpStatus.OK), result);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundWhileEditing() {
+        var id = 99L;
+        var dtoToSave = new CourtDto(
+                id,
+                "N",
+                Surface.HARD,
+                Boolean.TRUE,
+                Boolean.TRUE);
+        var exception = assertThrows(EntityNotFoundException.class, () -> courtService.editCourt(dtoToSave, id));
+
+        assertInstanceOf(EntityNotFoundException.class, exception);
+        assertEquals("Entity with id " + id + "not found", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhileEditing(){
+        var id = 99L;
+        var exception = assertThrows(IllegalArgumentException.class, () -> courtService.editCourt(null, id));
+
+        assertInstanceOf(IllegalArgumentException.class, exception);
+        assertEquals("Court must not be null", exception.getMessage());
+    }
+
+
+}

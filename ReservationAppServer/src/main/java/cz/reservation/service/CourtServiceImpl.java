@@ -2,11 +2,9 @@ package cz.reservation.service;
 
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtMapper;
-import cz.reservation.entity.CourtEntity;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ public class CourtServiceImpl implements CourtService {
 
     private final CourtMapper courtMapper;
 
-    @Autowired
     public CourtServiceImpl(CourtRepository courtRepository, CourtMapper courtMapper) {
         this.courtMapper = courtMapper;
         this.courtRepository = courtRepository;
@@ -34,10 +31,10 @@ public class CourtServiceImpl implements CourtService {
     @Transactional
     public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) throws NullPointerException {
         if (courtDto == null) {
-            throw new NullPointerException("Internal server error. Court must not be null");
+            throw new NullPointerException("Court must not be null");
 
         } else {
-            CourtEntity savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
+            var savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
             return ResponseEntity.ok(courtMapper.toDto(savedEntity));
 
         }
@@ -48,7 +45,7 @@ public class CourtServiceImpl implements CourtService {
     public ResponseEntity<CourtDto> getCourt(Long id) throws EntityNotFoundException {
         return ResponseEntity.ok(courtMapper.toDto(courtRepository
                 .findById(id)
-                .orElseThrow(EntityNotFoundException::new)));
+                .orElseThrow(() -> new EntityNotFoundException("Court not found"))));
     }
 
     @Override
@@ -62,15 +59,15 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteCourt(Long id) throws EntityNotFoundException, IllegalArgumentException {
-        if (courtRepository.existsById(id)) {
+        if (!courtRepository.existsById(id)) {
+            throw new EntityNotFoundException("Court with id " + id + " not found");
+        } else {
             courtRepository.deleteById(id);
 
-            Map<String, String> responseMessage = new HashMap<>();
+            var responseMessage = new HashMap<String, String>();
             responseMessage.put("message", "Court with id " + id + " was deleted");
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
-        } else {
-            throw new EntityNotFoundException("Entity with id " + id + " not found");
         }
 
 
@@ -79,13 +76,15 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional
     public ResponseEntity<HttpStatus> editCourt(CourtDto courtDto, Long id) {
-        if (courtRepository.existsById(id) && courtDto != null) {
-            CourtEntity editedEntityToSave = courtMapper.toEntity(courtDto);
+        if (courtDto == null) {
+            throw new IllegalArgumentException("Court must not be null");
+        } else if (!courtRepository.existsById(id)) {
+            throw new EntityNotFoundException("Entity with id " + id + "not found");
+        } else {
+            var editedEntityToSave = courtMapper.toEntity(courtDto);
             editedEntityToSave.setId(id);
             courtRepository.save(editedEntityToSave);
             return ResponseEntity.ok(HttpStatus.OK);
-        } else {
-            throw new EntityNotFoundException("Entity with id " + id + "not found");
         }
 
 

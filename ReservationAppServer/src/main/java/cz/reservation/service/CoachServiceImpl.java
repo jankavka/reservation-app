@@ -52,11 +52,11 @@ public class CoachServiceImpl implements CoachService {
         if (coachDto == null) {
             throw new IllegalArgumentException("Coach must not be null");
         } else {
-            CoachEntity entityToSave = coachMapper.toEntity(coachDto);
+            var entityToSave = coachMapper.toEntity(coachDto);
             entityToSave.setUser(userRepository.getReferenceById(coachDto.user().id()));
             entityToSave.getUser().getRoles().add(Role.COACH);
 
-            CoachEntity savedEntity = coachRepository.save(entityToSave);
+            var savedEntity = coachRepository.save(entityToSave);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(coachMapper.toDto(savedEntity));
@@ -95,9 +95,9 @@ public class CoachServiceImpl implements CoachService {
         if (coachRepository.existsById(id)) {
 
             //reference of entity which will be deleted
-            CoachEntity entityToDelete = coachRepository.getReferenceById(id);
+            var entityToDelete = coachRepository.getReferenceById(id);
             //related user
-            UserEntity relatedUser = entityToDelete.getUser();
+            var relatedUser = entityToDelete.getUser();
             //removes role from related eser
             relatedUser.getRoles().remove(Role.COACH);
             //removes coach from related groups
@@ -107,7 +107,7 @@ public class CoachServiceImpl implements CoachService {
 
 
             // Message to return
-            Map<String, String> responseMessage = new HashMap<>();
+            var responseMessage = new HashMap<String, String>();
             responseMessage.put("message", "Coach with id " + id + " deleted");
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
@@ -120,10 +120,10 @@ public class CoachServiceImpl implements CoachService {
     @Transactional
     public ResponseEntity<CoachDto> editCoach(CoachDto coachDto, Long id) {
         if (coachRepository.existsById(id)) {
-            CoachEntity entityToSave = coachMapper.toEntity(coachDto);
+            var entityToSave = coachMapper.toEntity(coachDto);
             entityToSave.setId(id);
-            coachRepository.save(entityToSave);
-            return ResponseEntity.ok(coachMapper.toDto(entityToSave));
+            var savedEntity = coachRepository.save(entityToSave);
+            return ResponseEntity.ok(coachMapper.toDto(savedEntity));
         } else {
             throw new EntityNotFoundException("Coach not found");
         }

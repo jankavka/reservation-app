@@ -47,7 +47,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         if (enrollmentDto == null) {
             throw new IllegalArgumentException("Enrollment must not be null");
         } else {
-            EnrollmentEntity entityToSave = enrollmentMapper.toEntity(enrollmentDto);
+            var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
             setForeignKeys(entityToSave, enrollmentDto);
             entityToSave.setCreatedAt(new Date());
             entityToSave.setState(EnrollmentState.WAITLIST);
@@ -91,7 +91,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         } else if (id == null) {
             throw new IllegalArgumentException("Id must not be null");
         } else {
-            EnrollmentEntity entityToSave = enrollmentMapper.toEntity(enrollmentDto);
+            var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
             entityToSave.setId(id);
             EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
 

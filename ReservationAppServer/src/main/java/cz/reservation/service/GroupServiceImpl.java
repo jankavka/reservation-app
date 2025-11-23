@@ -53,7 +53,7 @@ public class GroupServiceImpl implements GroupService {
         } else {
             GroupEntity entityToSave = groupMapper.toEntity(groupDto);
             setForeignKeys(entityToSave, groupDto);
-            GroupEntity savedEntity = groupRepository.save(entityToSave);
+            var savedEntity = groupRepository.save(entityToSave);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(groupMapper.toDto(savedEntity));
@@ -63,7 +63,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<GroupDto> getGroup(Long id) {
-        GroupEntity entity = groupRepository
+        var entity = groupRepository
                 .findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -84,9 +84,9 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     public ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id) {
         if (groupRepository.existsById(id)) {
-            GroupEntity entityToSave = groupMapper.toEntity(groupDto);
+            var entityToSave = groupMapper.toEntity(groupDto);
             setForeignKeys(entityToSave, groupDto);
-            GroupEntity savedEntity = groupRepository.save(entityToSave);
+            var savedEntity = groupRepository.save(entityToSave);
             return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(savedEntity));
         } else {
             throw new EntityNotFoundException("Group doesn't exist.");
@@ -99,7 +99,7 @@ public class GroupServiceImpl implements GroupService {
         if (groupRepository.existsById(id)) {
             groupRepository.deleteById(id);
 
-            Map<String, String> responseMessage = new HashMap<>();
+            var responseMessage = new HashMap<String, String>();
             responseMessage.put("message", "Group with id " + id + " was deleted");
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);

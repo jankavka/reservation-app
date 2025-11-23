@@ -44,7 +44,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
             throw new IllegalArgumentException("Invoice must not be null");
 
         } else {
-            InvoiceSummaryEntity entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
+            var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
             entityToSave.setGeneratedAt(new Date());
             setForeignKeys(entityToSave, invoiceSummaryDto);
             InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
@@ -69,10 +69,10 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id) {
         if (invoiceSummaryDto != null) {
-            InvoiceSummaryEntity entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
+            var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
             setForeignKeys(entityToSave, invoiceSummaryDto);
             entityToSave.setId(id);
-            InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
+            var savedEntity = invoiceSummaryRepository.save(entityToSave);
             return ResponseEntity.status(HttpStatus.OK).body(invoiceSummaryMapper.toDto(savedEntity));
         } else {
             throw new EntityNotFoundException("Invoice summary not found");
@@ -109,7 +109,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         if (invoiceSummaryRepository.existsById(id)) {
             invoiceSummaryRepository.deleteById(id);
 
-            Map<String, String> responseMessage = Map.of(
+            var responseMessage = Map.of(
                     "message", "Invoice summary with id " + id + " was deleted");
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
