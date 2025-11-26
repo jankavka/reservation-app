@@ -1,8 +1,8 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.VenueDto;
 import cz.reservation.dto.mapper.VenueMapper;
-import cz.reservation.entity.VenueEntity;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.serviceinterface.VenueService;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,12 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 @Service
 public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
 
     private final VenueMapper venueMapper;
+
+    private static final String SERVICE_NAME = "venue";
+
+    private static final String ID = "id";
 
     @Autowired
     public VenueServiceImpl(VenueRepository venueRepository, VenueMapper venueMapper) {
@@ -33,7 +39,7 @@ public class VenueServiceImpl implements VenueService {
     @Transactional
     public ResponseEntity<VenueDto> createVenue(VenueDto venueDto) {
         if (venueDto == null) {
-            throw new IllegalArgumentException("Venue must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
 
             var entityToSave = venueMapper.toEntity(venueDto);
@@ -45,20 +51,26 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<VenueDto> getVenue(Long id) {
-        return ResponseEntity.ok(venueMapper
-                .toDto(venueRepository
-                        .findById(id)
-                        .orElseThrow(EntityNotFoundException::new)));
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else {
+            return ResponseEntity.ok(venueMapper
+                    .toDto(venueRepository
+                            .findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        }
     }
 
     @Override
     @Transactional
     public ResponseEntity<VenueDto> editVenue(VenueDto venueDto, Long id) {
         if (venueDto == null) {
-            throw new IllegalArgumentException("Venue must not be null");
-
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
+        } else if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
         } else if (!venueRepository.existsById(id)) {
-            throw new EntityNotFoundException("Venue not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
 
         } else {
             var entityToSave = venueMapper.toEntity(venueDto);
@@ -84,13 +96,16 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteVenue(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        }
         if (!venueRepository.existsById(id)) {
-            throw new EntityNotFoundException("Venue not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             venueRepository.deleteById(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", "Venue with id " + id + " not found"));
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 }

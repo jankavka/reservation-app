@@ -1,12 +1,11 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.SeasonDto;
 import cz.reservation.dto.mapper.SeasonMapper;
-import cz.reservation.entity.SeasonEntity;
 import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.service.serviceinterface.SeasonService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 @Service
 public class SeasonServiceImpl implements SeasonService {
 
@@ -22,7 +23,10 @@ public class SeasonServiceImpl implements SeasonService {
 
     private final SeasonRepository seasonRepository;
 
-    @Autowired
+    private static final String SERVICE_NAME = "season";
+
+    private static final String ID = "id";
+
     public SeasonServiceImpl(SeasonMapper seasonMapper, SeasonRepository seasonRepository) {
         this.seasonMapper = seasonMapper;
         this.seasonRepository = seasonRepository;
@@ -33,7 +37,7 @@ public class SeasonServiceImpl implements SeasonService {
     @Transactional
     public ResponseEntity<SeasonDto> createSeason(SeasonDto seasonDto) {
         if (seasonDto == null) {
-            throw new IllegalArgumentException("Season must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
 
         } else {
             var savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
@@ -52,36 +56,46 @@ public class SeasonServiceImpl implements SeasonService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<SeasonDto> getSeason(Long id) {
-        return ResponseEntity
-                .ok(seasonMapper.toDto(seasonRepository
-                        .findById(id)
-                        .orElseThrow(EntityNotFoundException::new)));
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else {
+            return ResponseEntity
+                    .ok(seasonMapper.toDto(seasonRepository
+                            .findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        }
     }
 
     @Override
     @Transactional
     public ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id) {
-        if (seasonRepository.existsById(id)) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else if (!seasonRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+        } else {
             var entityToSave = seasonMapper.toEntity(seasonDto);
             entityToSave.setId(id);
             var savedEntity = seasonRepository.save(entityToSave);
             return ResponseEntity
                     .ok(seasonMapper.toDto(savedEntity));
-        } else {
-            throw new EntityNotFoundException("Season to edit not found");
         }
     }
 
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteSeason(Long id) {
-        if (seasonRepository.existsById(id)) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else if (!seasonRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+
+        } else {
             seasonRepository.deleteById(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", "Season with id " + " was deleted"));
-        } else {
-            throw new EntityNotFoundException("Season to delete not found");
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
 
     }

@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.dto.mapper.TrainingSlotMapper;
 import cz.reservation.entity.repository.CourtRepository;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 public class TrainingSlotServiceImpl implements TrainingSlotService {
 
     private final TrainingSlotRepository trainingSlotRepository;
@@ -23,6 +26,10 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     private final CourtRepository courtRepository;
 
     private final GroupRepository groupRepository;
+
+    private static final String SERVICE_NAME = "training slot";
+
+    private static final String ID = "id";
 
     public TrainingSlotServiceImpl(
             TrainingSlotMapper trainingSlotMapper,
@@ -41,7 +48,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     @Transactional
     public ResponseEntity<TrainingSlotDto> createTrainingSlot(TrainingSlotDto trainingSlotDto) {
         if (trainingSlotDto == null) {
-            throw new IllegalArgumentException("Training slot must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
             var entityToSave = trainingSlotMapper.toEntity(trainingSlotDto);
             entityToSave.setCourt(courtRepository.getReferenceById(trainingSlotDto.court().id()));
@@ -59,15 +66,16 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     @Transactional(readOnly = true)
     public ResponseEntity<TrainingSlotDto> getTrainingSlot(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw new IllegalArgumentException(notNullMessage(ID));
         } else if (!trainingSlotRepository.existsById(id)) {
-            throw new EntityNotFoundException("Training slot not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(trainingSlotMapper.toDto(trainingSlotRepository
                             .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException("Training slot not found"))));
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
         }
     }
 
@@ -84,10 +92,13 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        }
         if (trainingSlotDto == null) {
-            throw new IllegalArgumentException("Training slot must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else if (!trainingSlotRepository.existsById(id)) {
-            throw new EntityNotFoundException("Training slot with id " + id + " not exist");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToSave = trainingSlotMapper.toEntity(trainingSlotDto);
             entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
@@ -97,20 +108,23 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", "Training Slot with id " + id + " successfully edited"));
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteTrainingSlot(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        }
         if (!trainingSlotRepository.existsById(id)) {
-            throw new EntityNotFoundException("Training slot not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             trainingSlotRepository.deleteById(id);
 
             return ResponseEntity
-                    .ok(Map.of("message", "Training slot with id " + id + " successfully deleted"));
+                    .ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 }

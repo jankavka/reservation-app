@@ -1,25 +1,23 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
-import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
+import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @Slf4j
@@ -47,8 +46,11 @@ public class UserServiceImpl implements UserService {
 
     private final JwtService jwtService;
 
+    private static final String SERVICE_NAME = "user";
 
-    @Autowired
+    private static final String ID = "id";
+
+
     @Lazy
     public UserServiceImpl(
             UserMapper userMapper,
@@ -70,7 +72,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUser(Long id) {
         return userMapper.toDto(userRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found")));
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
     }
 
     @Transactional(readOnly = true)
@@ -91,7 +93,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto) {
 
         if (registrationRequestDto == null) {
-            throw new IllegalArgumentException("User must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         }
         log.info("New user: {}", registrationRequestDto);
         var entityToSave = new UserEntity();
@@ -149,7 +151,7 @@ public class UserServiceImpl implements UserService {
             userRepository.deleteById(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", "User with id " + id + " was deleted"));
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         } else {
             throw new EntityNotFoundException("User not found");
         }

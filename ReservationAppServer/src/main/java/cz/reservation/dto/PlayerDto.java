@@ -12,12 +12,13 @@ public record PlayerDto(
         @NotBlank(message = "Name must not be empty")
         String fullName,
 
-        @NotNull
+        @NotNull(message = "Birth date must not be null")
         Date birthDate,
 
-        @NotNull
+        @NotNull(message = "Handedness must not be null")
         Handedness handedness,
 
+        @NotNull(message = "Parent must not be null")
         UserDto parent,
 
         String note

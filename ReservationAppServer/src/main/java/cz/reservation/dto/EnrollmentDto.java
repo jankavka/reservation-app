@@ -15,6 +15,7 @@ public record EnrollmentDto(
         @NotNull(message = "Group must not be null")
         GroupDto group,
 
+        @NotNull(message = "State of enrollment must not be null")
         EnrollmentState state,
 
         Date createdAt

@@ -47,6 +47,6 @@ public class TrainingSlotEntity {
     @Column
     private String currency;
 
-    @OneToOne(mappedBy = "trainingSlot")
+    @OneToOne(mappedBy = "trainingSlot", cascade = CascadeType.ALL)
     private WeatherNotesEntity weatherNotes;
 }
