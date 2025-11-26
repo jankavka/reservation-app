@@ -1,6 +1,7 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EnrollmentState;
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.EnrollmentDto;
 import cz.reservation.dto.mapper.EnrollmentMapper;
 import cz.reservation.entity.EnrollmentEntity;
@@ -18,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
 
@@ -28,6 +31,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final GroupRepository groupRepository;
 
     private final PlayerRepository playerRepository;
+
+    private static final String SERVICE_NAME = "enrollment";
+
+    private static final String ID = "id";
 
     public EnrollmentServiceImpl(
             EnrollmentRepository enrollmentRepository,
@@ -45,7 +52,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     public ResponseEntity<EnrollmentDto> createEnrollment(EnrollmentDto enrollmentDto) {
         if (enrollmentDto == null) {
-            throw new IllegalArgumentException("Enrollment must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
             var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
             setForeignKeys(entityToSave, enrollmentDto);
@@ -62,12 +69,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<EnrollmentDto> getEnrollment(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else {
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(enrollmentMapper.toDto(enrollmentRepository
-                        .findById(id)
-                        .orElseThrow(EntityNotFoundException::new)));
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(enrollmentMapper.toDto(enrollmentRepository
+                            .findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        }
 
     }
 
@@ -87,9 +99,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     public ResponseEntity<EnrollmentDto> editEnrollment(EnrollmentDto enrollmentDto, Long id) {
         if (enrollmentDto == null) {
-            throw new IllegalArgumentException("Enrollment must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw new IllegalArgumentException(notNullMessage(ID));
         } else {
             var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
             entityToSave.setId(id);
@@ -104,13 +116,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteEnrollment(Long id) {
-        if(!enrollmentRepository.existsById(id)){
-            throw new EntityNotFoundException("Enrollment not found");
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else if (!enrollmentRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             enrollmentRepository.deleteById(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", "Enrollment with id " + id + " was deleted"));
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 

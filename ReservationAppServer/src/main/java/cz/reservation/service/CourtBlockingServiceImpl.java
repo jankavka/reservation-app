@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.dto.mapper.CourtBlockingMapper;
 import cz.reservation.entity.repository.CourtBlockingRepository;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 @Service
 public class CourtBlockingServiceImpl implements CourtBlockingService {
 
@@ -22,6 +25,10 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     private final CourtBlockingRepository courtBlockingRepository;
 
     private final CourtRepository courtRepository;
+
+    private static final String SERVICE_NAME = "blocking";
+
+    private static final String ID = "id";
 
     public CourtBlockingServiceImpl(
             CourtBlockingRepository courtBlockingRepository,
@@ -38,7 +45,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Transactional
     public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
         if (courtBlockingDto == null) {
-            throw new IllegalArgumentException("blocking must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
             var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
             entityToSave.setCourt(courtRepository.getReferenceById(courtBlockingDto.court().id()));
@@ -56,7 +63,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
                         .toDto(courtBlockingRepository
                                 .findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException(
-                                        "Court blocking with id " + id + " not found"))));
+                                        entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
 
     }
 
@@ -75,15 +82,15 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Transactional
     public ResponseEntity<Map<String, String>> editBlocking(CourtBlockingDto courtBlockingDto, Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw new IllegalArgumentException(notNullMessage(ID));
         } else if (!courtBlockingRepository.existsById(id)) {
-            throw new EntityNotFoundException("Court blocking with id " + id + " not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
         } else if (courtBlockingDto == null) {
-            throw new IllegalArgumentException("Court blocking must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
             var entityToUpdate = courtBlockingRepository.getReferenceById(id);
             courtBlockingMapper.updateEntity(entityToUpdate, courtBlockingDto);
-            return ResponseEntity.ok(Map.of("message", "Court blocking updated"));
+            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         }
     }
 
@@ -91,12 +98,12 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Transactional
     public ResponseEntity<Map<String, String>> deleteBlocking(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw new IllegalArgumentException(notNullMessage(ID));
         } else if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException("Court blocking with id " + id + " not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
         } else {
             courtBlockingRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", "Court blocking with id " + id + " deleted successfully"));
+            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME,id,EventStatus.DELETED)));
         }
     }
 }

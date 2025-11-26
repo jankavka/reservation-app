@@ -4,24 +4,25 @@ import cz.reservation.constant.Level;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record GroupDto(
         Long id,
 
-        @NotBlank
+        @NotBlank(message = "Name must not by null")
         String name,
 
-        @NotNull
+        @NotNull(message = "Level must not be null")
         Level level,
 
         @Nullable
         CoachDto coach,
 
-        @NotNull
-        //@Size(max = 4, min = 1, message = "capacity is minimal 1 and maximal 4")
+        @NotNull(message = "Capacity must not be null")
+        @Size(max = 4, min = 1, message = "capacity is minimal 1 and maximal 4")
         Integer capacity,
 
-        @NotNull
+        @NotNull(message = "Season must not be null")
         SeasonDto season
 ) {
 }

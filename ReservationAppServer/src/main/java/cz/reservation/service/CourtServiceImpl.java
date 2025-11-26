@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtMapper;
 import cz.reservation.entity.repository.CourtRepository;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cz.reservation.service.message.MessageHandling.*;
+
 @Service
 public class CourtServiceImpl implements CourtService {
 
@@ -23,6 +26,10 @@ public class CourtServiceImpl implements CourtService {
     private final CourtMapper courtMapper;
 
     private final VenueRepository venueRepository;
+
+    private static final String SERVICE_NAME = "court";
+
+    private static final String ID = "id";
 
     public CourtServiceImpl(
             CourtRepository courtRepository,
@@ -39,7 +46,7 @@ public class CourtServiceImpl implements CourtService {
     @Transactional
     public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) throws NullPointerException {
         if (courtDto == null) {
-            throw new NullPointerException("Court must not be null");
+            throw new NullPointerException(notNullMessage(ID));
 
         } else {
             var entityToSave = courtMapper.toEntity(courtDto);
@@ -53,9 +60,13 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<CourtDto> getCourt(Long id) throws EntityNotFoundException {
-        return ResponseEntity.ok(courtMapper.toDto(courtRepository
-                .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Court not found"))));
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else {
+            return ResponseEntity.ok(courtMapper.toDto(courtRepository
+                    .findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        }
     }
 
     @Override
@@ -68,14 +79,15 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteCourt(Long id) throws EntityNotFoundException, IllegalArgumentException {
+    public ResponseEntity<Map<String, String>> deleteCourt(Long id)
+            throws EntityNotFoundException, IllegalArgumentException {
         if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException("Court with id " + id + " not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             courtRepository.deleteById(id);
 
             var responseMessage = new HashMap<String, String>();
-            responseMessage.put("message", "Court with id " + id + " was deleted");
+            responseMessage.put("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED));
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         }
@@ -87,9 +99,9 @@ public class CourtServiceImpl implements CourtService {
     @Transactional
     public ResponseEntity<HttpStatus> editCourt(CourtDto courtDto, Long id) {
         if (courtDto == null) {
-            throw new IllegalArgumentException("Court must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException("Entity with id " + id + "not found");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
         } else {
             var editedEntityToSave = courtMapper.toEntity(courtDto);
             editedEntityToSave.setId(id);

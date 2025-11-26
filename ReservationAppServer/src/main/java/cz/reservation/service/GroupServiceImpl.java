@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.GroupDto;
 import cz.reservation.dto.mapper.GroupMapper;
 import cz.reservation.entity.GroupEntity;
@@ -9,7 +10,6 @@ import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @Slf4j
@@ -31,7 +33,10 @@ public class GroupServiceImpl implements GroupService {
 
     private final CoachRepository coachRepository;
 
-    @Autowired
+    private static final String SERVICE_NAME = "group";
+
+    private static final String ID = "id";
+
     public GroupServiceImpl(
             GroupRepository groupRepository,
             GroupMapper groupMapper,
@@ -48,7 +53,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     public ResponseEntity<GroupDto> createGroup(GroupDto groupDto) {
         if (groupDto == null) {
-            throw new IllegalArgumentException("Group must not be null");
+            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
 
         } else {
             GroupEntity entityToSave = groupMapper.toEntity(groupDto);
@@ -63,11 +68,16 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<GroupDto> getGroup(Long id) {
-        var entity = groupRepository
-                .findById(id)
-                .orElseThrow(EntityNotFoundException::new);
+        if (id == null) {
+            throw new IllegalArgumentException(notNullMessage(ID));
+        } else {
+            var entity = groupRepository
+                    .findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-        return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(entity));
+            return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(entity));
+        }
     }
 
     @Override
@@ -83,13 +93,15 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id) {
-        if (groupRepository.existsById(id)) {
+        if (id == null) {
+            throw new EntityNotFoundException(notNullMessage(ID));
+        } else if (groupRepository.existsById(id)) {
             var entityToSave = groupMapper.toEntity(groupDto);
             setForeignKeys(entityToSave, groupDto);
             var savedEntity = groupRepository.save(entityToSave);
             return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(savedEntity));
         } else {
-            throw new EntityNotFoundException("Group doesn't exist.");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
     }
 
@@ -100,11 +112,11 @@ public class GroupServiceImpl implements GroupService {
             groupRepository.deleteById(id);
 
             var responseMessage = new HashMap<String, String>();
-            responseMessage.put("message", "Group with id " + id + " was deleted");
+            responseMessage.put("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED));
 
             return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
         } else {
-            throw new EntityNotFoundException("Group doesn't exist.");
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
 
     }

@@ -1,14 +1,22 @@
 package cz.reservation.dto;
 
 import cz.reservation.constant.BookingStatus;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
 public record BookingDto(
         Long id,
+
+        @NotNull(message = "Training slot must not be null")
         TrainingSlotDto trainingSlot,
-        PlayerDto playerDto,
+
+        @NotNull(message = "Player must not be mull")
+        PlayerDto player,
+
+        @NotNull(message = "Status of booking must not be null")
         BookingStatus bookingStatus,
+
         Date bookedAt
 ) {
 }
