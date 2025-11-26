@@ -9,7 +9,7 @@ import java.util.Date;
 public record PlayerDto(
         Long id,
 
-        @NotBlank
+        @NotBlank(message = "Name must not be empty")
         String fullName,
 
         @NotNull

@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUser(Long id) {
         return userMapper.toDto(userRepository
                 .findById(id)
-                .orElseThrow(EntityNotFoundException::new));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found")));
     }
 
     @Transactional(readOnly = true)

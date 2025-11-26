@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtMapper;
 import cz.reservation.entity.repository.CourtRepository;
+import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,16 @@ public class CourtServiceImpl implements CourtService {
 
     private final CourtMapper courtMapper;
 
-    public CourtServiceImpl(CourtRepository courtRepository, CourtMapper courtMapper) {
+    private final VenueRepository venueRepository;
+
+    public CourtServiceImpl(
+            CourtRepository courtRepository,
+            CourtMapper courtMapper,
+            VenueRepository venueRepository
+    ) {
         this.courtMapper = courtMapper;
         this.courtRepository = courtRepository;
+        this.venueRepository = venueRepository;
     }
 
 
@@ -34,7 +42,9 @@ public class CourtServiceImpl implements CourtService {
             throw new NullPointerException("Court must not be null");
 
         } else {
-            var savedEntity = courtRepository.save(courtMapper.toEntity(courtDto));
+            var entityToSave = courtMapper.toEntity(courtDto);
+            entityToSave.setVenue(venueRepository.getReferenceById(courtDto.venue().id()));
+            var savedEntity = courtRepository.save(entityToSave);
             return ResponseEntity.ok(courtMapper.toDto(savedEntity));
 
         }
@@ -83,6 +93,7 @@ public class CourtServiceImpl implements CourtService {
         } else {
             var editedEntityToSave = courtMapper.toEntity(courtDto);
             editedEntityToSave.setId(id);
+            editedEntityToSave.setVenue(venueRepository.getReferenceById(courtDto.venue().id()));
             courtRepository.save(editedEntityToSave);
             return ResponseEntity.ok(HttpStatus.OK);
         }

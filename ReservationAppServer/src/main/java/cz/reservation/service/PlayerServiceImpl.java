@@ -59,16 +59,21 @@ public class PlayerServiceImpl implements PlayerService {
         } else {
             var entityToSave = playerMapper.toEntity(playerDTO);
             Long parentId = playerDTO.parent().id();
-            userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
-            entityToSave.setParent(userRepository
-                    .findById(playerDTO.parent().id())
-                    .orElseThrow(EntityNotFoundException::new));
+            if (userRepository.existsById(parentId)) {
+                userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
+                entityToSave.setParent(userRepository
+                        .findById(parentId)
+                        .orElseThrow());
 
-            var savedEntity = playerRepository.save(entityToSave);
+                var savedEntity = playerRepository.save(entityToSave);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(playerMapper.toDto(savedEntity));
+                return ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .body(playerMapper.toDto(savedEntity));
+            } else {
+                throw new EntityNotFoundException("User with id " + parentId + " not found");
+            }
+
 
         }
 
