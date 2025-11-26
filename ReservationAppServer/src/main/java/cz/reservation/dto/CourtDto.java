@@ -17,6 +17,9 @@ public record CourtDto(
         Boolean indoor,
 
         @NotNull(message = "Lightning must be chosen")
-        Boolean lighting
+        Boolean lighting,
+
+        @NotNull(message = "Venue must not be null")
+        VenueDto venue
 ) {
 }

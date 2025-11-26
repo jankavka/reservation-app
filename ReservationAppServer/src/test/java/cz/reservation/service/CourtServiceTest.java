@@ -2,9 +2,12 @@ package cz.reservation.service;
 
 import cz.reservation.constant.Surface;
 import cz.reservation.dto.CourtDto;
+import cz.reservation.dto.VenueDto;
 import cz.reservation.dto.mapper.CourtMapper;
 import cz.reservation.entity.CourtEntity;
+import cz.reservation.entity.VenueEntity;
 import cz.reservation.entity.repository.CourtRepository;
+import cz.reservation.entity.repository.VenueRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,24 +33,43 @@ class CourtServiceTest {
     @Mock
     CourtMapper courtMapper;
 
+    @Mock
+    VenueRepository venueRepository;
+
     @InjectMocks
     CourtServiceImpl courtService;
 
 
     @Test
     void shouldReturnResponseEntityWithCourtDto() {
+        var venue = new VenueEntity(1L,
+                "NAME",
+                "ADDRESS",
+                "123456789",
+                null);
+        var venueDto = new VenueDto(
+                1L,
+                "NAME",
+                "ADDRESS",
+                "123456789");
         var courtDtoToSave = new CourtDto(
                 1L,
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
-                Boolean.TRUE);
+                Boolean.TRUE,
+                new VenueDto(
+                        1L,
+                        "NAME",
+                        "ADDRESS",
+                        "123456789"));
         var courtEntityToSave = new CourtEntity(
                 1L, "N",
                 Surface.CLAY,
                 Boolean.FALSE,
                 Boolean.TRUE,
-                null, null);
+                null,
+                venue);
         var savedCourtEntity = new CourtEntity(
                 1L,
                 "N",
@@ -55,15 +77,17 @@ class CourtServiceTest {
                 Boolean.FALSE,
                 Boolean.TRUE,
                 null,
-                null);
+                venue);
         var returnedCourtDto = new CourtDto(
                 1L,
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
-                Boolean.TRUE);
+                Boolean.TRUE,
+                venueDto);
 
         when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
+        when(venueRepository.getReferenceById(venue.getId())).thenReturn(venue);
         when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
         when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
 
@@ -72,6 +96,7 @@ class CourtServiceTest {
         assertEquals(ResponseEntity.ok(returnedCourtDto), result);
         verify(courtRepository).save(courtEntityToSave);
         verifyNoMoreInteractions(courtRepository);
+        verify(venueRepository).getReferenceById(venue.getId());
 
     }
 
@@ -101,7 +126,8 @@ class CourtServiceTest {
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
-                Boolean.TRUE);
+                Boolean.TRUE,
+                null);
 
         when(courtMapper.toDto(courtEntity)).thenReturn(courtDto);
         when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
@@ -124,8 +150,8 @@ class CourtServiceTest {
 
     @Test
     void shouldGetAllCourtDto() {
-        var court1dto = new CourtDto(1L, "N", Surface.CLAY, Boolean.FALSE, Boolean.TRUE);
-        var court2dto = new CourtDto(1L, "M", Surface.HARD, Boolean.TRUE, Boolean.TRUE);
+        var court1dto = new CourtDto(1L, "N", Surface.CLAY, Boolean.FALSE, Boolean.TRUE, null);
+        var court2dto = new CourtDto(1L, "M", Surface.HARD, Boolean.TRUE, Boolean.TRUE, null);
         var court1Entity = new CourtEntity(
                 1L,
                 "N",
@@ -183,12 +209,18 @@ class CourtServiceTest {
     @Test
     void shouldReturnResponseEntityWithHttpStatusWhileEditing() {
         var id = 1L;
+        var venue = new VenueEntity(1L,
+                "NAME",
+                "ADDRESS",
+                "123456789",
+                null);
         var dtoToSave = new CourtDto(
                 1L,
                 "N",
                 Surface.HARD,
                 Boolean.TRUE,
-                Boolean.TRUE);
+                Boolean.TRUE,
+                new VenueDto(1L,"NAME","ADDRESS","123456789"));
         var entityToSave = new CourtEntity(
                 1L,
                 "N",
@@ -196,7 +228,7 @@ class CourtServiceTest {
                 Boolean.TRUE,
                 Boolean.TRUE,
                 null,
-                null);
+                venue);
         var savedEntity = new CourtEntity(
                 1L,
                 "N",
@@ -204,16 +236,19 @@ class CourtServiceTest {
                 Boolean.TRUE,
                 Boolean.TRUE,
                 null,
-                null
+                venue
         );
 
         when(courtRepository.existsById(id)).thenReturn(true);
         when(courtMapper.toEntity(dtoToSave)).thenReturn(entityToSave);
+        when(venueRepository.getReferenceById(venue.getId())).thenReturn(venue);
         when(courtRepository.save(entityToSave)).thenReturn(savedEntity);
 
         var result = courtService.editCourt(dtoToSave, id);
 
         assertEquals(ResponseEntity.ok(HttpStatus.OK), result);
+        verify(courtRepository).existsById(id);
+        verify(venueRepository).getReferenceById(venue.getId());
     }
 
     @Test
@@ -224,7 +259,8 @@ class CourtServiceTest {
                 "N",
                 Surface.HARD,
                 Boolean.TRUE,
-                Boolean.TRUE);
+                Boolean.TRUE,
+                null);
         var exception = assertThrows(EntityNotFoundException.class, () -> courtService.editCourt(dtoToSave, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
