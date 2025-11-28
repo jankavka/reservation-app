@@ -34,7 +34,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private static final String SERVICE_NAME = "enrollment";
 
-    private static final String ID = "id";
 
     public EnrollmentServiceImpl(
             EnrollmentRepository enrollmentRepository,
@@ -51,35 +50,30 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public ResponseEntity<EnrollmentDto> createEnrollment(EnrollmentDto enrollmentDto) {
-        if (enrollmentDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        } else {
-            var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
-            setForeignKeys(entityToSave, enrollmentDto);
-            entityToSave.setCreatedAt(new Date());
-            entityToSave.setState(EnrollmentState.WAITLIST);
-            EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(enrollmentMapper.toDto(savedEntity));
-        }
+        var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
+        setForeignKeys(entityToSave, enrollmentDto);
+        entityToSave.setCreatedAt(new Date());
+        entityToSave.setState(EnrollmentState.WAITLIST);
+        EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(enrollmentMapper.toDto(savedEntity));
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<EnrollmentDto> getEnrollment(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
 
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(enrollmentMapper.toDto(enrollmentRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(enrollmentMapper.toDto(enrollmentRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
 
     }
 
@@ -98,10 +92,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public ResponseEntity<EnrollmentDto> editEnrollment(EnrollmentDto enrollmentDto, Long id) {
-        if (enrollmentDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        } else if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
+        if (!enrollmentRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
             entityToSave.setId(id);
@@ -116,9 +108,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteEnrollment(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!enrollmentRepository.existsById(id)) {
+
+        if (!enrollmentRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             enrollmentRepository.deleteById(id);

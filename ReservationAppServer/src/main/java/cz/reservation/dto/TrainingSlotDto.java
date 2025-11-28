@@ -31,7 +31,7 @@ public record TrainingSlotDto(
 
         String price,
 
-        @NotBlank(message = "Curency must not be null")
+        @NotBlank(message = "Currency must not be null")
         String currency
 ) {
 }

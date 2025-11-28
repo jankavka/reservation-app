@@ -29,7 +29,7 @@ public class BookingEntity {
     @JoinColumn(name = "player_id")
     private PlayerEntity player;
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private AttendanceEntity attendance;
 

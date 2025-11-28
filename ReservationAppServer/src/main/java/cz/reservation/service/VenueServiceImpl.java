@@ -26,8 +26,6 @@ public class VenueServiceImpl implements VenueService {
 
     private static final String SERVICE_NAME = "venue";
 
-    private static final String ID = "id";
-
     @Autowired
     public VenueServiceImpl(VenueRepository venueRepository, VenueMapper venueMapper) {
         this.venueMapper = venueMapper;
@@ -38,38 +36,29 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional
     public ResponseEntity<VenueDto> createVenue(VenueDto venueDto) {
-        if (venueDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        } else {
 
-            var entityToSave = venueMapper.toEntity(venueDto);
-            var savedEntity = venueRepository.save(entityToSave);
-            return ResponseEntity.ok(venueMapper.toDto(savedEntity));
-        }
+        var entityToSave = venueMapper.toEntity(venueDto);
+        var savedEntity = venueRepository.save(entityToSave);
+        return ResponseEntity.ok(venueMapper.toDto(savedEntity));
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<VenueDto> getVenue(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
-            return ResponseEntity.ok(venueMapper
-                    .toDto(venueRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+
+        return ResponseEntity.ok(venueMapper
+                .toDto(venueRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
     }
 
     @Override
     @Transactional
     public ResponseEntity<VenueDto> editVenue(VenueDto venueDto, Long id) {
-        if (venueDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        } else if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!venueRepository.existsById(id)) {
+        if (!venueRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
 
         } else {
@@ -96,9 +85,6 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteVenue(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        }
         if (!venueRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {

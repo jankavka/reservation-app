@@ -35,8 +35,6 @@ public class GroupServiceImpl implements GroupService {
 
     private static final String SERVICE_NAME = "group";
 
-    private static final String ID = "id";
-
     public GroupServiceImpl(
             GroupRepository groupRepository,
             GroupMapper groupMapper,
@@ -52,32 +50,40 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public ResponseEntity<GroupDto> createGroup(GroupDto groupDto) {
-        if (groupDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
 
+        var entityToSave = groupMapper.toEntity(groupDto);
+        var seasonId = groupDto.season().id();
+        var coachId = groupDto.coach() == null ? null : groupDto.coach().id();
+
+        if (seasonRepository.existsById(seasonId)) {
+            if (coachId != null && coachRepository.existsById(coachId)) {
+                setForeignKeys(entityToSave, groupDto);
+            } else {
+                throw new EntityNotFoundException(entityNotFoundExceptionMessage("coach", coachId));
+            }
         } else {
-            GroupEntity entityToSave = groupMapper.toEntity(groupDto);
-            setForeignKeys(entityToSave, groupDto);
-            var savedEntity = groupRepository.save(entityToSave);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(groupMapper.toDto(savedEntity));
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("season", seasonId));
+
         }
+
+        var savedEntity = groupRepository.save(entityToSave);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(groupMapper.toDto(savedEntity));
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<GroupDto> getGroup(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
-            var entity = groupRepository
-                    .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-            return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(entity));
-        }
+        var entity = groupRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+        return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(entity));
+
     }
 
     @Override
@@ -93,9 +99,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id) {
-        if (id == null) {
-            throw new EntityNotFoundException(notNullMessage(ID));
-        } else if (groupRepository.existsById(id)) {
+        if (groupRepository.existsById(id)) {
             var entityToSave = groupMapper.toEntity(groupDto);
             setForeignKeys(entityToSave, groupDto);
             var savedEntity = groupRepository.save(entityToSave);
@@ -122,12 +126,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private void setForeignKeys(GroupEntity target, GroupDto source) {
-        try {
+        if (source.coach() != null) {
             target.setCoach(coachRepository.getReferenceById(source.coach().id()));
-            target.setSeason(seasonRepository.getReferenceById(source.season().id()));
-        } catch (NullPointerException e) {
-            log.warn("Coach id is null!");
         }
-
+        target.setSeason(seasonRepository.getReferenceById(source.season().id()));
     }
+
 }
+

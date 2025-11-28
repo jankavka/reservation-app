@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.UserDto;
@@ -25,6 +26,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static cz.reservation.service.message.MessageHandling.*;
 
 @ExtendWith(MockitoExtension.class)
 class CoachServiceTest {
@@ -93,6 +95,7 @@ class CoachServiceTest {
                 null);
 
         when(coachMapper.toEntity(coachToSaveDto)).thenReturn(coachToSaveEntity);
+        when(userRepository.existsById(relatedUserDto.id())).thenReturn(true);
         when(userRepository.getReferenceById(coachToSaveDto.user().id())).thenReturn(relatedUserEntity);
         when(coachRepository.save(coachToSaveEntity)).thenReturn(savedCoachEntity);
         when(coachMapper.toDto(savedCoachEntity)).thenReturn(savedCoachDto);
@@ -208,7 +211,7 @@ class CoachServiceTest {
                 EntityNotFoundException.class,
                 () -> coachService.deleteCoach(99L));
 
-        assertEquals("Coach not found", exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("coach", 99L), exception.getMessage());
 
     }
 
@@ -244,7 +247,8 @@ class CoachServiceTest {
 
         var result = coachService.deleteCoach(id);
 
-        assertEquals(ResponseEntity.ok(Map.of("message", "Coach with id 1 deleted")), result);
+        assertEquals(ResponseEntity
+                .ok(Map.of("message", successMessage("coach", 1L, EventStatus.DELETED))), result);
     }
 
     @Test
@@ -256,7 +260,7 @@ class CoachServiceTest {
         var coach = new CoachDto(99L,user,"B","C");
         var exception = assertThrows(EntityNotFoundException.class, () -> coachService.editCoach(coach,id));
 
-        assertEquals("Coach not found", exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("coach",99L), exception.getMessage());
         assertInstanceOf(EntityNotFoundException.class,exception);
 
     }

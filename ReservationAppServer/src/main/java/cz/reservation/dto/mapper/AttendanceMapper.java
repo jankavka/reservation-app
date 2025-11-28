@@ -3,6 +3,7 @@ package cz.reservation.dto.mapper;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.entity.AttendanceEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AttendanceMapper {
@@ -10,4 +11,6 @@ public interface AttendanceMapper {
     AttendanceEntity toEntity(AttendanceDto attendanceDto);
 
     AttendanceDto toDto(AttendanceEntity attendanceEntity);
+
+    void updateEntity(@MappingTarget AttendanceEntity target, AttendanceDto source);
 }

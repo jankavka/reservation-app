@@ -30,8 +30,6 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private static final String SERVICE_NAME = "invoice summary";
 
-    private static final String ID = "id";
-
     public InvoiceSummaryServiceImpl(
             InvoiceSummaryMapper invoiceSummaryMapper,
             InvoiceSummaryRepository invoiceSummaryRepository,
@@ -45,51 +43,41 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     @Override
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
-        if (invoiceSummaryDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
 
-        } else {
-            var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-            entityToSave.setGeneratedAt(new Date());
-            setForeignKeys(entityToSave, invoiceSummaryDto);
-            InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
+        var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
+        entityToSave.setGeneratedAt(new Date());
+        setForeignKeys(entityToSave, invoiceSummaryDto);
+        InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(invoiceSummaryMapper.toDto(savedEntity));
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(invoiceSummaryMapper.toDto(savedEntity));
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<InvoiceSummaryDto> getSummary(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(notNullMessage(SERVICE_NAME)));
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(invoiceSummaryMapper.toDto(invoiceSummaryRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(invoiceSummaryMapper.toDto(invoiceSummaryRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
     }
 
     @Override
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(notNullMessage(ID)));
 
-        } else if (invoiceSummaryDto == null) {
-            throw new EntityNotFoundException(notNullMessage(SERVICE_NAME));
-        } else {
-            var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-            setForeignKeys(entityToSave, invoiceSummaryDto);
-            entityToSave.setId(id);
-            var savedEntity = invoiceSummaryRepository.save(entityToSave);
-            return ResponseEntity.status(HttpStatus.OK).body(invoiceSummaryMapper.toDto(savedEntity));
-        }
+        var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
+        setForeignKeys(entityToSave, invoiceSummaryDto);
+        entityToSave.setId(id);
+        var savedEntity = invoiceSummaryRepository.save(entityToSave);
+        return ResponseEntity.status(HttpStatus.OK).body(invoiceSummaryMapper.toDto(savedEntity));
+
     }
 
     @Override
@@ -107,9 +95,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<List<InvoiceSummaryDto>> getAllSummariesByUser(Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException(notNullMessage("user " + ID));
-        }
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(invoiceSummaryRepository
@@ -122,9 +108,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteSummary(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!invoiceSummaryRepository.existsById(id)) {
+        if (!invoiceSummaryRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             invoiceSummaryRepository.deleteById(id);

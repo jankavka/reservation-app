@@ -25,8 +25,6 @@ public class SeasonServiceImpl implements SeasonService {
 
     private static final String SERVICE_NAME = "season";
 
-    private static final String ID = "id";
-
     public SeasonServiceImpl(SeasonMapper seasonMapper, SeasonRepository seasonRepository) {
         this.seasonMapper = seasonMapper;
         this.seasonRepository = seasonRepository;
@@ -36,15 +34,12 @@ public class SeasonServiceImpl implements SeasonService {
     @Override
     @Transactional
     public ResponseEntity<SeasonDto> createSeason(SeasonDto seasonDto) {
-        if (seasonDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
 
-        } else {
-            var savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(seasonMapper.toDto(savedEntity));
-        }
+        var savedEntity = seasonRepository.save(seasonMapper.toEntity(seasonDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(seasonMapper.toDto(savedEntity));
+
     }
 
     @Override
@@ -56,23 +51,19 @@ public class SeasonServiceImpl implements SeasonService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<SeasonDto> getSeason(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
-            return ResponseEntity
-                    .ok(seasonMapper.toDto(seasonRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+
+        return ResponseEntity
+                .ok(seasonMapper.toDto(seasonRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
     }
 
     @Override
     @Transactional
     public ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!seasonRepository.existsById(id)) {
+        if (!seasonRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToSave = seasonMapper.toEntity(seasonDto);
@@ -86,9 +77,7 @@ public class SeasonServiceImpl implements SeasonService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteSeason(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!seasonRepository.existsById(id)) {
+        if (!seasonRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
 
         } else {
