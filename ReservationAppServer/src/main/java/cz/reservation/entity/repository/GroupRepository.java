@@ -8,4 +8,6 @@ import java.util.List;
 public interface GroupRepository extends JpaRepository<GroupEntity, Long> {
 
     List<GroupEntity> findByCoachId(Long coachId);
+
+
 }

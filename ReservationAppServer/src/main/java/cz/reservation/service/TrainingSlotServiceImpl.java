@@ -49,8 +49,28 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     public ResponseEntity<TrainingSlotDto> createTrainingSlot(TrainingSlotDto trainingSlotDto) {
 
         var entityToSave = trainingSlotMapper.toEntity(trainingSlotDto);
-        entityToSave.setCourt(courtRepository.getReferenceById(trainingSlotDto.court().id()));
-        entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
+        var groupId = trainingSlotDto.group().id();
+        var courtId = trainingSlotDto.court().id();
+
+        //checking existing related group
+        if (groupRepository.existsById(groupId)) {
+            entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
+            //setting the same capacity as related group
+            entityToSave.setCapacity(entityToSave.getGroup().getCapacity());
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
+                    "group", trainingSlotDto.group().id()));
+        }
+        if (courtRepository.existsById(courtId)) {
+            entityToSave.setCourt(courtRepository.getReferenceById(courtId));
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
+        }
+
+
+
+
+
         var savedEntity = trainingSlotRepository.save(entityToSave);
 
         return ResponseEntity

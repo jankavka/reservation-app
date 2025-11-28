@@ -14,7 +14,6 @@ public record BookingDto(
         @NotNull(message = "Player must not be mull")
         PlayerDto player,
 
-        @NotNull(message = "Status of booking must not be null")
         BookingStatus bookingStatus,
 
         Date bookedAt

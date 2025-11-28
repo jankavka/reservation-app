@@ -8,13 +8,18 @@ import cz.reservation.entity.EnrollmentEntity;
 import cz.reservation.entity.repository.EnrollmentRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.PlayerRepository;
+import cz.reservation.service.exception.EnrollmentAlreadyCanceledException;
 import cz.reservation.service.serviceinterface.EnrollmentService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +59,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
         setForeignKeys(entityToSave, enrollmentDto);
         entityToSave.setCreatedAt(new Date());
-        entityToSave.setState(EnrollmentState.WAITLIST);
+        var relatedGroup = entityToSave.getGroup();
+        var countOfEnrolmentsInGroup = enrollmentRepository.countEnrollmentsByGroupId(relatedGroup.getId());
+        if (relatedGroup.getCapacity() > countOfEnrolmentsInGroup) {
+            entityToSave.setState(EnrollmentState.ACTIVE);
+        } else {
+            entityToSave.setState(EnrollmentState.WAITLIST);
+        }
+
         EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
+
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -111,11 +124,30 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         if (!enrollmentRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+        } else if (enrollmentRepository.getReferenceById(id).getState() == EnrollmentState.CANCELLED) {
+            throw new EnrollmentAlreadyCanceledException("Enrollment with id " + id + " already canceled");
         } else {
-            enrollmentRepository.deleteById(id);
+            //Current enrollment entity
+            var enrollmentForCancel = enrollmentRepository.getReferenceById(id);
+
+            //Canceling the enrollment
+            enrollmentForCancel.setState(EnrollmentState.CANCELLED);
+
+            //list with all enrollments
+            List<EnrollmentEntity> allEnrollments = enrollmentRepository.findAll();
+
+            //Finding the one with EnrollmentState.WAITLIST and lowest date of creation and
+            // setting up to EnrollmentState.ACTIVE
+            allEnrollments
+                    .stream()
+                    .filter(enrolment -> enrolment.getState() == EnrollmentState.WAITLIST)
+                    .min(Comparator.comparing(EnrollmentEntity::getCreatedAt))
+                    .orElseThrow()
+                    .setState(EnrollmentState.ACTIVE);
+
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
+                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.CANCELED)));
         }
     }
 
@@ -123,4 +155,22 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         target.setGroup(groupRepository.getReferenceById(source.group().id()));
         target.setPlayer(playerRepository.getReferenceById(source.player().id()));
     }
+
+    //Deletes all enrollments, older than month on the beginning of each month
+    @Scheduled(cron = "0 0 1 1 * ?", zone = "Europe/Prague")
+    public void deleteOldEnrollments() {
+        var allEnrollments = enrollmentRepository.findAll();
+
+        allEnrollments
+                .stream()
+                .filter(enrollment -> enrollment.getCreatedAt().before(Date.from(
+                        LocalDateTime
+                                .now()
+                                .minusMonths(1L)
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant())))
+                .forEach(enrollmentRepository::delete);
+    }
+
+
 }

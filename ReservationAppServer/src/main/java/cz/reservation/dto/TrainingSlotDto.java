@@ -22,8 +22,6 @@ public record TrainingSlotDto(
         @NotNull(message = "Ending date must not be null")
         Date endAt,
 
-        @NotNull(message = "Capacity must not be null")
-        @Size(min = 1, message = "Minimal capacity is 1")
         Integer capacity,
 
         @NotNull(message = "Status must not be null")

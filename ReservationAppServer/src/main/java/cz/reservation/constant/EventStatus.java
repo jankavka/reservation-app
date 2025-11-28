@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum EventStatus {
     DELETED("successfully deleted"),
     UPDATED("successfully updated"),
-    CREATED("successfully created");
+    CREATED("successfully created"),
+    CANCELED("successfully canceled");
 
     private final String code;
 

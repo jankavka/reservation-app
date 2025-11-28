@@ -2,6 +2,7 @@ package cz.reservation.dto;
 
 import cz.reservation.constant.Level;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,7 +20,7 @@ public record GroupDto(
         CoachDto coach,
 
         @NotNull(message = "Capacity must not be null")
-        @Size(max = 4, min = 1, message = "capacity is minimal 1 and maximal 4")
+        @Min(value = 1, message = "Minimal capacity is 1")
         Integer capacity,
 
         @NotNull(message = "Season must not be null")
