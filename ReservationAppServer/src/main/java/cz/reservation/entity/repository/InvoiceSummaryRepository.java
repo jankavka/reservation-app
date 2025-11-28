@@ -8,4 +8,6 @@ import java.util.List;
 public interface InvoiceSummaryRepository extends JpaRepository<InvoiceSummaryEntity, Long> {
 
     List<InvoiceSummaryEntity> findByUserId(Long id);
+
+
 }

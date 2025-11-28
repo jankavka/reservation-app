@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.BookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
@@ -51,9 +52,12 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BookingDto> createBooking(BookingDto bookingDto) {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
+        var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
         entityToSave.setBookedAt(new Date());
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
-        entityToSave.setTrainingSlot(trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id()));
+        entityToSave.setTrainingSlot(relatedTrainingSlot);
+        entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
+        entityToSave.setBookedAt(new Date());
         var savedEntity = bookingRepository.save(entityToSave);
 
         return ResponseEntity
