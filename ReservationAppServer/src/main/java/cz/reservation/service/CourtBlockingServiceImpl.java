@@ -28,8 +28,6 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     private static final String SERVICE_NAME = "blocking";
 
-    private static final String ID = "id";
-
     public CourtBlockingServiceImpl(
             CourtBlockingRepository courtBlockingRepository,
             CourtBlockingMapper courtBlockingMapper,
@@ -44,14 +42,17 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
-        if (courtBlockingDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
+
+        var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
+        var courtId = courtBlockingDto.court().id();
+        if (courtRepository.existsById(courtId)) {
+            entityToSave.setCourt(courtRepository.getReferenceById(courtId));
         } else {
-            var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
-            entityToSave.setCourt(courtRepository.getReferenceById(courtBlockingDto.court().id()));
-            var savedEntity = courtBlockingRepository.save(entityToSave);
-            return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
         }
+        var savedEntity = courtBlockingRepository.save(entityToSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
+
     }
 
     @Override
@@ -81,12 +82,8 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editBlocking(CourtBlockingDto courtBlockingDto, Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!courtBlockingRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
-        } else if (courtBlockingDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
+        if (!courtBlockingRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToUpdate = courtBlockingRepository.getReferenceById(id);
             courtBlockingMapper.updateEntity(entityToUpdate, courtBlockingDto);
@@ -97,13 +94,11 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteBlocking(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
+        if (!courtRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             courtBlockingRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME,id,EventStatus.DELETED)));
+            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 }

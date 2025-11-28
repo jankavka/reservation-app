@@ -22,4 +22,14 @@ public record CourtDto(
         @NotNull(message = "Venue must not be null")
         VenueDto venue
 ) {
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Name: %s
+                Id: %s
+                Surface: %s
+                Indoor: %s
+                Lighting: %s""", name, id, surface, indoor, lighting);
+    }
 }

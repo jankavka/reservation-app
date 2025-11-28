@@ -6,6 +6,7 @@ import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,6 @@ public class PlayerServiceImpl implements PlayerService {
 
     private static final String SERVICE_NAME = "player";
 
-    private static final String ID = "id";
-
     public PlayerServiceImpl(
             PlayerMapper playerMapper,
             PlayerRepository playerRepository,
@@ -47,43 +46,37 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<PlayerDto> getPlayer(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(playerMapper.toDto(playerRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(playerMapper.toDto(playerRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
     }
 
     @Override
     @Transactional
     public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
-        if (playerDTO == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
+
+        var entityToSave = playerMapper.toEntity(playerDTO);
+        Long parentId = playerDTO.parent().id();
+        if (userRepository.existsById(parentId)) {
+            userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
+            entityToSave.setParent(userRepository
+                    .findById(parentId)
+                    .orElseThrow());
+
+            var savedEntity = playerRepository.save(entityToSave);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(playerMapper.toDto(savedEntity));
         } else {
-            var entityToSave = playerMapper.toEntity(playerDTO);
-            Long parentId = playerDTO.parent().id();
-            if (userRepository.existsById(parentId)) {
-                userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
-                entityToSave.setParent(userRepository
-                        .findById(parentId)
-                        .orElseThrow());
-
-                var savedEntity = playerRepository.save(entityToSave);
-
-                return ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body(playerMapper.toDto(savedEntity));
-            } else {
-                throw new EntityNotFoundException(entityNotFoundExceptionMessage("parent user", parentId));
-            }
-
-
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("parent user", parentId));
         }
+
 
     }
 
@@ -92,8 +85,7 @@ public class PlayerServiceImpl implements PlayerService {
     public List<PlayerDto> getAllPlayers() {
         var playerEntities = playerRepository.findAll();
         if (playerEntities.isEmpty()) {
-            log.warn("There are no players in database");
-            return List.of();
+            throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         }
         return playerEntities.stream().map(playerMapper::toDto).toList();
 
@@ -102,9 +94,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional
     public ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (playerRepository.existsById(id)) {
+        if (playerRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
 
         } else {
@@ -120,9 +110,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deletePLayer(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!playerRepository.existsById(id)) {
+        if (!playerRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
 
         } else {

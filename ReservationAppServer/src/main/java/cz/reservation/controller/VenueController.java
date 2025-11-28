@@ -34,7 +34,7 @@ public class VenueController {
         return venueService.editVenue(venueDto, id);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<VenueDto>> getAllVenues(){
         return venueService.getAllVenues();
     }

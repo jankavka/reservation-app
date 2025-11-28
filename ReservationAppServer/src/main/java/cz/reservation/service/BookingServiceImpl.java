@@ -32,8 +32,6 @@ public class BookingServiceImpl implements BookingService {
 
     private static final String SERVICE_NAME = "booking";
 
-    private static final String ID = "id";
-
 
     public BookingServiceImpl(
             BookingMapper bookingMapper,
@@ -51,46 +49,37 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public ResponseEntity<BookingDto> createBooking(BookingDto bookingDto) {
-        if (bookingDto == null) {
-            throw new IllegalArgumentException();
-        } else {
-            var entityToSave = bookingMapper.toEntity(bookingDto);
-            entityToSave.setBookedAt(new Date());
-            entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
-            entityToSave.setTrainingSlot(trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id()));
-            var savedEntity = bookingRepository.save(entityToSave);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(bookingMapper.toDto(savedEntity));
-        }
+        var entityToSave = bookingMapper.toEntity(bookingDto);
+        entityToSave.setBookedAt(new Date());
+        entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
+        entityToSave.setTrainingSlot(trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id()));
+        var savedEntity = bookingRepository.save(entityToSave);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(bookingMapper.toDto(savedEntity));
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<BookingDto> getBooking(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
 
-            return ResponseEntity
-                    .ok(bookingMapper.toDto(bookingRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+        return ResponseEntity
+                .ok(bookingMapper.toDto(bookingRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
 
     }
 
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editBooking(BookingDto bookingDto, Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!bookingRepository.existsById(id)) {
+        if (!bookingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else if (bookingDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
         } else {
             var entityToUpdate = bookingRepository.getReferenceById(id);
             bookingMapper.updateEntity(entityToUpdate, bookingDto);
@@ -113,9 +102,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteBooking(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else if (!bookingRepository.existsById(id)) {
+        if (!bookingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             bookingRepository.deleteById(id);

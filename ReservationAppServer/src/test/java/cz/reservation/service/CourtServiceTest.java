@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Surface;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.VenueDto;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static cz.reservation.service.message.MessageHandling.*;
 
 @ExtendWith(MockitoExtension.class)
 class CourtServiceTest {
@@ -87,6 +88,7 @@ class CourtServiceTest {
                 venueDto);
 
         when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
+        when(venueRepository.existsById(venue.getId())).thenReturn(true);
         when(venueRepository.getReferenceById(venue.getId())).thenReturn(venue);
         when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
         when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
@@ -97,16 +99,6 @@ class CourtServiceTest {
         verify(courtRepository).save(courtEntityToSave);
         verifyNoMoreInteractions(courtRepository);
         verify(venueRepository).getReferenceById(venue.getId());
-
-    }
-
-    @Test
-    void shouldThrowNullPointerExceptionWhileDtoIsNull() {
-        var exception = assertThrows(
-                NullPointerException.class,
-                () -> courtService.createCourt(null));
-        assertInstanceOf(NullPointerException.class, exception);
-        assertEquals("Court must not be null", exception.getMessage());
 
     }
 
@@ -144,7 +136,7 @@ class CourtServiceTest {
                 () -> courtService.getCourt(99L));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals("Court not found", exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("court", 99L), exception.getMessage());
 
     }
 
@@ -190,7 +182,7 @@ class CourtServiceTest {
         assertEquals(
                 ResponseEntity.ok(Map.of(
                         "message",
-                        "Court with id " + id + " was deleted")),
+                        successMessage("court", id, EventStatus.DELETED))),
                 result);
 
         verify(courtRepository).existsById(id);
@@ -221,15 +213,7 @@ class CourtServiceTest {
                 Boolean.TRUE,
                 Boolean.TRUE,
                 new VenueDto(1L,"NAME","ADDRESS","123456789"));
-        var entityToSave = new CourtEntity(
-                1L,
-                "N",
-                Surface.HARD,
-                Boolean.TRUE,
-                Boolean.TRUE,
-                null,
-                venue);
-        var savedEntity = new CourtEntity(
+        var courtEntity = new CourtEntity(
                 1L,
                 "N",
                 Surface.HARD,
@@ -239,16 +223,17 @@ class CourtServiceTest {
                 venue
         );
 
+
         when(courtRepository.existsById(id)).thenReturn(true);
-        when(courtMapper.toEntity(dtoToSave)).thenReturn(entityToSave);
-        when(venueRepository.getReferenceById(venue.getId())).thenReturn(venue);
-        when(courtRepository.save(entityToSave)).thenReturn(savedEntity);
+        when(courtRepository.getReferenceById(id)).thenReturn(courtEntity);
+        when(courtMapper.toDto(courtEntity)).thenReturn(dtoToSave);
 
         var result = courtService.editCourt(dtoToSave, id);
 
-        assertEquals(ResponseEntity.ok(HttpStatus.OK), result);
+        assertEquals(ResponseEntity.ok(Map.of("message", successMessage(
+                "court",1L,EventStatus.UPDATED), "object", dtoToSave.toString())), result);
         verify(courtRepository).existsById(id);
-        verify(venueRepository).getReferenceById(venue.getId());
+
     }
 
     @Test
@@ -264,17 +249,9 @@ class CourtServiceTest {
         var exception = assertThrows(EntityNotFoundException.class, () -> courtService.editCourt(dtoToSave, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals("Entity with id " + id + "not found", exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("court",id), exception.getMessage());
     }
 
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhileEditing(){
-        var id = 99L;
-        var exception = assertThrows(IllegalArgumentException.class, () -> courtService.editCourt(null, id));
-
-        assertInstanceOf(IllegalArgumentException.class, exception);
-        assertEquals("Court must not be null", exception.getMessage());
-    }
 
 
 }

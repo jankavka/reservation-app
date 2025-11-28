@@ -48,9 +48,6 @@ public class UserServiceImpl implements UserService {
 
     private static final String SERVICE_NAME = "user";
 
-    private static final String ID = "id";
-
-
     @Lazy
     public UserServiceImpl(
             UserMapper userMapper,
@@ -92,9 +89,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto) {
 
-        if (registrationRequestDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        }
         log.info("New user: {}", registrationRequestDto);
         var entityToSave = new UserEntity();
         entityToSave.setEmail(registrationRequestDto.email());

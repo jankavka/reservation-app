@@ -29,8 +29,6 @@ public class CourtServiceImpl implements CourtService {
 
     private static final String SERVICE_NAME = "court";
 
-    private static final String ID = "id";
-
     public CourtServiceImpl(
             CourtRepository courtRepository,
             CourtMapper courtMapper,
@@ -44,29 +42,29 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) throws NullPointerException {
-        if (courtDto == null) {
-            throw new NullPointerException(notNullMessage(ID));
+    public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) {
 
+        var entityToSave = courtMapper.toEntity(courtDto);
+        var venueId = courtDto.venue().id();
+        if (venueRepository.existsById(venueId)) {
+            entityToSave.setVenue(venueRepository.getReferenceById(venueId));
         } else {
-            var entityToSave = courtMapper.toEntity(courtDto);
-            entityToSave.setVenue(venueRepository.getReferenceById(courtDto.venue().id()));
-            var savedEntity = courtRepository.save(entityToSave);
-            return ResponseEntity.ok(courtMapper.toDto(savedEntity));
-
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("venue", venueId));
         }
+        var savedEntity = courtRepository.save(entityToSave);
+        return ResponseEntity.ok(courtMapper.toDto(savedEntity));
+
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<CourtDto> getCourt(Long id) throws EntityNotFoundException {
-        if (id == null) {
-            throw new IllegalArgumentException(notNullMessage(ID));
-        } else {
-            return ResponseEntity.ok(courtMapper.toDto(courtRepository
-                    .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-        }
+
+        return ResponseEntity.ok(courtMapper.toDto(courtRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+
     }
 
     @Override
@@ -79,8 +77,7 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteCourt(Long id)
-            throws EntityNotFoundException, IllegalArgumentException {
+    public ResponseEntity<Map<String, String>> deleteCourt(Long id) {
         if (!courtRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
@@ -97,17 +94,16 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public ResponseEntity<HttpStatus> editCourt(CourtDto courtDto, Long id) {
-        if (courtDto == null) {
-            throw new IllegalArgumentException(notNullMessage(SERVICE_NAME));
-        } else if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id));
+    public ResponseEntity<Map<String, String>> editCourt(CourtDto courtDto, Long id) {
+        if (!courtRepository.existsById(id)) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
-            var editedEntityToSave = courtMapper.toEntity(courtDto);
-            editedEntityToSave.setId(id);
-            editedEntityToSave.setVenue(venueRepository.getReferenceById(courtDto.venue().id()));
-            courtRepository.save(editedEntityToSave);
-            return ResponseEntity.ok(HttpStatus.OK);
+            var entityToUpdate = courtRepository.getReferenceById(id);
+            courtMapper.updateEntity(entityToUpdate, courtDto);
+            var updatedDto = courtMapper.toDto(courtRepository.getReferenceById(id));
+            return ResponseEntity.ok(Map.of(
+                    "message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED),
+                    "object", updatedDto.toString()));
         }
 
 
