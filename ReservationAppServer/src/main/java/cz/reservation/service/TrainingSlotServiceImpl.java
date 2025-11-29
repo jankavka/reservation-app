@@ -1,14 +1,17 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
-import cz.reservation.constant.SlotStatus;
+import cz.reservation.dto.CourtBlockingDto;
+import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.dto.mapper.TrainingSlotMapper;
+import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.TrainingSlotRepository;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.exception.TrainingSlotsInCollisionException;
+import cz.reservation.service.serviceinterface.CourtBlockingService;
 import cz.reservation.service.serviceinterface.TrainingSlotService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -33,26 +36,34 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
     private final GroupRepository groupRepository;
 
+    private final CourtBlockingRepository courtBlockingRepository;
+
+    private final CourtBlockingService courtBlockingService;
+
     private static final String SERVICE_NAME = "training slot";
 
     public TrainingSlotServiceImpl(
             TrainingSlotMapper trainingSlotMapper,
             TrainingSlotRepository trainingSlotRepository,
             CourtRepository courtRepository,
-            GroupRepository groupRepository
+            GroupRepository groupRepository,
+            CourtBlockingRepository courtBlockingRepository,
+            CourtBlockingService courtBlockingService
     ) {
         this.trainingSlotMapper = trainingSlotMapper;
         this.trainingSlotRepository = trainingSlotRepository;
         this.courtRepository = courtRepository;
         this.groupRepository = groupRepository;
+        this.courtBlockingRepository = courtBlockingRepository;
+        this.courtBlockingService = courtBlockingService;
 
     }
 
     /**
      * Method creates new training slot in database if there are existing related court and group and
-     * there are no time collisions between current slot and all already existing with status OPEN (SlotStatus).
+     * there are no time collisions between current slot and all already existing court blockings.
      * Otherwise, it throws EntityNoFindException for missing court or group or TrainingSlotsInCollisionException
-     * if there are slots in time collision with the current one.
+     * if there are court blockings in time collision with the current one.
      *
      * @param trainingSlotDto data object with new training slot
      * @return ResponseEntity with status CREATED and created object as an instance of TrainingSlotDto
@@ -83,27 +94,47 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
         }
 
-        var allTrainingSlots = trainingSlotRepository.findAll();
+        var allBlockings = courtBlockingRepository.findAll();
         var currentSlotStartAtMillis = trainingSlotDto.startAt().toEpochSecond(ZoneOffset.UTC);
         var currentSlotEndAtMillis = trainingSlotDto.endAt().toEpochSecond(ZoneOffset.UTC);
+        var groupName = groupRepository.getReferenceById(groupId).getName();
 
-        //looking for collisions between current slot and all already saved slots with OPEN status
-        var allCollisionSlots = allTrainingSlots
+        //looking for collision between current slot and all blockings of current court
+        var allCollisionBlockings = allBlockings
                 .stream()
-                //finds slots with status OPEN and corresponding court
-                .filter(slot -> slot.getCourt().getId().equals(courtId) && slot.getStatus() == SlotStatus.OPEN)
-                .map(slot -> List.of(slot.getStartAt().toEpochSecond(ZoneOffset.UTC), slot.getEndAt().toEpochSecond(ZoneOffset.UTC)))
-                //finds all slots, which are in collision with the current one
-                .filter(slot -> slot.get(0) < currentSlotStartAtMillis && currentSlotStartAtMillis < slot.get(1)
-                        ||
-                        slot.get(0) < currentSlotEndAtMillis && currentSlotEndAtMillis < slot.get(1))
+                //finds blockings with corresponding court
+                .filter(blocking -> blocking.getCourt().getId().equals(courtId))
+                .map(blocking -> List.of(
+                        blocking.getBlockedFrom().toEpochSecond(ZoneOffset.UTC),
+                        blocking.getBlockedTo().toEpochSecond(ZoneOffset.UTC)))
+                //finds all blockings, which are in collision with the current training slot
+                .filter(blocking ->
+                        blocking.get(0) < currentSlotStartAtMillis && currentSlotStartAtMillis < blocking.get(1)
+                                ||
+                                blocking.get(0) < currentSlotEndAtMillis && currentSlotEndAtMillis < blocking.get(1))
                 .toList();
 
-        // throws exception if there is at least one collision
-        if (!allCollisionSlots.isEmpty()) {
-            throw new TrainingSlotsInCollisionException("Current Training slot in collision with others");
+        //throws exception if there is at least one collision
+        if (!allCollisionBlockings.isEmpty()) {
+            throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
         }
 
+        //related blocking of court saved together with the slot
+        var relatedCourtBlocking = new CourtBlockingDto(
+                null,
+                new CourtDto(
+                        courtId,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null),
+                trainingSlotDto.startAt(),
+                trainingSlotDto.endAt(),
+                SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")");
+
+
+        courtBlockingService.createBlocking(relatedCourtBlocking);
         var savedEntity = trainingSlotRepository.save(entityToSave);
 
         return ResponseEntity
