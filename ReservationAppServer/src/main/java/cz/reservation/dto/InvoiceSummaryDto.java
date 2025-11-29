@@ -3,7 +3,8 @@ package cz.reservation.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record InvoiceSummaryDto(
         Long id,
@@ -12,7 +13,7 @@ public record InvoiceSummaryDto(
         UserDto user,
 
         @NotNull
-        Date month,
+        LocalDate month,
 
         @NotNull
         Double totalAmount,
@@ -20,6 +21,6 @@ public record InvoiceSummaryDto(
         @NotBlank
         String currency,
 
-        Date generatedAt
+        LocalDateTime generatedAt
 ) {
 }

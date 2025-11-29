@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,5 +33,5 @@ public class EnrollmentEntity {
     private EnrollmentState state;
 
     @Column
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }

@@ -3,6 +3,7 @@ package cz.reservation.dto;
 import cz.reservation.constant.Role;
 import jakarta.validation.constraints.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,6 @@ public record UserDto(
 
         //List<InvoiceSummaryDto> invoices,
 
-        Date createdAt
+        LocalDateTime createdAt
 ) {
 }

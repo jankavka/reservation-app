@@ -3,7 +3,8 @@ package cz.reservation.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
 
 public record CourtBlockingDto(
         Long id,
@@ -12,10 +13,10 @@ public record CourtBlockingDto(
         CourtDto court,
 
         @NotNull(message = "Date \"blocked from\" must not be null")
-        Date blockedFrom,
+        LocalDateTime blockedFrom,
 
         @NotNull(message = "Date \"blocked to\" must not be null")
-        Date blockedTo,
+        LocalDateTime blockedTo,
 
         @NotBlank(message = "Reason must not be blank")
         String reason

@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-        entityToSave.setGeneratedAt(new Date());
+        entityToSave.setGeneratedAt(LocalDateTime.now());
         setForeignKeys(entityToSave, invoiceSummaryDto);
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 

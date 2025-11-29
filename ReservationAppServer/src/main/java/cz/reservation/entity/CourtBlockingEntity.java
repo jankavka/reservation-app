@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,10 +25,10 @@ public class CourtBlockingEntity {
     private CourtEntity court;
 
     @Column
-    private Date blockedFrom;
+    private LocalDateTime blockedFrom;
 
     @Column
-    private Date blockedTo;
+    private LocalDateTime blockedTo;
 
     @Column
     private String reason;

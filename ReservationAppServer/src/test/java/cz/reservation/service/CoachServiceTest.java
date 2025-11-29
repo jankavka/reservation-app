@@ -20,8 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,9 +46,7 @@ class CoachServiceTest {
     CoachServiceImpl coachService;
 
 
-    Date date = Date.from(LocalDate.of(2025, 8, 10)
-            .atStartOfDay(ZoneId.systemDefault())
-            .toInstant());
+    LocalDateTime date = LocalDateTime.of(2025, 8, 10,0,0);
 
 
     @Test

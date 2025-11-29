@@ -34,6 +34,11 @@ public class TrainingSlotController {
         return trainingSlotService.getAllTrainingSlots();
     }
 
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<TrainingSlotDto>> getAllSlotsByGroupId(@PathVariable Long groupId){
+        return trainingSlotService.getAllTrainingSlotsByGroupId(groupId);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, String>> editTrainingSlot(
             @RequestBody @Valid TrainingSlotDto trainingSlotDto,@PathVariable Long id){

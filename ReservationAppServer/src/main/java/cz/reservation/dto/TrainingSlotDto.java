@@ -3,9 +3,8 @@ package cz.reservation.dto;
 import cz.reservation.constant.SlotStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public record TrainingSlotDto(
         Long id,
@@ -17,10 +16,10 @@ public record TrainingSlotDto(
         CourtDto court,
 
         @NotNull(message = "Starting date must not be null")
-        Date startAt,
+        LocalDateTime startAt,
 
         @NotNull(message = "Ending date must not be null")
-        Date endAt,
+        LocalDateTime endAt,
 
         Integer capacity,
 

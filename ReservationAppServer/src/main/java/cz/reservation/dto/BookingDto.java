@@ -3,7 +3,7 @@ package cz.reservation.dto;
 import cz.reservation.constant.BookingStatus;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public record BookingDto(
         Long id,
@@ -16,6 +16,6 @@ public record BookingDto(
 
         BookingStatus bookingStatus,
 
-        Date bookedAt
+        LocalDateTime bookedAt
 ) {
 }

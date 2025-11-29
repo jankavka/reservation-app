@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,6 +37,6 @@ public class BookingEntity {
     private BookingStatus bookingStatus;
 
     @Column
-    private Date bookedAt;
+    private LocalDateTime bookedAt;
 
 }
