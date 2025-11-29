@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public record RegistrationRequestDto(
@@ -26,6 +25,6 @@ public record RegistrationRequestDto(
         @NotEmpty(message = "Roles must not be empty")
         Set<Role> roles,
 
-        Date createdAt
+        LocalDateTime createdAt
 ) {
 }

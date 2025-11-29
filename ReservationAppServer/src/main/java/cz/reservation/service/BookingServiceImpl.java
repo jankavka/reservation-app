@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +53,10 @@ public class BookingServiceImpl implements BookingService {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
         var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
-        entityToSave.setBookedAt(new Date());
+        entityToSave.setBookedAt(LocalDateTime.now());
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
         entityToSave.setTrainingSlot(relatedTrainingSlot);
         entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
-        entityToSave.setBookedAt(new Date());
         var savedEntity = bookingRepository.save(entityToSave);
 
         return ResponseEntity

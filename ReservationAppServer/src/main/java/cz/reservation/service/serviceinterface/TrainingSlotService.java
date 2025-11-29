@@ -14,6 +14,8 @@ public interface TrainingSlotService {
 
     ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlots();
 
+    ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlotsByGroupId(Long groupId);
+
     ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id);
 
     ResponseEntity<Map<String, String>> deleteTrainingSlot(Long id);

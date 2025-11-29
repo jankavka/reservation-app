@@ -4,6 +4,7 @@ import cz.reservation.constant.EnrollmentState;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public record EnrollmentDto(
@@ -17,6 +18,6 @@ public record EnrollmentDto(
 
         EnrollmentState state,
 
-        Date createdAt
+        LocalDateTime createdAt
 ) {
 }

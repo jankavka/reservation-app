@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,10 +26,10 @@ public class SeasonEntity {
     private String name;
 
     @Column(name = "date_from")
-    private Date dateFrom;
+    private LocalDateTime dateFrom;
 
     @Column(name = "date_until")
-    private Date dateUntil;
+    private LocalDateTime dateUntil;
 
     @OneToMany(mappedBy = "season",cascade = CascadeType.ALL)
     @ElementCollection

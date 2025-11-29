@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -30,10 +31,10 @@ public class TrainingSlotEntity {
     private CourtEntity court;
 
     @Column
-    private Date startAt;
+    private LocalDateTime startAt;
 
     @Column
-    private Date endAt;
+    private LocalDateTime endAt;
 
     @Column
     private Integer capacity;

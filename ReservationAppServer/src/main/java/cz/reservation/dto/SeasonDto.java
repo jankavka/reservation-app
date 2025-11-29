@@ -3,6 +3,7 @@ package cz.reservation.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public record SeasonDto(
@@ -12,9 +13,9 @@ public record SeasonDto(
         String name,
 
         @NotNull(message = "Filed must not be blank")
-        Date dateFrom,
+        LocalDateTime dateFrom,
 
         @NotNull(message = "Field must not be blank")
-        Date dateUntil
+        LocalDateTime dateUntil
 ) {
 }

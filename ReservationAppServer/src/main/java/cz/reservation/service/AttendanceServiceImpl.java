@@ -73,12 +73,12 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<List<AttendanceDto>> getAllAttendances() {
-        if (attendanceRepository.findAll().isEmpty()) {
+        var allAttendances = attendanceRepository.findAll();
+        if (allAttendances.isEmpty()) {
             throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         } else {
             return ResponseEntity
-                    .ok(attendanceRepository
-                            .findAll()
+                    .ok(allAttendances
                             .stream()
                             .map(attendanceMapper::toDto)
                             .toList());
@@ -102,9 +102,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteAttendance(Long id) {
-        if(attendanceRepository.existsById(id)){
+        if (attendanceRepository.existsById(id)) {
             attendanceRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message",successMessage(SERVICE_NAME,id,EventStatus.DELETED)));
+            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }

@@ -4,7 +4,7 @@ import cz.reservation.constant.Handedness;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public record PlayerDto(
         Long id,
@@ -13,7 +13,7 @@ public record PlayerDto(
         String fullName,
 
         @NotNull(message = "Birth date must not be null")
-        Date birthDate,
+        LocalDateTime birthDate,
 
         @NotNull(message = "Handedness must not be null")
         Handedness handedness,

@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +56,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
         setForeignKeys(entityToSave, enrollmentDto);
-        entityToSave.setCreatedAt(new Date());
+        entityToSave.setCreatedAt(LocalDateTime.now());
         var relatedGroup = entityToSave.getGroup();
         var countOfEnrolmentsInGroup = enrollmentRepository.countEnrollmentsByGroupId(relatedGroup.getId());
         if (relatedGroup.getCapacity() > countOfEnrolmentsInGroup) {
@@ -163,12 +161,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         allEnrollments
                 .stream()
-                .filter(enrollment -> enrollment.getCreatedAt().before(Date.from(
+                .filter(enrollment -> enrollment.getCreatedAt().isBefore(
                         LocalDateTime
                                 .now()
-                                .minusMonths(1L)
-                                .atZone(ZoneId.systemDefault())
-                                .toInstant())))
+                                .minusMonths(1L)))
                 .forEach(enrollmentRepository::delete);
     }
 

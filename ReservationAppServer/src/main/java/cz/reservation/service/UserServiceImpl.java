@@ -26,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
         entityToSave.setEmail(registrationRequestDto.email());
         entityToSave.setFullName(registrationRequestDto.fullName());
         entityToSave.setRoles(registrationRequestDto.roles());
-        entityToSave.setCreatedAt(new Date());
+        entityToSave.setCreatedAt(LocalDateTime.now());
         entityToSave.setPassword(passwordEncoder.encode(registrationRequestDto.password()));
         UserEntity savedEntity = userRepository.save(entityToSave);
 
