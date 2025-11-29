@@ -141,7 +141,6 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 .status(HttpStatus.CREATED)
                 .body(trainingSlotMapper.toDto(savedEntity));
 
-
     }
 
     @Override
