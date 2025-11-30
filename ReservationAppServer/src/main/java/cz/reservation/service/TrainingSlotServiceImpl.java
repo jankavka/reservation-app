@@ -5,6 +5,7 @@ import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.dto.mapper.TrainingSlotMapper;
+import cz.reservation.entity.CourtBlockingEntity;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.GroupRepository;
@@ -57,6 +58,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         this.courtBlockingRepository = courtBlockingRepository;
         this.courtBlockingService = courtBlockingService;
 
+
     }
 
     /**
@@ -100,27 +102,19 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         var groupName = groupRepository.getReferenceById(groupId).getName();
 
         //looking for collision between current slot and all blockings of current court
-        var allCollisionBlockings = allBlockings
-                .stream()
-                //finds blockings with corresponding court
-                .filter(blocking -> blocking.getCourt().getId().equals(courtId))
-                .map(blocking -> List.of(
-                        blocking.getBlockedFrom().toEpochSecond(ZoneOffset.UTC),
-                        blocking.getBlockedTo().toEpochSecond(ZoneOffset.UTC)))
-                //finds all blockings, which are in collision with the current training slot
-                .filter(blocking ->
-                        blocking.get(0) < currentSlotStartAtMillis && currentSlotStartAtMillis < blocking.get(1)
-                                ||
-                                blocking.get(0) < currentSlotEndAtMillis && currentSlotEndAtMillis < blocking.get(1))
-                .toList();
 
         //throws exception if there is at least one collision
-        if (!allCollisionBlockings.isEmpty()) {
+        if (isThereTimeCollision(
+                allBlockings,
+                courtId,
+                null,
+                currentSlotStartAtMillis,
+                currentSlotEndAtMillis)) {
             throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
         }
 
         //related blocking of court saved together with the slot
-        var relatedCourtBlocking = new CourtBlockingDto(
+        var relatedCourtBlockingDto = new CourtBlockingDto(
                 null,
                 new CourtDto(
                         courtId,
@@ -134,7 +128,18 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")");
 
 
-        courtBlockingService.createBlocking(relatedCourtBlocking);
+        //creating related court blocking and taking return value for using id
+        var relatedCourtBlocking = courtBlockingService.createBlocking(relatedCourtBlockingDto).getBody();
+
+        //if related court blocking is not null the blocking is set up as FK to current training slot
+        if (relatedCourtBlocking != null) {
+            entityToSave.setCourtBlocking(courtBlockingRepository.getReferenceById(relatedCourtBlocking.id()));
+        } else {
+            throw new NullPointerException(
+                    "Error during setting related court blocking. Court blocking must not be null");
+        }
+
+
         var savedEntity = trainingSlotRepository.save(entityToSave);
 
         return ResponseEntity
@@ -186,17 +191,61 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                         .toList());
     }
 
+    /**
+     * Method updates existing training slot. Contains check if current slot exists, otherwise
+     * EntityNotFoundException is thrown. Also contains check if there is not a time collision
+     * between current slot and other court blockings, otherwise TrainingSlotsInCollisionException
+     * is thrown. In the end training slot and related court blocking is updated.
+     *
+     * @param trainingSlotDto Object with updated attributes
+     * @param id              PK of training slot in database
+     * @return Response entity with success message
+     */
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id) {
         if (!trainingSlotRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
-            var entityToSave = trainingSlotMapper.toEntity(trainingSlotDto);
-            entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
-            entityToSave.setCourt(courtRepository.getReferenceById(trainingSlotDto.court().id()));
 
-            trainingSlotRepository.save(entityToSave);
+            var entityToUpdate = trainingSlotRepository.getReferenceById(id);
+
+            var allBlockings = courtBlockingRepository.findAll();
+
+            //Object to use in collision check
+            var relatedCourtBlockingEntity = courtBlockingRepository
+                    .findById(trainingSlotDto.courtBlocking().id())
+                    .orElseThrow();
+
+            var currentSlotStartAtMillis = trainingSlotDto.startAt().toEpochSecond(ZoneOffset.UTC);
+
+            var currentSlotEndAtMillis = trainingSlotDto.endAt().toEpochSecond(ZoneOffset.UTC);
+
+            var courtId = trainingSlotDto.court().id();
+
+            //Collision check. looking for collision between current slot and all blockings of current court
+            if (isThereTimeCollision(
+                    allBlockings,
+                    courtId,
+                    relatedCourtBlockingEntity,
+                    currentSlotStartAtMillis,
+                    currentSlotEndAtMillis)) {
+                throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
+            }
+
+            //creating a new court blocking object for editing the current related one
+            var editedRelatedCourtBlockingDto = new CourtBlockingDto(
+                    relatedCourtBlockingEntity.getId(),
+                    trainingSlotDto.court(),
+                    trainingSlotDto.startAt(),
+                    trainingSlotDto.endAt(),
+                    relatedCourtBlockingEntity.getReason());
+
+            //Editing related court blocking
+            courtBlockingService.editBlocking(editedRelatedCourtBlockingDto, relatedCourtBlockingEntity.getId());
+
+            //editing current training slot
+            trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -216,4 +265,41 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                     .ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
+
+
+    private boolean isThereTimeCollision(
+            List<CourtBlockingEntity> allBlockings,
+            Long courtId,
+            CourtBlockingEntity relatedCourtBlockingEntity,
+            Long currentSlotStartAtMillis,
+            Long currentSlotEndAtMillis
+
+    ) {
+        return !allBlockings
+                .stream()
+                //removes current blocking from the list, if not present returns true
+                .filter(blocking -> {
+                    if (relatedCourtBlockingEntity != null) {
+                        return !blocking.getId().equals(relatedCourtBlockingEntity.getId());
+                    } else {
+                        return true;
+                    }
+                })
+                //finds blockings with corresponding court
+                .filter(blocking -> blocking.getCourt().getId().equals(courtId))
+                .map(blocking -> List.of(
+                        blocking.getBlockedFrom().toEpochSecond(ZoneOffset.UTC),
+                        blocking.getBlockedTo().toEpochSecond(ZoneOffset.UTC)))
+                //finds all blockings, which are in collision with the current training slot
+                .filter(blocking ->
+                        blocking.get(0) < currentSlotStartAtMillis && currentSlotStartAtMillis < blocking.get(1)
+                                ||
+                                blocking.get(0) < currentSlotEndAtMillis && currentSlotEndAtMillis < blocking.get(1))
+                .toList()
+                .isEmpty();
+
+
+    }
+
+
 }

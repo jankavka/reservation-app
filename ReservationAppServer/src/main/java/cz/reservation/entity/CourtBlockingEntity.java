@@ -1,5 +1,6 @@
 package cz.reservation.entity;
 
+import cz.reservation.dto.TrainingSlotDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,4 +33,7 @@ public class CourtBlockingEntity {
 
     @Column
     private String reason;
+
+    @OneToOne(mappedBy = "courtBlocking", cascade = CascadeType.ALL)
+    private TrainingSlotEntity trainingSlot;
 }
