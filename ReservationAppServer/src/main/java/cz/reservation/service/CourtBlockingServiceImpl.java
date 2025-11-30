@@ -50,6 +50,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
         }
+
         var savedEntity = courtBlockingRepository.save(entityToSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
 

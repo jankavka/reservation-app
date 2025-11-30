@@ -50,4 +50,8 @@ public class TrainingSlotEntity {
 
     @OneToOne(mappedBy = "trainingSlot", cascade = CascadeType.ALL)
     private WeatherNotesEntity weatherNotes;
+
+    @OneToOne
+    @JoinColumn(name = "court_blocking_id", referencedColumnName = "id")
+    private CourtBlockingEntity courtBlocking;
 }
