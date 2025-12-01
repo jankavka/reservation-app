@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.dto.mapper.CourtBlockingMapper;
+import cz.reservation.entity.CourtBlockingEntity;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
@@ -70,6 +71,15 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     }
 
     @Override
+    public CourtBlockingEntity getBlockingEntity(Long id) {
+        if (courtBlockingRepository.existsById(id)) {
+            return courtBlockingRepository.getReferenceById(id);
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public ResponseEntity<List<CourtBlockingDto>> getAllBlockings() {
         return ResponseEntity
@@ -78,6 +88,11 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
                         .stream()
                         .map(courtBlockingMapper::toDto)
                         .toList());
+    }
+
+    @Override
+    public List<CourtBlockingEntity> getAllBlockingsEntities() {
+        return courtBlockingRepository.findAll();
     }
 
     @Override

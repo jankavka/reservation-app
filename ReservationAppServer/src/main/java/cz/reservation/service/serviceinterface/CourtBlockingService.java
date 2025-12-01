@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.CourtBlockingDto;
+import cz.reservation.entity.CourtBlockingEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -12,7 +13,11 @@ public interface CourtBlockingService {
 
     ResponseEntity<CourtBlockingDto> getBlocking(Long id);
 
+    CourtBlockingEntity getBlockingEntity(Long id);
+
     ResponseEntity<List<CourtBlockingDto>> getAllBlockings();
+
+    List<CourtBlockingEntity> getAllBlockingsEntities();
 
     ResponseEntity<Map<String, String>> editBlocking(CourtBlockingDto courtBlockingDto, Long id);
 
