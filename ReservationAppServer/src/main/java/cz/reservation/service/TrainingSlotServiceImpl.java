@@ -6,7 +6,6 @@ import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.dto.mapper.TrainingSlotMapper;
 import cz.reservation.entity.CourtBlockingEntity;
-import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.TrainingSlotRepository;
@@ -15,6 +14,7 @@ import cz.reservation.service.exception.TrainingSlotsInCollisionException;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
 import cz.reservation.service.serviceinterface.TrainingSlotService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class TrainingSlotServiceImpl implements TrainingSlotService {
 
     private final TrainingSlotRepository trainingSlotRepository;
@@ -37,29 +38,10 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
     private final GroupRepository groupRepository;
 
-    private final CourtBlockingRepository courtBlockingRepository;
-
     private final CourtBlockingService courtBlockingService;
 
     private static final String SERVICE_NAME = "training slot";
 
-    public TrainingSlotServiceImpl(
-            TrainingSlotMapper trainingSlotMapper,
-            TrainingSlotRepository trainingSlotRepository,
-            CourtRepository courtRepository,
-            GroupRepository groupRepository,
-            CourtBlockingRepository courtBlockingRepository,
-            CourtBlockingService courtBlockingService
-    ) {
-        this.trainingSlotMapper = trainingSlotMapper;
-        this.trainingSlotRepository = trainingSlotRepository;
-        this.courtRepository = courtRepository;
-        this.groupRepository = groupRepository;
-        this.courtBlockingRepository = courtBlockingRepository;
-        this.courtBlockingService = courtBlockingService;
-
-
-    }
 
     /**
      * Method creates new training slot in database if there are existing related court and group and
@@ -78,32 +60,30 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         var groupId = trainingSlotDto.group().id();
         var courtId = trainingSlotDto.court().id();
 
-        //checking existing related group
+        //Checking existing related group
         if (groupRepository.existsById(groupId)) {
             entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
 
-            //setting the same capacity as related group
+            //setting the same capacity as related group has
             entityToSave.setCapacity(entityToSave.getGroup().getCapacity());
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(
                     "group", trainingSlotDto.group().id()));
         }
 
-        //checking existing related court
+        //Checking existing related court
         if (courtRepository.existsById(courtId)) {
             entityToSave.setCourt(courtRepository.getReferenceById(courtId));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
         }
 
-        var allBlockings = courtBlockingRepository.findAll();
+        var allBlockings = courtBlockingService.getAllBlockingsEntities();
         var currentSlotStartAtMillis = trainingSlotDto.startAt().toEpochSecond(ZoneOffset.UTC);
         var currentSlotEndAtMillis = trainingSlotDto.endAt().toEpochSecond(ZoneOffset.UTC);
         var groupName = groupRepository.getReferenceById(groupId).getName();
 
-        //looking for collision between current slot and all blockings of current court
-
-        //throws exception if there is at least one collision
+        //Throws exception if there is at least one collision
         if (isThereTimeCollision(
                 allBlockings,
                 courtId,
@@ -113,7 +93,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
             throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
         }
 
-        //related blocking of court saved together with the slot
+        //Related blocking of court saved together with the slot
         var relatedCourtBlockingDto = new CourtBlockingDto(
                 null,
                 new CourtDto(
@@ -128,12 +108,12 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")");
 
 
-        //creating related court blocking and taking return value for using id
+        //Creating related court blocking and taking return value for using id
         var relatedCourtBlocking = courtBlockingService.createBlocking(relatedCourtBlockingDto).getBody();
 
-        //if related court blocking is not null the blocking is set up as FK to current training slot
+        //If related court blocking is not null the blocking is set up as FK to current training slot
         if (relatedCourtBlocking != null) {
-            entityToSave.setCourtBlocking(courtBlockingRepository.getReferenceById(relatedCourtBlocking.id()));
+            entityToSave.setCourtBlocking(courtBlockingService.getBlockingEntity(relatedCourtBlocking.id()));
         } else {
             throw new NullPointerException(
                     "Error during setting related court blocking. Court blocking must not be null");
@@ -210,12 +190,10 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
             var entityToUpdate = trainingSlotRepository.getReferenceById(id);
 
-            var allBlockings = courtBlockingRepository.findAll();
+            var allBlockings = courtBlockingService.getAllBlockingsEntities();
 
             //Object to use in collision check
-            var relatedCourtBlockingEntity = courtBlockingRepository
-                    .findById(trainingSlotDto.courtBlocking().id())
-                    .orElseThrow();
+            var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlocking().id());
 
             var currentSlotStartAtMillis = trainingSlotDto.startAt().toEpochSecond(ZoneOffset.UTC);
 
@@ -233,7 +211,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
             }
 
-            //creating a new court blocking object for editing the current related one
+            //Creating a new court blocking object for editing the current related one
             var editedRelatedCourtBlockingDto = new CourtBlockingDto(
                     relatedCourtBlockingEntity.getId(),
                     trainingSlotDto.court(),
@@ -244,7 +222,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
             //Editing related court blocking
             courtBlockingService.editBlocking(editedRelatedCourtBlockingDto, relatedCourtBlockingEntity.getId());
 
-            //editing current training slot
+            //Editing current training slot
             trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
 
             return ResponseEntity
@@ -267,6 +245,16 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
 
+    /**
+     * Helper method. Looking for collision between current slot and all blockings of current court
+     *
+     * @param allBlockings               All court blocking entities, which are present in db
+     * @param courtId                    id of related court
+     * @param relatedCourtBlockingEntity entity of related court
+     * @param currentSlotStartAtMillis   exact time when current slot should start
+     * @param currentSlotEndAtMillis     exact time when current slot should end
+     * @return false if there is no collision between all court blockings
+     */
     private boolean isThereTimeCollision(
             List<CourtBlockingEntity> allBlockings,
             Long courtId,
