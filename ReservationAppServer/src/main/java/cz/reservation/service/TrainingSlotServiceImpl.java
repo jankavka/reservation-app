@@ -91,7 +91,8 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 null,
                 currentSlotStartAtMillis,
                 currentSlotEndAtMillis)) {
-            throw new TrainingSlotsInCollisionException("Current Training slot in collision with court blockings");
+            throw new TrainingSlotsInCollisionException(
+                    "Current Training slot is in collision with court blockings");
         }
 
         //Related blocking of court saved together with the slot
