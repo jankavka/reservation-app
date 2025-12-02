@@ -47,7 +47,8 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      * Method creates new training slot in database if there are existing related court and group and
      * there are no time collisions between current slot and all already existing court blockings.
      * Otherwise, it throws EntityNoFindException for missing court or group or TrainingSlotsInCollisionException
-     * if there are court blockings in time collision with the current one.
+     * if there are court blockings in time collision with the current one. If there is no exception thrown
+     * training slot and related court blocking is created.
      *
      * @param trainingSlotDto data object with new training slot
      * @return ResponseEntity with status CREATED and created object as an instance of TrainingSlotDto
@@ -175,7 +176,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      * Method updates existing training slot. Contains check if current slot exists, otherwise
      * EntityNotFoundException is thrown. Also contains check if there is not a time collision
      * between current slot and other court blockings, otherwise TrainingSlotsInCollisionException
-     * is thrown. In the end training slot and related court blocking is updated.
+     * is thrown. If there is no exception thrown training slot and related court blocking is updated.
      *
      * @param trainingSlotDto Object with updated attributes
      * @param id              PK of training slot in database
