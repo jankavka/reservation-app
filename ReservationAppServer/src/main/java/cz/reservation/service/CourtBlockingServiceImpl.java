@@ -8,6 +8,7 @@ import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     private final CourtBlockingMapper courtBlockingMapper;
@@ -29,23 +31,15 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     private static final String SERVICE_NAME = "blocking";
 
-    public CourtBlockingServiceImpl(
-            CourtBlockingRepository courtBlockingRepository,
-            CourtBlockingMapper courtBlockingMapper,
-            CourtRepository courtRepository
-    ) {
-        this.courtBlockingMapper = courtBlockingMapper;
-        this.courtBlockingRepository = courtBlockingRepository;
-        this.courtRepository = courtRepository;
-    }
-
-
     @Override
     @Transactional
     public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
 
         var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
         var courtId = courtBlockingDto.court().id();
+        if(!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())){
+            throw new IllegalArgumentException("Date `from` has to be before date `to`");
+        }
         if (courtRepository.existsById(courtId)) {
             entityToSave.setCourt(courtRepository.getReferenceById(courtId));
         } else {

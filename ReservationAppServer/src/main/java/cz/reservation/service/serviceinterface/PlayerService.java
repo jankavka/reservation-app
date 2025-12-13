@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.PlayerDto;
+import cz.reservation.entity.PlayerEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface PlayerService {
     ResponseEntity<Map<String, String>> deletePLayer(Long id);
 
     ResponseEntity<List<PlayerDto>> getPlayersByParentId(Long id);
+
+    List<PlayerEntity> getPlayersEntitiesByParentId(Long parentId);
 }

@@ -9,6 +9,7 @@ import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.NonUniqueObjectException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import static cz.reservation.service.message.MessageHandling.*;
 
 
 @Service
+@RequiredArgsConstructor
 public class CoachServiceImpl implements CoachService {
 
     private final CoachRepository coachRepository;
@@ -35,19 +37,6 @@ public class CoachServiceImpl implements CoachService {
     private final GroupRepository groupRepository;
 
     private static final String SERVICE_NAME = "coach";
-
-    @Autowired
-    public CoachServiceImpl(
-            CoachMapper coachMapper,
-            CoachRepository coachRepository,
-            UserRepository userRepository,
-            GroupRepository groupRepository) {
-        this.coachMapper = coachMapper;
-        this.coachRepository = coachRepository;
-        this.userRepository = userRepository;
-        this.groupRepository = groupRepository;
-    }
-
 
     @Override
     @Transactional

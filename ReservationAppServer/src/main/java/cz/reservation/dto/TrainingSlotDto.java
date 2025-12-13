@@ -31,6 +31,6 @@ public record TrainingSlotDto(
         @NotBlank(message = "Currency must not be null")
         String currency,
 
-        CourtBlockingDto courtBlocking
+        Long courtBlockingId
 ) {
 }

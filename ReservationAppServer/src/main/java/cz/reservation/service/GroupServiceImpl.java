@@ -9,6 +9,7 @@ import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class GroupServiceImpl implements GroupService {
 
     private final GroupMapper groupMapper;
@@ -34,18 +36,6 @@ public class GroupServiceImpl implements GroupService {
     private final CoachRepository coachRepository;
 
     private static final String SERVICE_NAME = "group";
-
-    public GroupServiceImpl(
-            GroupRepository groupRepository,
-            GroupMapper groupMapper,
-            SeasonRepository seasonRepository,
-            CoachRepository coachRepository) {
-        this.groupMapper = groupMapper;
-        this.groupRepository = groupRepository;
-        this.seasonRepository = seasonRepository;
-        this.coachRepository = coachRepository;
-    }
-
 
     @Override
     @Transactional

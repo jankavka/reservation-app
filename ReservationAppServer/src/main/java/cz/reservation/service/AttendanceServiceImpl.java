@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.dto.mapper.AttendanceMapper;
@@ -8,6 +9,7 @@ import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.AttendanceService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceMapper attendanceMapper;
@@ -29,31 +32,24 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private static final String SERVICE_NAME = "attendance";
 
-    public AttendanceServiceImpl(
-            AttendanceMapper attendanceMapper,
-            AttendanceRepository attendanceRepository,
-            BookingRepository bookingRepository) {
-
-        this.attendanceMapper = attendanceMapper;
-        this.attendanceRepository = attendanceRepository;
-        this.bookingRepository = bookingRepository;
-    }
-
-
     @Override
     @Transactional
     public ResponseEntity<AttendanceDto> createAttendance(AttendanceDto attendanceDto) {
         var entityToSave = attendanceMapper.toEntity(attendanceDto);
-        var bookingId = attendanceDto.booking().id();
+        var relatedBooking = bookingRepository.findById(attendanceDto.booking().id()).orElseThrow(
+                () -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage("Booking", attendanceDto.booking().id())));
 
-        //Checking if parent exists
-        if (bookingRepository.existsById(bookingId)) {
-            entityToSave.setBooking(bookingRepository.getReferenceById(bookingId));
-            var savedEntity = attendanceRepository.save(entityToSave);
-            return ResponseEntity.status(HttpStatus.CREATED).body(attendanceMapper.toDto(savedEntity));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("booking", bookingId));
+        //Sets related booking
+        entityToSave.setBooking(relatedBooking);
+
+        //Checking if player was not present and if his absence was excused properly
+        if (attendanceDto.present().equals(Boolean.FALSE) &&
+                !relatedBooking.getBookingStatus().equals(BookingStatus.CANCELED)) {
+            relatedBooking.setBookingStatus(BookingStatus.NO_SHOW);
         }
+        var savedEntity = attendanceRepository.save(entityToSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(attendanceMapper.toDto(savedEntity));
 
 
     }
@@ -109,4 +105,6 @@ public class AttendanceServiceImpl implements AttendanceService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
     }
+
+
 }

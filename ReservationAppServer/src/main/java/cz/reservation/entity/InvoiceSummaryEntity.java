@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 
 @Entity
 @Getter
@@ -27,7 +27,7 @@ public class InvoiceSummaryEntity {
     private UserEntity user;
 
     @Column
-    private LocalDate month;
+    private Month month;
 
     @Column
     private Double totalAmount;

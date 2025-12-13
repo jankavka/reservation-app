@@ -14,9 +14,13 @@ public interface BookingService {
 
     ResponseEntity<Map<String, String>> editBooking(BookingDto bookingDto, Long id);
 
+    ResponseEntity<Map<String, String>> editBookingAsAdmin(BookingDto bookingDto, Long id);
+
     ResponseEntity<List<BookingDto>> getAllBookings();
 
     ResponseEntity<Map<String,String>> deleteBooking(Long id);
+
+    Integer usedCapacityOfTrainingSlot(Long trainingSlotId);
 
 
 }
