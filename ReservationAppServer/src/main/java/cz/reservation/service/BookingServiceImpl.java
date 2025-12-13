@@ -7,10 +7,14 @@ import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.TrainingSlotRepository;
+import cz.reservation.service.exception.LateBookingCancelingException;
+import cz.reservation.service.exception.TrainingAlreadyStartedException;
 import cz.reservation.service.serviceinterface.BookingService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
     private final BookingMapper bookingMapper;
@@ -33,19 +38,7 @@ public class BookingServiceImpl implements BookingService {
 
     private static final String SERVICE_NAME = "booking";
 
-
-    public BookingServiceImpl(
-            BookingMapper bookingMapper,
-            BookingRepository bookingRepository,
-            PlayerRepository playerRepository,
-            TrainingSlotRepository trainingSlotRepository
-    ) {
-        this.bookingMapper = bookingMapper;
-        this.bookingRepository = bookingRepository;
-        this.playerRepository = playerRepository;
-        this.trainingSlotRepository = trainingSlotRepository;
-    }
-
+    private static final String MESSAGE = "message";
 
     @Override
     @Transactional
@@ -53,10 +46,21 @@ public class BookingServiceImpl implements BookingService {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
         var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
+
+
         entityToSave.setBookedAt(LocalDateTime.now());
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
         entityToSave.setTrainingSlot(relatedTrainingSlot);
-        entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
+
+        if (relatedTrainingSlot.getStartAt().isBefore(LocalDateTime.now())) {
+            throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
+        }
+
+        if (usedCapacityOfTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
+            entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
+        } else {
+            entityToSave.setBookingStatus(BookingStatus.WAITLIST);
+        }
         var savedEntity = bookingRepository.save(entityToSave);
 
         return ResponseEntity
@@ -85,9 +89,41 @@ public class BookingServiceImpl implements BookingService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToUpdate = bookingRepository.getReferenceById(id);
-            bookingMapper.updateEntity(entityToUpdate, bookingDto);
+            var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
 
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+            if (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW) ||
+                    bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) {
+                throw new IllegalArgumentException(
+                        "Current user doesn't have rights to set booking status as NO_SHOW, or CONFIRMED");
+            }
+
+            //Check if incoming bookingDto is set to CANCELED and the beginning of related training slot starts at more
+            //than 24 hours before now. If remaining time start of training slot is less than 24 hours, than client can
+            //not change the status and full price will be charged
+            if (bookingDto.bookingStatus().equals(BookingStatus.CANCELED) &&
+                    LocalDateTime.now().isBefore(relatedTrainingSlot.getStartAt().minusHours(24))) {
+
+                bookingMapper.updateEntity(entityToUpdate, bookingDto);
+                return ResponseEntity.ok(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+            } else {
+                throw new LateBookingCancelingException(
+                        "Can not cancel reservation less than 24 hours before training slot");
+            }
+
+
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Map<String, String>> editBookingAsAdmin(BookingDto bookingDto, Long id) {
+        if (bookingRepository.existsById(id)) {
+            var entityToUpdate = bookingRepository.getReferenceById(id);
+            bookingMapper.updateEntity(entityToUpdate, bookingDto);
+            return ResponseEntity.ok().body(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+        } else {
+
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
     }
 
@@ -108,10 +144,29 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
-            bookingRepository.deleteById(id);
+            bookingRepository.getReferenceById(id).setBookingStatus(BookingStatus.CANCELED);
             return ResponseEntity
-                    .ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
+                    .ok(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.CANCELED)));
         }
+    }
+
+    @Override
+    public Integer usedCapacityOfTrainingSlot(Long trainingSlotId) {
+        return bookingRepository.findAllByTrainingSlotId(trainingSlotId).size();
+    }
+
+
+    //Every booking older than 3 months is deleted from db
+    @Scheduled(cron = "0 0 1 1 * ?", zone = "Europe/Prague")
+    public void deleteOldBookings() {
+        bookingRepository
+                .findAll()
+                .stream()
+                .filter(booking -> booking.getBookedAt().isBefore(
+                        LocalDateTime
+                                .now()
+                                .minusMonths(3)))
+                .forEach(bookingRepository::delete);
     }
 
 

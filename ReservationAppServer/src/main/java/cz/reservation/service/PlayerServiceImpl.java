@@ -4,11 +4,13 @@ import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
+import cz.reservation.entity.PlayerEntity;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerRepository playerRepository;
@@ -32,16 +35,6 @@ public class PlayerServiceImpl implements PlayerService {
     private final UserRepository userRepository;
 
     private static final String SERVICE_NAME = "player";
-
-    public PlayerServiceImpl(
-            PlayerMapper playerMapper,
-            PlayerRepository playerRepository,
-            UserRepository userRepository) {
-        this.playerMapper = playerMapper;
-        this.playerRepository = playerRepository;
-        this.userRepository = userRepository;
-
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -132,5 +125,14 @@ public class PlayerServiceImpl implements PlayerService {
                         .stream()
                         .map(playerMapper::toDto)
                         .toList());
+    }
+
+    @Override
+    public List<PlayerEntity> getPlayersEntitiesByParentId(Long parentId) {
+        if (userRepository.existsById(parentId)) {
+            return playerRepository.findByParentId(parentId);
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage("User", parentId));
+        }
     }
 }

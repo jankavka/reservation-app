@@ -6,6 +6,7 @@ import cz.reservation.dto.mapper.SeasonMapper;
 import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.service.serviceinterface.SeasonService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class SeasonServiceImpl implements SeasonService {
 
     private final SeasonMapper seasonMapper;
@@ -24,12 +26,6 @@ public class SeasonServiceImpl implements SeasonService {
     private final SeasonRepository seasonRepository;
 
     private static final String SERVICE_NAME = "season";
-
-    public SeasonServiceImpl(SeasonMapper seasonMapper, SeasonRepository seasonRepository) {
-        this.seasonMapper = seasonMapper;
-        this.seasonRepository = seasonRepository;
-    }
-
 
     @Override
     @Transactional

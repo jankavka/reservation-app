@@ -3,11 +3,16 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
+import cz.reservation.dto.mapper.PricingRuleMapper;
 import cz.reservation.entity.InvoiceSummaryEntity;
+import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
+import cz.reservation.service.serviceinterface.PlayerService;
+import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final InvoiceSummaryRepository invoiceSummaryRepository;
@@ -28,23 +34,19 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final UserRepository userRepository;
 
+    private final PlayerService playerService;
+
     private static final String SERVICE_NAME = "invoice summary";
 
-    public InvoiceSummaryServiceImpl(
-            InvoiceSummaryMapper invoiceSummaryMapper,
-            InvoiceSummaryRepository invoiceSummaryRepository,
-            UserRepository userRepository) {
-        this.invoiceSummaryMapper = invoiceSummaryMapper;
-        this.invoiceSummaryRepository = invoiceSummaryRepository;
-        this.userRepository = userRepository;
-    }
-
+    private final PricingRuleService pricingRuleService;
 
     @Override
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
+        //var relatedUser = userRepository.getReferenceById(invoiceSummaryDto.user().id());
+
         entityToSave.setGeneratedAt(LocalDateTime.now());
         setForeignKeys(entityToSave, invoiceSummaryDto);
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);

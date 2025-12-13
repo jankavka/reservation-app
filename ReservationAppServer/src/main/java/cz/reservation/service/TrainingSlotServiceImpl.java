@@ -195,7 +195,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
             var allBlockings = courtBlockingService.getAllBlockingsEntities();
 
             //Object to use in collision check
-            var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlocking().id());
+            var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlockingId());
 
             var currentSlotStartAtMillis = trainingSlotDto.startAt().toEpochSecond(ZoneOffset.UTC);
 

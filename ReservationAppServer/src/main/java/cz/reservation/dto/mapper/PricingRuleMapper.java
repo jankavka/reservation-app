@@ -1,0 +1,16 @@
+package cz.reservation.dto.mapper;
+
+import cz.reservation.dto.PricingRuleDto;
+import cz.reservation.entity.PricingRuleEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
+@Mapper(componentModel = "spring")
+public interface PricingRuleMapper {
+
+    PricingRuleDto toDto(PricingRuleEntity pricingRuleEntity);
+
+    PricingRuleEntity toEntity(PricingRuleDto pricingRulesDto);
+
+    void updateEntity(@MappingTarget PricingRuleEntity target, PricingRuleDto source);
+}

@@ -11,9 +11,9 @@ import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.service.exception.EnrollmentAlreadyCanceledException;
 import cz.reservation.service.serviceinterface.EnrollmentService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
@@ -36,19 +37,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final PlayerRepository playerRepository;
 
     private static final String SERVICE_NAME = "enrollment";
-
-
-    public EnrollmentServiceImpl(
-            EnrollmentRepository enrollmentRepository,
-            EnrollmentMapper enrollmentMapper,
-            GroupRepository groupRepository,
-            PlayerRepository playerRepository) {
-        this.enrollmentMapper = enrollmentMapper;
-        this.enrollmentRepository = enrollmentRepository;
-        this.groupRepository = groupRepository;
-        this.playerRepository = playerRepository;
-    }
-
 
     @Override
     @Transactional
@@ -150,22 +138,23 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     private void setForeignKeys(EnrollmentEntity target, EnrollmentDto source) {
-        target.setGroup(groupRepository.getReferenceById(source.group().id()));
-        target.setPlayer(playerRepository.getReferenceById(source.player().id()));
-    }
+        if(playerRepository.existsById(source.player().id())){
+            target.setPlayer(playerRepository.getReferenceById(source.player().id()));
 
-    //Deletes all enrollments, older than month on the beginning of each month
-    @Scheduled(cron = "0 0 1 1 * ?", zone = "Europe/Prague")
-    public void deleteOldEnrollments() {
-        var allEnrollments = enrollmentRepository.findAll();
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
+                    "Player",source.player().id()));
+        }
 
-        allEnrollments
-                .stream()
-                .filter(enrollment -> enrollment.getCreatedAt().isBefore(
-                        LocalDateTime
-                                .now()
-                                .minusMonths(1L)))
-                .forEach(enrollmentRepository::delete);
+        if(groupRepository.existsById(source.group().id())){
+            target.setGroup(groupRepository.getReferenceById(source.group().id()));
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
+                    "Group", source.group().id()));
+        }
+
+
+
     }
 
 

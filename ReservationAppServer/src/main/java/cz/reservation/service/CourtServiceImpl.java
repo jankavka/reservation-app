@@ -7,6 +7,7 @@ import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class CourtServiceImpl implements CourtService {
 
     private final CourtRepository courtRepository;
@@ -28,17 +30,6 @@ public class CourtServiceImpl implements CourtService {
     private final VenueRepository venueRepository;
 
     private static final String SERVICE_NAME = "court";
-
-    public CourtServiceImpl(
-            CourtRepository courtRepository,
-            CourtMapper courtMapper,
-            VenueRepository venueRepository
-    ) {
-        this.courtMapper = courtMapper;
-        this.courtRepository = courtRepository;
-        this.venueRepository = venueRepository;
-    }
-
 
     @Override
     @Transactional

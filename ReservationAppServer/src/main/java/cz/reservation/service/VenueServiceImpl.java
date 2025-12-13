@@ -6,7 +6,7 @@ import cz.reservation.dto.mapper.VenueMapper;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.serviceinterface.VenueService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
@@ -25,13 +26,6 @@ public class VenueServiceImpl implements VenueService {
     private final VenueMapper venueMapper;
 
     private static final String SERVICE_NAME = "venue";
-
-    @Autowired
-    public VenueServiceImpl(VenueRepository venueRepository, VenueMapper venueMapper) {
-        this.venueMapper = venueMapper;
-        this.venueRepository = venueRepository;
-    }
-
 
     @Override
     @Transactional

@@ -7,6 +7,7 @@ import cz.reservation.entity.repository.TrainingSlotRepository;
 import cz.reservation.entity.repository.WeatherNotesRepository;
 import cz.reservation.service.serviceinterface.WeatherNotesService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Map;
 import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
+@RequiredArgsConstructor
 public class WeatherNotesServiceImpl implements WeatherNotesService {
 
     private final WeatherNotesMapper weatherNotesMapper;
@@ -27,19 +29,6 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
     private final TrainingSlotRepository trainingSlotRepository;
 
     private static final String SERVICE_NAME = "weather notes";
-
-
-    public WeatherNotesServiceImpl(
-            WeatherNotesRepository weatherNotesRepository,
-            WeatherNotesMapper weatherNotesMapper,
-            TrainingSlotRepository trainingSlotRepository
-    ) {
-        this.weatherNotesMapper = weatherNotesMapper;
-        this.weatherNotesRepository = weatherNotesRepository;
-        this.trainingSlotRepository = trainingSlotRepository;
-
-    }
-
 
     @Override
     @Transactional
