@@ -41,11 +41,13 @@ public class PricingEngineImpl implements PricingEngine {
     public Integer computePriceOfSingleBooking(BookingDto bookingDto) {
 
         var allPricingRules = pricingRuleService.getAllPricingRulesEntities();
+        var timeTotal = bookingDto.trainingSlot().endAt().getHour() - bookingDto.trainingSlot().startAt().getHour();
+
 
         if ((bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) ||
                 (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW))) {
 
-            return allPricingRules.stream()
+            var priceForOneHour = allPricingRules.stream()
                     //Filtering conditions with surface mentioned
                     .filter(pricingRuleEntity -> hasCondition(SURFACE, pricingRuleEntity, bookingDto))
                     //Filtering conditions with indoor mentioned
@@ -58,6 +60,10 @@ public class PricingEngineImpl implements PricingEngine {
                     .filter(pricingRuleEntity -> hasCondition(PRIME_TIME, pricingRuleEntity, bookingDto))
                     .mapToInt(PricingRuleEntity::getAmountCents)
                     .sum();
+
+            var hoursInPrimeTime = computeHoursInPrimeTime(bookingDto.trainingSlot());
+
+            return priceForOneHour * timeTotal;
 
         } else return 0;
     }
@@ -72,12 +78,12 @@ public class PricingEngineImpl implements PricingEngine {
         var hourOfStartOfSlot = trainingSlotDto.startAt().getHour();
         var hourOfEndOfSlot = trainingSlotDto.endAt().getHour();
 
-        if (hourOfStartOfSlot < 16) {
-            hourOfStartOfSlot = 16;
+        if (hourOfStartOfSlot < PRIME_TIME_START) {
+            hourOfStartOfSlot = PRIME_TIME_START;
 
         }
-        if (hourOfEndOfSlot > 20) {
-            hourOfEndOfSlot = 20;
+        if (hourOfEndOfSlot > PRIME_TIME_END) {
+            hourOfEndOfSlot = PRIME_TIME_END;
         }
 
         var hourResult = hourOfEndOfSlot - hourOfStartOfSlot;
@@ -101,7 +107,6 @@ public class PricingEngineImpl implements PricingEngine {
 
         var relatedCourt = bookingDto.trainingSlot().court();
         var relatedPlayer = bookingDto.player();
-        var relatedTrainingSlot = bookingDto.trainingSlot();
         var relatedGroup = bookingDto.trainingSlot().group();
         var relatedUser = relatedPlayer.parent();
 
@@ -140,8 +145,6 @@ public class PricingEngineImpl implements PricingEngine {
                 if (entity.getConditions().containsKey(PRIME_TIME)) {
                     var startTime = bookingDto.trainingSlot().startAt();
                     var endTime = bookingDto.trainingSlot().endAt();
-
-                    entity.setAmountCents(entity.getAmountCents() * computeHoursInPrimeTime(relatedTrainingSlot));
 
                     return (endTime.getHour() > PRIME_TIME_START &&
                             startTime.getHour() < PRIME_TIME_END);

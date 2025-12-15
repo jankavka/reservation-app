@@ -39,7 +39,7 @@ public class PricingRuleEntity {
 
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb", unique = true)
     Map<String, Object> conditions = new HashMap<>();
 
 
