@@ -28,7 +28,7 @@ public class CoachEntity {
     @Column
     private String certification;
 
-    @OneToMany
+    @OneToMany(mappedBy = "coach")
     private List<GroupEntity> groups;
 
 

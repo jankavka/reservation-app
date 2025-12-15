@@ -3,13 +3,12 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
-import cz.reservation.dto.mapper.PricingRuleMapper;
+import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.InvoiceSummaryEntity;
-import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
-import cz.reservation.service.serviceinterface.PlayerService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final UserRepository userRepository;
 
-    private final PlayerService playerService;
+    private final BookingService bookingService;
 
     private static final String SERVICE_NAME = "invoice summary";
 
@@ -45,7 +44,34 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-        //var relatedUser = userRepository.getReferenceById(invoiceSummaryDto.user().id());
+        var relatedUser = userRepository.getReferenceById(invoiceSummaryDto.user().id());
+        var allPlayersByUser = relatedUser.getPlayers();
+
+        var allBookingIdDtoByUser = allPlayersByUser.stream()
+                .flatMap(playerEntity -> playerEntity.getBookings().stream())
+                .filter(bookingEntity -> bookingEntity
+                        .getTrainingSlot()
+                        .getStartAt()
+                        .getMonth()
+                        .equals(invoiceSummaryDto.month()))
+                .map(BookingEntity::getId)
+                .toList();
+
+
+        //Computing final price of invoice summary
+        var price = (Integer) allBookingIdDtoByUser
+                .stream()
+                .mapToInt(bookingService::getPriceForBooking)
+                .sum();
+
+        //setting price ad total amount
+        entityToSave.setTotalCentsAmount(price);
+
+        //Setting id if entity with selected month is already in database
+        if (invoiceSummaryRepository.summaryOfCurrentMonth(invoiceSummaryDto.month().getValue()) != null) {
+            entityToSave.setId(invoiceSummaryRepository
+                    .getIdOfCurrentMonthSummary(invoiceSummaryDto.month().getValue()));
+        }
 
         entityToSave.setGeneratedAt(LocalDateTime.now());
         setForeignKeys(entityToSave, invoiceSummaryDto);

@@ -15,7 +15,7 @@ public record InvoiceSummaryDto(
         @NotNull
         Month month,
 
-        Double totalAmount,
+        Integer totalCentsAmount,
 
         @NotBlank
         String currency,

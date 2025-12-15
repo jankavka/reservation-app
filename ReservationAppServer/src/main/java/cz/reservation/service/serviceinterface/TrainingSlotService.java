@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.TrainingSlotDto;
+import cz.reservation.entity.TrainingSlotEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -12,6 +13,8 @@ public interface TrainingSlotService {
 
     ResponseEntity<TrainingSlotDto> getTrainingSlot(Long id);
 
+    TrainingSlotEntity getTrainingSlotEntity(Long id);
+
     ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlots();
 
     ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlotsByGroupId(Long groupId);
@@ -19,4 +22,6 @@ public interface TrainingSlotService {
     ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id);
 
     ResponseEntity<Map<String, String>> deleteTrainingSlot(Long id);
+
+    Integer getUsedCapacityOfRelatedTrainingSlot(Long id);
 }
