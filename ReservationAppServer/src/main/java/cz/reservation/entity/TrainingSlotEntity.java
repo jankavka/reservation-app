@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +29,9 @@ public class TrainingSlotEntity {
     @ManyToOne
     @JoinColumn(name = "court_id")
     private CourtEntity court;
+
+    @OneToMany(mappedBy = "trainingSlot")
+    private List<BookingEntity> bookingEntities;
 
     @Column
     private LocalDateTime startAt;

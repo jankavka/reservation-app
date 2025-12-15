@@ -6,6 +6,7 @@ import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.dto.mapper.TrainingSlotMapper;
 import cz.reservation.entity.CourtBlockingEntity;
+import cz.reservation.entity.TrainingSlotEntity;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.TrainingSlotRepository;
@@ -146,6 +147,15 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
     @Override
+    public TrainingSlotEntity getTrainingSlotEntity(Long id) {
+        return trainingSlotRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlots() {
         var allTrainingSlots = trainingSlotRepository.findAll();
@@ -246,6 +256,17 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Integer getUsedCapacityOfRelatedTrainingSlot(Long id) {
+        var currentSlot = trainingSlotRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        return currentSlot.getBookingEntities().size();
+
+    }
+
 
     /**
      * Helper method. Looking for collision between current slot and all blockings of current court
@@ -287,9 +308,5 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                                 blocking.get(0) < currentSlotEndAtMillis && currentSlotEndAtMillis < blocking.get(1))
                 .toList()
                 .isEmpty();
-
-
     }
-
-
 }

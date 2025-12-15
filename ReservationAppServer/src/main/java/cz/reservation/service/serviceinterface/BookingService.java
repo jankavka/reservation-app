@@ -20,7 +20,9 @@ public interface BookingService {
 
     ResponseEntity<Map<String,String>> deleteBooking(Long id);
 
-    Integer usedCapacityOfTrainingSlot(Long trainingSlotId);
+    Integer getPriceForBooking(Long bookingId);
+
+    Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId);
 
 
 }

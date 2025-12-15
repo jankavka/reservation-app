@@ -30,7 +30,7 @@ public class InvoiceSummaryEntity {
     private Month month;
 
     @Column
-    private Double totalAmount;
+    private Integer totalCentsAmount;
 
     @Column
     private String currency;

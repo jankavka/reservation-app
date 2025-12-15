@@ -4,11 +4,13 @@ import lombok.Getter;
 
 @Getter
 public enum Surface {
-    CLAY("clay"), HARD("hard"), WIMBLEDON("wimbledon");
+    CLAY("clay"),
+    HARD("hard"),
+    WIMBLEDON("wimbledon");
 
     private final String code;
 
-    Surface( String code){
+    Surface(String code) {
         this.code = code;
     }
 }

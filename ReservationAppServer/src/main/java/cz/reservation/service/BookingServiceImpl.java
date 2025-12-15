@@ -6,10 +6,11 @@ import cz.reservation.dto.BookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.PlayerRepository;
-import cz.reservation.entity.repository.TrainingSlotRepository;
 import cz.reservation.service.exception.LateBookingCancelingException;
 import cz.reservation.service.exception.TrainingAlreadyStartedException;
 import cz.reservation.service.serviceinterface.BookingService;
+import cz.reservation.service.serviceinterface.TrainingSlotService;
+import cz.reservation.service.utils.PricingEngine;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,9 @@ public class BookingServiceImpl implements BookingService {
 
     private final PlayerRepository playerRepository;
 
-    private final TrainingSlotRepository trainingSlotRepository;
+    private final TrainingSlotService trainingSlotService;
+
+    private final PricingEngine pricingEngine;
 
     private static final String SERVICE_NAME = "booking";
 
@@ -45,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
     public ResponseEntity<BookingDto> createBooking(BookingDto bookingDto) {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
-        var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
+        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
 
 
         entityToSave.setBookedAt(LocalDateTime.now());
@@ -56,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
             throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
         }
 
-        if (usedCapacityOfTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
+        if (usedCapacityOfRelatedTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
             entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
         } else {
             entityToSave.setBookingStatus(BookingStatus.WAITLIST);
@@ -89,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToUpdate = bookingRepository.getReferenceById(id);
-            var relatedTrainingSlot = trainingSlotRepository.getReferenceById(bookingDto.trainingSlot().id());
+            var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
 
             if (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW) ||
                     bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) {
@@ -151,8 +154,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Integer usedCapacityOfTrainingSlot(Long trainingSlotId) {
-        return bookingRepository.findAllByTrainingSlotId(trainingSlotId).size();
+    public Integer getPriceForBooking(Long bookingId) {
+        var currentBookingDto = bookingMapper.toDto(bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, bookingId))));
+        return pricingEngine.computePriceOfSingleBooking(currentBookingDto);
+    }
+
+    @Override
+    public Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId) {
+        return trainingSlotService.getUsedCapacityOfRelatedTrainingSlot(trainingSlotId);
     }
 
 
