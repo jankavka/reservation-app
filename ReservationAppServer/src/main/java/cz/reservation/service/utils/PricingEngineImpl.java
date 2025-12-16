@@ -2,7 +2,6 @@ package cz.reservation.service.utils;
 
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.dto.*;
-import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.service.serviceinterface.PlayerService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class PricingEngineImpl implements PricingEngine {
 
 
     /**
-     * Computes total amount of cents on defined conditions on pricing rule entity.
+     * Computes total amount of cents based on defined conditions in pricing rule entity.
      *
      * @param bookingDto Data transfer object of current booking
      * @return amounts of cents as Integer
@@ -40,30 +39,25 @@ public class PricingEngineImpl implements PricingEngine {
     @Override
     public Integer computePriceOfSingleBooking(BookingDto bookingDto) {
 
-        var allPricingRules = pricingRuleService.getAllPricingRulesEntities();
+        var allPricingRules = pricingRuleService.getAllPricingRulesDto();
         var timeTotal = bookingDto.trainingSlot().endAt().getHour() - bookingDto.trainingSlot().startAt().getHour();
-
+        var hoursInPrimeTime = computeHoursInPrimeTime(bookingDto.trainingSlot());
 
         if ((bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) ||
                 (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW))) {
 
-            var priceForOneHour = allPricingRules.stream()
-                    //Filtering conditions with surface mentioned
-                    .filter(pricingRuleEntity -> hasCondition(SURFACE, pricingRuleEntity, bookingDto))
-                    //Filtering conditions with indoor mentioned
-                    .filter(pricingRuleEntity -> hasCondition(INDOOR, pricingRuleEntity, bookingDto))
-                    //Filtering conditions with level mentioned
-                    .filter(pricingRuleEntity -> hasCondition(LEVEL, pricingRuleEntity, bookingDto))
-                    //Filtering conditions with siblings mentioned
-                    .filter(pricingRuleEntity -> hasCondition(SIBLINGS, pricingRuleEntity, bookingDto))
-                    //Filtering conditions with primeTime mentioned
-                    .filter(pricingRuleEntity -> hasCondition(PRIME_TIME, pricingRuleEntity, bookingDto))
-                    .mapToInt(PricingRuleEntity::getAmountCents)
+            var pricePerHour2 = allPricingRules.stream()
+                    .filter(pricingRuleDto -> isRuleValid(pricingRuleDto, bookingDto))
+                    .mapToInt(pricingRuleDto -> {
+                        if (pricingRuleDto.conditions().containsKey(PRIME_TIME)) {
+                            return pricingRuleDto.amountCents() * hoursInPrimeTime;
+                        } else {
+                            return pricingRuleDto.amountCents();
+                        }
+                    })
                     .sum();
 
-            var hoursInPrimeTime = computeHoursInPrimeTime(bookingDto.trainingSlot());
-
-            return priceForOneHour * timeTotal;
+            return pricePerHour2 * timeTotal;
 
         } else return 0;
     }
@@ -91,69 +85,121 @@ public class PricingEngineImpl implements PricingEngine {
         return Math.max(hourResult, 0);
     }
 
-    /**
-     * Helper method, which looks for conditions represented by key parameter, present in
-     * related PricingRuleEntity and then checks for congruence in current booking.
-     *
-     * @param key        String representation of condition
-     * @param entity     Pricing rule entity as a holder of condition
-     * @param bookingDto Data transfer object of current booking
-     * @return boolean value if condition will be applied
-     */
-    private boolean hasCondition(
-            String key,
-            PricingRuleEntity entity,
-            BookingDto bookingDto) {
 
-        var relatedCourt = bookingDto.trainingSlot().court();
-        var relatedPlayer = bookingDto.player();
-        var relatedGroup = bookingDto.trainingSlot().group();
+    /**
+     * Helper function, which determines if rule is valid for current booking
+     *
+     * @param rule    PricingRuleDto object representing concrete collection of rules
+     * @param booking BookingDto object representing a booking we look rules for
+     * @return a boolean value which tels if conditions of the rule object will be used of not
+     */
+    private boolean isRuleValid(PricingRuleDto rule, BookingDto booking) {
+        var relatedCourt = booking.trainingSlot().court();
+        var relatedPlayer = booking.player();
+        var relatedGroup = booking.trainingSlot().group();
         var relatedUser = relatedPlayer.parent();
 
-        switch (key) {
-            case SURFACE -> {
-                if (entity.getConditions().containsKey(SURFACE)) {
-                    return entity.getConditions()
-                            .get(SURFACE.toLowerCase())
-                            .equals(relatedCourt.surface().getCode().toLowerCase());
-                }
-                return true;
-            }
-            case INDOOR -> {
-                if (entity.getConditions().containsKey(INDOOR)) {
-                    return entity.getConditions()
-                            .get(INDOOR).toString()
-                            .equals(relatedCourt.indoor().toString());
-                }
-                return true;
-            }
-            case LEVEL -> {
-                if (entity.getConditions().containsKey(LEVEL)) {
-                    return entity.getConditions()
-                            .get(LEVEL.toLowerCase())
-                            .equals(relatedGroup.level().getActualLevel().toLowerCase());
-                }
-                return true;
-            }
-            case SIBLINGS -> {
-                if (entity.getConditions().containsKey(SIBLINGS)) {
-                    return playerService.getPlayersEntitiesByParentId(relatedUser.id()).size() > 1;
-                }
-                return true;
-            }
-            case PRIME_TIME -> {
-                if (entity.getConditions().containsKey(PRIME_TIME)) {
-                    var startTime = bookingDto.trainingSlot().startAt();
-                    var endTime = bookingDto.trainingSlot().endAt();
+        return isSurfaceEqualOrReturnTrueIfNotPresent(rule, relatedCourt)
+                && isIndoorEqualOrReturnTrueIfNotPresent(rule, relatedCourt)
+                && isLevelEqualOrReturnTrueIfNotPresent(rule, relatedGroup)
+                && isSiblingsRelevantOrReturnTrueIfNotPresent(rule, relatedUser)
+                && isPrimeTimeRelevantOrReturnTrueIfNotPresent(rule, booking);
+    }
 
-                    return (endTime.getHour() > PRIME_TIME_START &&
-                            startTime.getHour() < PRIME_TIME_END);
-                }
-                return true;
-            }
-            default -> {
-                return true;
-            }
+
+    /**
+     * Helper function which, looks for "surface" condition in rule.conditions(). Function
+     * returns false only in case "surface" condition is present in rule.conditions() and
+     * the value is not equal to the one in court.surface().
+     *
+     * @param rule  PricingRuleDto object representing concrete collection of rules
+     * @param court CourtDto object representing a court with specific surface attribute
+     * @return boolean value according to comparison of "surface" condition and court.surface(), or
+     * true if "surface" condition is not present.
+     */
+    private boolean isSurfaceEqualOrReturnTrueIfNotPresent(PricingRuleDto rule, CourtDto court) {
+        if (rule.conditions().containsKey(SURFACE)) {
+            return rule.conditions()
+                    .get(SURFACE.toLowerCase())
+                    .equals(court.surface().getCode().toLowerCase());
         }
+        return true;
+    }
+
+
+    /**
+     * Helper function which, looks for "indoor" condition in rule.conditions(). Function
+     * returns false only in case "indoor" condition is present in rule.conditions() and
+     * the value is not equal to the one in court.indoor()
+     *
+     * @param rule  PricingRuleDto object representing concrete collection of rules
+     * @param court CourtDto object representing a court with specific "indoor" attribute
+     * @return boolean value according to comparison of "court" condition and court.court(), or
+     * true if "court" condition is not present.
+     */
+    private boolean isIndoorEqualOrReturnTrueIfNotPresent(PricingRuleDto rule, CourtDto court) {
+        if (rule.conditions().containsKey(INDOOR)) {
+            return rule.conditions()
+                    .get(INDOOR).toString()
+                    .equals(court.indoor().toString());
+        }
+        return true;
+    }
+
+    /**
+     * Helper function which, looks for "level" condition in rule.conditions(). Function
+     * returns false only in case "level" condition is present in rule.conditions() and
+     * the value is not equal to the one in court.level()
+     *
+     * @param rule  PricingRuleDto object representing concrete collection of rules
+     * @param group GroupDto object representing a "group" with a specific level attribute
+     * @return boolean value according to comparison of "level" condition and court.level(), or
+     * true if "level" condition is not present.
+     */
+    private boolean isLevelEqualOrReturnTrueIfNotPresent(PricingRuleDto rule, GroupDto group) {
+        if (rule.conditions().containsKey(LEVEL)) {
+            return rule.conditions()
+                    .get(LEVEL.toLowerCase())
+                    .equals(group.level().getActualLevel().toLowerCase());
+        }
+        return true;
+    }
+
+    /**
+     * Helper function which, looks for "siblings" condition in rule.conditions(). Function
+     * returns false only in case "siblings" condition is present in rule.conditions() and
+     * the number of all players connected to the user is not higher than 1.
+     *
+     * @param rule PricingRuleDto object representing concrete collection of rules
+     * @param user UserDto object representing a concrete "user"
+     * @return boolean value according to fact there is more than one player related to user, or true
+     * if "siblings" condition not present
+     */
+    private boolean isSiblingsRelevantOrReturnTrueIfNotPresent(PricingRuleDto rule, UserDto user) {
+        if (rule.conditions().containsKey(SIBLINGS)) {
+            return playerService.getPlayersEntitiesByParentId(user.id()).size() > 1;
+        }
+        return true;
+    }
+
+    /**
+     * Helper function, looks for "primeTime" condition in rule.conditions(). Function
+     * return false only in case "primeTime" conditions is present in rule.conditions() and
+     * the current booking doesn't interfere to time between PRIME_TIME_START and PRIME_TIME_END
+     *
+     * @param rule    PricingRuleDto object representing concrete collection of rules
+     * @param booking BookingDto object representing a current "booking"
+     * @return boolean value according to fact booking time interferes to time between PRIME_TIME_START
+     * and PRIME_TIME_END, or true of "primeTime" condition is not present
+     */
+    private boolean isPrimeTimeRelevantOrReturnTrueIfNotPresent(PricingRuleDto rule, BookingDto booking) {
+        if (rule.conditions().containsKey(PRIME_TIME)) {
+            var startTime = booking.trainingSlot().startAt();
+            var endTime = booking.trainingSlot().endAt();
+
+            return (endTime.getHour() > PRIME_TIME_START &&
+                    startTime.getHour() < PRIME_TIME_END);
+        }
+        return true;
     }
 }

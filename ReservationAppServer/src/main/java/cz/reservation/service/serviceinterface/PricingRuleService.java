@@ -1,7 +1,6 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.PricingRuleDto;
-import cz.reservation.entity.PricingRuleEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public interface PricingRuleService {
 
     ResponseEntity<List<PricingRuleDto>> getAllPricingRules();
 
-    List<PricingRuleEntity> getAllPricingRulesEntities();
+    List<PricingRuleDto> getAllPricingRulesDto();
 
     ResponseEntity<Map<String, String>> updateRule(PricingRuleDto pricingRulesDto, Long id);
 

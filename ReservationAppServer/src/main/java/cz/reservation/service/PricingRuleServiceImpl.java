@@ -3,7 +3,6 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.PricingRuleMapper;
-import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.PricingRulesRepository;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
@@ -67,8 +66,12 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     }
 
     @Override
-    public List<PricingRuleEntity> getAllPricingRulesEntities() {
-        return pricingRulesRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<PricingRuleDto> getAllPricingRulesDto() {
+        return pricingRulesRepository.findAll()
+                .stream()
+                .map(pricingRuleMapper::toDto)
+                .toList();
     }
 
     @Override
