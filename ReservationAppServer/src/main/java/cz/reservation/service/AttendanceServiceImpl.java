@@ -4,6 +4,7 @@ import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.dto.mapper.AttendanceMapper;
+import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.repository.AttendanceRepository;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.service.exception.EmptyListException;
@@ -44,10 +45,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         entityToSave.setBooking(relatedBooking);
 
         //Checking if player was not present and if his absence was excused properly
-        if (attendanceDto.present().equals(Boolean.FALSE) &&
-                !relatedBooking.getBookingStatus().equals(BookingStatus.CANCELED)) {
-            relatedBooking.setBookingStatus(BookingStatus.NO_SHOW);
-        }
+        presenceChecking(attendanceDto, relatedBooking);
+
         var savedEntity = attendanceRepository.save(entityToSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(attendanceMapper.toDto(savedEntity));
 
@@ -103,6 +102,13 @@ public class AttendanceServiceImpl implements AttendanceService {
             return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+        }
+    }
+
+    private void presenceChecking(AttendanceDto attendanceDto, BookingEntity relatedBooking) {
+        if (attendanceDto.present().equals(Boolean.FALSE) &&
+                !relatedBooking.getBookingStatus().equals(BookingStatus.CANCELED)) {
+            relatedBooking.setBookingStatus(BookingStatus.NO_SHOW);
         }
     }
 
