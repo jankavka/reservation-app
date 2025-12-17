@@ -72,6 +72,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserEntity getUserEntity(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
+                entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers() {

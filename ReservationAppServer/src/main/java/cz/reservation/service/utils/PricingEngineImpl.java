@@ -1,6 +1,7 @@
 package cz.reservation.service.utils;
 
 import cz.reservation.constant.BookingStatus;
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.*;
 import cz.reservation.service.serviceinterface.PlayerService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
@@ -39,14 +40,14 @@ public class PricingEngineImpl implements PricingEngine {
     @Override
     public Integer computePriceOfSingleBooking(BookingDto bookingDto) {
 
-        var allPricingRules = pricingRuleService.getAllPricingRulesDto();
+        var allPricingRules = pricingRuleService.getPricingRulesByPricingType(PricingType.PER_SLOT);
         var timeTotal = bookingDto.trainingSlot().endAt().getHour() - bookingDto.trainingSlot().startAt().getHour();
         var hoursInPrimeTime = computeHoursInPrimeTime(bookingDto.trainingSlot());
 
         if ((bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) ||
                 (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW))) {
 
-            var pricePerHour2 = allPricingRules.stream()
+            var pricePerHour = allPricingRules.stream()
                     .filter(pricingRuleDto -> isRuleValid(pricingRuleDto, bookingDto))
                     .mapToInt(pricingRuleDto -> {
                         if (pricingRuleDto.conditions().containsKey(PRIME_TIME)) {
@@ -57,10 +58,16 @@ public class PricingEngineImpl implements PricingEngine {
                     })
                     .sum();
 
-            return pricePerHour2 * timeTotal;
+            return pricePerHour * timeTotal;
 
         } else return 0;
     }
+
+    @Override
+    public Integer computePriceOfMonthlyPricingType(PricingRuleDto rule) {
+        return rule.amountCents();
+    }
+
 
     /**
      * Helper method, which sums hours in prime-time in current training slot

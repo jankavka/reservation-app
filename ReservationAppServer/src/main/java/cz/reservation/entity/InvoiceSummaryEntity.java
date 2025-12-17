@@ -1,6 +1,7 @@
 package cz.reservation.entity;
 
 
+import cz.reservation.constant.PricingType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +32,9 @@ public class InvoiceSummaryEntity {
 
     @Column
     private Integer totalCentsAmount;
+
+    @Column
+    private PricingType pricingType;
 
     @Column
     private String currency;

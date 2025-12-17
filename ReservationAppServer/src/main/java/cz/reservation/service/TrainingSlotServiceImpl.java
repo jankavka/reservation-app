@@ -67,14 +67,14 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         var allBlockings = courtBlockingService.getAllBlockingsEntities();
 
         //Throws exception if there is at least one collision
-        isThereTimeCollision(
+        validateNoTimeCollision(
                 allBlockings,
                 null,
                 trainingSlotDto
         );
 
         //Related blocking of court saved together with the slot
-        var relatedCourtBlockingDto = createRelatedCourtBlockingDto(trainingSlotDto);
+        var relatedCourtBlockingDto = createAndAttachCourtBlocking(trainingSlotDto);
 
         //Sets related court blocking as FK to entityToSave
         setRelatedBlockIfItsNotNull(relatedCourtBlockingDto, entityToSave);
@@ -164,7 +164,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
             var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlockingId());
 
             //Collision check. looking for collision between current slot and all blockings of current court
-            isThereTimeCollision(
+            validateNoTimeCollision(
                     allBlockings,
                     relatedCourtBlockingEntity,
                     trainingSlotDto);
@@ -228,7 +228,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      * @param relatedCourtBlockingEntity entity of related court
      * @param trainingSlotDto            object with current training slot data
      */
-    private void isThereTimeCollision(
+    private void validateNoTimeCollision(
             List<CourtBlockingEntity> allBlockings,
             @Nullable CourtBlockingEntity relatedCourtBlockingEntity,
             TrainingSlotDto trainingSlotDto
@@ -278,54 +278,42 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         var groupId = trainingSlotDto.group().id();
         var courtId = trainingSlotDto.court().id();
 
-        //Checking existing related group
-        if (groupRepository.existsById(groupId)) {
-            entityToSave.setGroup(groupRepository.getReferenceById(trainingSlotDto.group().id()));
+        entityToSave.setGroup(groupRepository.findById(trainingSlotDto.group().id()).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("group", groupId))));
 
-            //setting the same capacity as related group has
-            entityToSave.setCapacity(entityToSave.getGroup().getCapacity());
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
-                    "group", trainingSlotDto.group().id()));
-        }
+        //setting the same capacity as related group has
+        entityToSave.setCapacity(entityToSave.getGroup().getCapacity());
 
-        //Checking existing related court
-        if (courtRepository.existsById(courtId)) {
-            entityToSave.setCourt(courtRepository.getReferenceById(courtId));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
-        }
+        entityToSave.setCourt(courtRepository.findById(courtId).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId))));
+
     }
 
     /**
-     * If related "relatedCourtBlockingDto" is not null than it is set as FK, otherwise NullPointerException is
+     * If "relatedCourtBlockingDto" is not null than it is set as FK, otherwise NullPointerException is
      * thrown
      *
      * @param relatedCourtBlockingDto data transfer object with related court blocking data
      * @param entityToSave            TrainingSlotEntity object which is preparing for persisting
      */
-    private void setRelatedBlockIfItsNotNull(CourtBlockingDto relatedCourtBlockingDto, TrainingSlotEntity entityToSave) {
-        //Creating related court blocking for later use
-        var relatedCourtBlocking = courtBlockingService.createBlocking(relatedCourtBlockingDto).getBody();
+    private void setRelatedBlockIfItsNotNull(
+            CourtBlockingDto relatedCourtBlockingDto, TrainingSlotEntity entityToSave) {
 
-        //If related court blocking is not null the blocking is set up as FK to current training slot
-        if (relatedCourtBlocking != null) {
-            entityToSave.setCourtBlocking(courtBlockingService.getBlockingEntity(relatedCourtBlocking.id()));
-        } else {
-            throw new NullPointerException(
-                    "Error during setting related court blocking. Court blocking must not be null");
-        }
+        var relatedCourtBlocking = courtBlockingService.createBlockingAndReturnDto(relatedCourtBlockingDto);
+
+        entityToSave.setCourtBlocking(courtBlockingService.getBlockingEntity(relatedCourtBlocking.id()));
+
     }
 
     /**
-     * Creates an CourtBlockingDto which is related to current training slot.
+     * Creates CourtBlockingDto which is related to current training slot.
      *
      * @param trainingSlotDto data transfer object which is base for creating CourtBlockingDto object
      * @return CourtBlockingDto object related to current training slot
      */
-    private CourtBlockingDto createRelatedCourtBlockingDto(TrainingSlotDto trainingSlotDto) {
+    private CourtBlockingDto createAndAttachCourtBlocking(TrainingSlotDto trainingSlotDto) {
         var groupId = trainingSlotDto.group().id();
-        var groupName = groupRepository.getReferenceById(groupId).getName();
+        var groupName = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new).getName();
         var courtId = trainingSlotDto.court().id();
 
 

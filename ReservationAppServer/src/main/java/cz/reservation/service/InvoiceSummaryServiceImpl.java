@@ -1,16 +1,18 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.InvoiceSummaryDto;
+import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
-import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
-import cz.reservation.service.serviceinterface.PricingRuleService;
+import cz.reservation.service.serviceinterface.UserService;
+import cz.reservation.service.utils.PricingEngine;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,28 +34,27 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final InvoiceSummaryMapper invoiceSummaryMapper;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private final BookingService bookingService;
 
-    private static final String SERVICE_NAME = "invoice summary";
+    private final PricingEngine pricingEngine;
 
-    private final PricingRuleService pricingRuleService;
+    private static final String SERVICE_NAME = "invoice summary";
 
     @Override
     @Transactional
     public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
 
+        var pricingType = invoiceSummaryDto.pricingType();
+
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-        var relatedUser = userRepository.getReferenceById(invoiceSummaryDto.user().id());
+        var relatedUser = userService.getUserEntity(invoiceSummaryDto.user().id());
 
-        var allBookingIdByUser = getAllBookingIdByUser(relatedUser, invoiceSummaryDto);
+        var allBookingIdsByUser = getAllBookingIdsByUser(relatedUser, invoiceSummaryDto);
 
-        //Computing final price of invoice summary
-        var price = getFinalPrice(allBookingIdByUser);
+        setPriceToEntity(pricingType, entityToSave, allBookingIdsByUser, invoiceSummaryDto);
 
-        //setting price ad total amount
-        entityToSave.setTotalCentsAmount(price);
 
         //Setting id if entity with selected month is already in database
         if (invoiceSummaryRepository.summaryOfCurrentMonth(invoiceSummaryDto.month().getValue()) != null) {
@@ -137,11 +138,11 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     }
 
     private void setForeignKeys(InvoiceSummaryEntity target, InvoiceSummaryDto source) {
-        target.setUser(userRepository.getReferenceById(source.user().id()));
+        target.setUser(userService.getUserEntity(source.user().id()));
     }
 
 
-    private List<Long> getAllBookingIdByUser(UserEntity relatedUser, InvoiceSummaryDto invoiceSummaryDto) {
+    private List<Long> getAllBookingIdsByUser(UserEntity relatedUser, InvoiceSummaryDto invoiceSummaryDto) {
         var allPlayersByUser = relatedUser.getPlayers();
         return allPlayersByUser.stream()
                 .flatMap(playerEntity -> playerEntity.getBookings().stream())
@@ -154,10 +155,40 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
                 .toList();
     }
 
+    private void setPriceToEntity(
+            PricingType pricingType,
+            InvoiceSummaryEntity entityToSave,
+            List<Long> allBookingIdsByUser,
+            InvoiceSummaryDto invoiceSummaryDto) {
+
+        if (pricingType == PricingType.PER_SLOT) {
+            //Computing final price of invoice summary
+            var price = getFinalPrice(allBookingIdsByUser);
+
+            //setting price ad total amount
+            entityToSave.setTotalCentsAmount(price);
+
+        } else if (pricingType == PricingType.MONTHLY) {
+            var pricingRuleDto = invoiceSummaryDto.rule();
+            if (pricingRuleDto != null) {
+                var price = getFinalPrice(pricingRuleDto);
+                entityToSave.setTotalCentsAmount(price);
+            } else {
+                throw new NullPointerException("With monthly pricing type pricing rule must not be null");
+            }
+
+
+        }
+    }
+
     private Integer getFinalPrice(List<Long> allBookingIdByUser) {
         return allBookingIdByUser
                 .stream()
                 .mapToInt(bookingService::getPriceForBooking)
                 .sum();
+    }
+
+    private Integer getFinalPrice(PricingRuleDto pricingRuleDto) {
+        return pricingEngine.computePriceOfMonthlyPricingType(pricingRuleDto);
     }
 }

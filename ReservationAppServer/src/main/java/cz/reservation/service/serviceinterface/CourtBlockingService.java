@@ -9,7 +9,9 @@ import java.util.Map;
 
 public interface CourtBlockingService {
 
-    ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto);
+    ResponseEntity<CourtBlockingDto> createBlockingAndReturnResponseEntity(CourtBlockingDto courtBlockingDto);
+
+    CourtBlockingDto createBlockingAndReturnDto(CourtBlockingDto courtBlockingDto);
 
     ResponseEntity<CourtBlockingDto> getBlocking(Long id);
 

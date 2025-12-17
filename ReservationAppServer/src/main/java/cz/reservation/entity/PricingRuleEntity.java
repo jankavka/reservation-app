@@ -23,24 +23,24 @@ public class PricingRuleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column
-    String name;
+    private String name;
 
     @Column
-    PricingType pricingType;
+    private PricingType pricingType;
 
     @Column
-    Integer amountCents;
+    private Integer amountCents;
 
     @Column
-    String currency;
+    private String currency;
 
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", unique = true)
-    Map<String, Object> conditions = new HashMap<>();
+    private Map<String, Object> conditions = new HashMap<>();
 
 
 

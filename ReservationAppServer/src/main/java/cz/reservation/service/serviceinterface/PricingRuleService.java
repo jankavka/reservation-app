@@ -1,5 +1,6 @@
 package cz.reservation.service.serviceinterface;
 
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.PricingRuleDto;
 import org.springframework.http.ResponseEntity;
 
@@ -14,9 +15,13 @@ public interface PricingRuleService {
 
     ResponseEntity<List<PricingRuleDto>> getAllPricingRules();
 
+    List<PricingRuleDto> getAllRulesWithMonthlyType();
+
     List<PricingRuleDto> getAllPricingRulesDto();
 
     ResponseEntity<Map<String, String>> updateRule(PricingRuleDto pricingRulesDto, Long id);
+
+    List<PricingRuleDto> getPricingRulesByPricingType(PricingType pricingType);
 
     ResponseEntity<Map<String, String>> deleteRule(Long id);
 }

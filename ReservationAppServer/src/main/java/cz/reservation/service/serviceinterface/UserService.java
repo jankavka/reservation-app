@@ -4,6 +4,7 @@ import cz.reservation.dto.AuthRequestDTO;
 import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
+import cz.reservation.entity.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +15,8 @@ import java.util.Map;
 public interface UserService extends UserDetailsService {
 
     UserDto getUser(Long id);
+
+    UserEntity getUserEntity(Long id);
 
     List<UserDto> getAllUsers();
 
