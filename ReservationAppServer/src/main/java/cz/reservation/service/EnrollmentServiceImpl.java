@@ -115,21 +115,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         } else {
             //Current enrollment entity
             var enrollmentForCancel = enrollmentRepository.getReferenceById(id);
+            var relatedGroupId = enrollmentForCancel.getGroup().getId();
 
             //Canceling the enrollment
             enrollmentForCancel.setState(EnrollmentState.CANCELLED);
 
             //list with all enrollments
-            List<EnrollmentEntity> allEnrollments = enrollmentRepository.findAll();
+            List<EnrollmentEntity> allEnrollmentsByGroup = enrollmentRepository.findByGroupId(relatedGroupId);
 
             //Finding the one with EnrollmentState.WAITLIST and lowest date of creation and
             // setting up to EnrollmentState.ACTIVE
-            allEnrollments
-                    .stream()
-                    .filter(enrolment -> enrolment.getState() == EnrollmentState.WAITLIST)
-                    .min(Comparator.comparing(EnrollmentEntity::getCreatedAt))
-                    .orElseThrow()
-                    .setState(EnrollmentState.ACTIVE);
+            setEnrollmentActive(allEnrollmentsByGroup);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -138,23 +134,29 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     private void setForeignKeys(EnrollmentEntity target, EnrollmentDto source) {
-        if(playerRepository.existsById(source.player().id())){
+        if (playerRepository.existsById(source.player().id())) {
             target.setPlayer(playerRepository.getReferenceById(source.player().id()));
 
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(
-                    "Player",source.player().id()));
+                    "Player", source.player().id()));
         }
 
-        if(groupRepository.existsById(source.group().id())){
+        if (groupRepository.existsById(source.group().id())) {
             target.setGroup(groupRepository.getReferenceById(source.group().id()));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(
                     "Group", source.group().id()));
         }
+    }
 
-
-
+    private void setEnrollmentActive(List<EnrollmentEntity> allEnrollments) {
+        allEnrollments
+                .stream()
+                .filter(enrolment -> enrolment.getState() == EnrollmentState.WAITLIST)
+                .min(Comparator.comparing(EnrollmentEntity::getCreatedAt))
+                .orElseThrow()
+                .setState(EnrollmentState.ACTIVE);
     }
 
 

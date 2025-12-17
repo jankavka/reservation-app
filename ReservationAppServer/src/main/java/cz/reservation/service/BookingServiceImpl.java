@@ -4,6 +4,8 @@ import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.BookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
+import cz.reservation.entity.BookingEntity;
+import cz.reservation.entity.TrainingSlotEntity;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.service.exception.LateBookingCancelingException;
@@ -52,8 +54,8 @@ public class BookingServiceImpl implements BookingService {
 
 
         entityToSave.setBookedAt(LocalDateTime.now());
-        entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
-        entityToSave.setTrainingSlot(relatedTrainingSlot);
+
+        setForeignKeys(entityToSave, relatedTrainingSlot, bookingDto);
 
         if (relatedTrainingSlot.getStartAt().isBefore(LocalDateTime.now())) {
             throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
@@ -165,6 +167,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId) {
         return trainingSlotService.getUsedCapacityOfRelatedTrainingSlot(trainingSlotId);
+    }
+
+    private void setForeignKeys(BookingEntity entityToSave, TrainingSlotEntity relatedTrainingSlot, BookingDto bookingDto) {
+        entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
+        entityToSave.setTrainingSlot(relatedTrainingSlot);
     }
 
 

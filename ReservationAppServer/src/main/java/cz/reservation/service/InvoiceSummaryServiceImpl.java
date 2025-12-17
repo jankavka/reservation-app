@@ -5,6 +5,7 @@ import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.InvoiceSummaryEntity;
+import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.BookingService;
@@ -45,24 +46,11 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
         var relatedUser = userRepository.getReferenceById(invoiceSummaryDto.user().id());
-        var allPlayersByUser = relatedUser.getPlayers();
 
-        var allBookingIdDtoByUser = allPlayersByUser.stream()
-                .flatMap(playerEntity -> playerEntity.getBookings().stream())
-                .filter(bookingEntity -> bookingEntity
-                        .getTrainingSlot()
-                        .getStartAt()
-                        .getMonth()
-                        .equals(invoiceSummaryDto.month()))
-                .map(BookingEntity::getId)
-                .toList();
-
+        var allBookingIdByUser = getAllBookingIdByUser(relatedUser, invoiceSummaryDto);
 
         //Computing final price of invoice summary
-        var price = (Integer) allBookingIdDtoByUser
-                .stream()
-                .mapToInt(bookingService::getPriceForBooking)
-                .sum();
+        var price = getFinalPrice(allBookingIdByUser);
 
         //setting price ad total amount
         entityToSave.setTotalCentsAmount(price);
@@ -150,5 +138,26 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private void setForeignKeys(InvoiceSummaryEntity target, InvoiceSummaryDto source) {
         target.setUser(userRepository.getReferenceById(source.user().id()));
+    }
+
+
+    private List<Long> getAllBookingIdByUser(UserEntity relatedUser, InvoiceSummaryDto invoiceSummaryDto) {
+        var allPlayersByUser = relatedUser.getPlayers();
+        return allPlayersByUser.stream()
+                .flatMap(playerEntity -> playerEntity.getBookings().stream())
+                .filter(bookingEntity -> bookingEntity
+                        .getTrainingSlot()
+                        .getStartAt()
+                        .getMonth()
+                        .equals(invoiceSummaryDto.month()))
+                .map(BookingEntity::getId)
+                .toList();
+    }
+
+    private Integer getFinalPrice(List<Long> allBookingIdByUser) {
+        return allBookingIdByUser
+                .stream()
+                .mapToInt(bookingService::getPriceForBooking)
+                .sum();
     }
 }
