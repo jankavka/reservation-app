@@ -33,22 +33,18 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional
-    public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
+    public ResponseEntity<CourtBlockingDto> createBlockingAndReturnResponseEntity(CourtBlockingDto courtBlockingDto) {
 
-        var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
-        var courtId = courtBlockingDto.court().id();
-        if(!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())){
-            throw new IllegalArgumentException("Date `from` has to be before date `to`");
-        }
-        if (courtRepository.existsById(courtId)) {
-            entityToSave.setCourt(courtRepository.getReferenceById(courtId));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId));
-        }
+        var savedEntity = createAndSaveBlocking(courtBlockingDto);
 
-        var savedEntity = courtBlockingRepository.save(entityToSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
 
+    }
+
+    @Override
+    public CourtBlockingDto createBlockingAndReturnDto(CourtBlockingDto courtBlockingDto) {
+        var savedEntity = createAndSaveBlocking(courtBlockingDto);
+        return courtBlockingMapper.toDto(savedEntity);
     }
 
     @Override
@@ -110,5 +106,19 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
             courtBlockingRepository.deleteById(id);
             return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
+    }
+
+    private CourtBlockingEntity createAndSaveBlocking(CourtBlockingDto courtBlockingDto) {
+        var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
+        var courtId = courtBlockingDto.court().id();
+        if (!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())) {
+            throw new IllegalArgumentException("Date `from` has to be before date `to`");
+        }
+
+        entityToSave.setCourt(courtRepository.findById(courtId).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId))));
+        return courtBlockingRepository.save(entityToSave);
+
+
     }
 }

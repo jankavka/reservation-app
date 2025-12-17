@@ -1,9 +1,11 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.PricingRuleMapper;
 import cz.reservation.entity.repository.PricingRulesRepository;
+import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +69,24 @@ public class PricingRuleServiceImpl implements PricingRuleService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<PricingRuleDto> getAllRulesWithMonthlyType() {
+
+        var rulesWithMonthlyType = pricingRulesRepository
+                .getAllPricingRulesByPricingType(PricingType.MONTHLY)
+                .stream()
+                .map(pricingRuleMapper::toDto)
+                .toList();
+
+        if (rulesWithMonthlyType.isEmpty()) {
+            throw new EmptyListException(emptyListMessage(
+                    "There are no pricing rules with MONTHLY pricing type"));
+        } else {
+            return rulesWithMonthlyType;
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PricingRuleDto> getAllPricingRulesDto() {
         return pricingRulesRepository.findAll()
                 .stream()
@@ -86,6 +106,11 @@ public class PricingRuleServiceImpl implements PricingRuleService {
                     .ok()
                     .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         }
+    }
+
+    @Override
+    public List<PricingRuleDto> getPricingRulesByPricingType(PricingType pricingType) {
+        return List.of();
     }
 
     @Override

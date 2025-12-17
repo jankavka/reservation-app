@@ -4,6 +4,7 @@ import cz.reservation.dto.BookingDto;
 import cz.reservation.service.serviceinterface.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,13 @@ public class BookingController {
     public ResponseEntity<Map<String, String>> editBooking(
             @PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
         return bookingService.editBooking(bookingDto, id);
+    }
+
+    @Secured("ADMIN")
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<Map<String, String>> editBookingAsAdmin(
+            @PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
+        return bookingService.editBookingAsAdmin(bookingDto, id);
     }
 
     @DeleteMapping("/{id}")
