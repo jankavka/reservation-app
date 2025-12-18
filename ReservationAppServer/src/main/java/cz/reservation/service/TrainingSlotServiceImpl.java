@@ -74,10 +74,10 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         );
 
         //Related blocking of court saved together with the slot
-        var relatedCourtBlockingDto = createAndAttachCourtBlocking(trainingSlotDto);
+        var relatedCourtBlockingDto = createRelatedCourtBlockingDto(trainingSlotDto);
 
         //Sets related court blocking as FK to entityToSave
-        setRelatedBlockIfItsNotNull(relatedCourtBlockingDto, entityToSave);
+        createAndSetRelatedCourtBlocking(relatedCourtBlockingDto, entityToSave);
 
         var savedEntity = trainingSlotRepository.save(entityToSave);
 
@@ -169,17 +169,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                     relatedCourtBlockingEntity,
                     trainingSlotDto);
 
-
-            //Creating a new court blocking object for editing the current related one
-            var editedRelatedCourtBlockingDto = new CourtBlockingDto(
-                    relatedCourtBlockingEntity.getId(),
-                    trainingSlotDto.court(),
-                    trainingSlotDto.startAt(),
-                    trainingSlotDto.endAt(),
-                    relatedCourtBlockingEntity.getReason());
-
-            //Editing related court blocking
-            courtBlockingService.editBlocking(editedRelatedCourtBlockingDto, relatedCourtBlockingEntity.getId());
+            updateRelatedCourtBlocking(relatedCourtBlockingEntity, trainingSlotDto);
 
             //Editing current training slot
             trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
@@ -222,15 +212,15 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
 
     /**
-     * Helper method. Looking for collision between current slot and all blockings of current court
+     * Helper method. Looking for collision between current slot and all blockings of related court
      *
-     * @param allBlockings               All court blocking entities, which are present in db
-     * @param relatedCourtBlockingEntity entity of related court
-     * @param trainingSlotDto            object with current training slot data
+     * @param allBlockings    All court blocking entities, which are present in db
+     * @param relatedCourt    entity of related court
+     * @param trainingSlotDto object with current training slot data
      */
     private void validateNoTimeCollision(
             List<CourtBlockingEntity> allBlockings,
-            @Nullable CourtBlockingEntity relatedCourtBlockingEntity,
+            @Nullable CourtBlockingEntity relatedCourt,
             TrainingSlotDto trainingSlotDto
 
     ) {
@@ -243,8 +233,8 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 .stream()
                 //removes current blocking from the list, if not present returns true
                 .filter(blocking -> {
-                    if (relatedCourtBlockingEntity != null) {
-                        return !blocking.getId().equals(relatedCourtBlockingEntity.getId());
+                    if (relatedCourt != null) {
+                        return !blocking.getId().equals(relatedCourt.getId());
                     } else {
                         return true;
                     }
@@ -290,13 +280,13 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
     /**
-     * If "relatedCourtBlockingDto" is not null than it is set as FK, otherwise NullPointerException is
-     * thrown
+     * Sets related court blocking as fk if "relatedCurtBlockingDto is not null, otherwise
+     * EntityNotFoundException is thrown
      *
      * @param relatedCourtBlockingDto data transfer object with related court blocking data
      * @param entityToSave            TrainingSlotEntity object which is preparing for persisting
      */
-    private void setRelatedBlockIfItsNotNull(
+    private void createAndSetRelatedCourtBlocking(
             CourtBlockingDto relatedCourtBlockingDto, TrainingSlotEntity entityToSave) {
 
         var relatedCourtBlocking = courtBlockingService.createBlockingAndReturnDto(relatedCourtBlockingDto);
@@ -308,14 +298,13 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     /**
      * Creates CourtBlockingDto which is related to current training slot.
      *
-     * @param trainingSlotDto data transfer object which is base for creating CourtBlockingDto object
+     * @param trainingSlotDto data transfer object used for creating CourtBlockingDto object
      * @return CourtBlockingDto object related to current training slot
      */
-    private CourtBlockingDto createAndAttachCourtBlocking(TrainingSlotDto trainingSlotDto) {
+    private CourtBlockingDto createRelatedCourtBlockingDto(TrainingSlotDto trainingSlotDto) {
         var groupId = trainingSlotDto.group().id();
         var groupName = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new).getName();
         var courtId = trainingSlotDto.court().id();
-
 
         return new CourtBlockingDto(
                 null,
@@ -329,5 +318,26 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 trainingSlotDto.startAt(),
                 trainingSlotDto.endAt(),
                 SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")");
+    }
+
+
+    /**
+     * Helper method. Updates related court blocking.
+     *
+     * @param relatedCourtBlocking Entity of related court blocking
+     * @param currentSlot          Dto object of current training slot
+     */
+    private void updateRelatedCourtBlocking(CourtBlockingEntity relatedCourtBlocking, TrainingSlotDto currentSlot) {
+        //Creating a new court blocking object for editing the current related one
+        var editedRelatedCourtBlockingDto = new CourtBlockingDto(
+                relatedCourtBlocking.getId(),
+                currentSlot.court(),
+                currentSlot.startAt(),
+                currentSlot.endAt(),
+                relatedCourtBlocking.getReason());
+
+        //Editing related court blocking
+        courtBlockingService.editBlocking(editedRelatedCourtBlockingDto, relatedCourtBlocking.getId());
+
     }
 }
