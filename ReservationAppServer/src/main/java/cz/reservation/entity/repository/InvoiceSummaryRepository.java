@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface InvoiceSummaryRepository extends JpaRepository<InvoiceSummaryEntity, Long> {
 
     List<InvoiceSummaryEntity> findByUserId(Long id);
 
     @Query(value = "SELECT * FROM invoice_summaries WHERE month = :value", nativeQuery = true)
-    InvoiceSummaryEntity summaryOfCurrentMonth(@Param("value") Integer monthIntValue);
+    Optional<InvoiceSummaryEntity> getSummaryOfCurrentMonth(@Param("value") Integer monthIntValue);
 
     @Query(value = "SELECT id FROM invoice_summaries WHERE month = :value", nativeQuery = true)
     Long getIdOfCurrentMonthSummary(@Param("value") Integer monthIntValue);
