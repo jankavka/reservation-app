@@ -1,18 +1,13 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
-import cz.reservation.constant.PricingType;
 import cz.reservation.dto.InvoiceSummaryDto;
-import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
-import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.InvoiceSummaryEntity;
-import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
-import cz.reservation.service.serviceinterface.BookingService;
+import cz.reservation.service.pricing.resolver.PricingStrategyResolver;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
 import cz.reservation.service.serviceinterface.UserService;
-import cz.reservation.service.utils.PricingEngine;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +31,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final UserService userService;
 
-    private final BookingService bookingService;
-
-    private final PricingEngine pricingEngine;
+    private final PricingStrategyResolver pricingStrategyResolver;
 
     private static final String SERVICE_NAME = "invoice summary";
 
@@ -139,80 +131,17 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     }
 
 
-    /**
-     * Helper method. Gets ids of bookings which are connected to certain user, based on concrete month.
-     *
-     * @param relatedUser Entity of user connected with bookings we look for
-     * @param month       Param we use for filtering entities
-     * @return List of ids from booking entities which are connected to concrete user and happened in
-     * concrete month
-     */
-    private List<Long> getAllBookingIdsByUser(UserEntity relatedUser, Month month) {
-        var allPlayersByUser = relatedUser.getPlayers();
-        return allPlayersByUser.stream()
-                .flatMap(playerEntity -> playerEntity.getBookings().stream())
-                .filter(bookingEntity -> bookingEntity
-                        .getTrainingSlot()
-                        .getStartAt()
-                        .getMonth()
-                        .equals(month))
-                .map(BookingEntity::getId)
-                .toList();
-    }
-
-    /**
-     * Helper method. Sets price to entity
-     *
-     * @param target            Entity we set price for
-     * @param invoiceSummaryDto Dto which contains attributes for setting price
-     */
     private void setPriceToEntity(
             InvoiceSummaryEntity target,
             InvoiceSummaryDto invoiceSummaryDto) {
 
-        var relatedUser = userService.getUserEntity(invoiceSummaryDto.user().id());
         var pricingType = invoiceSummaryDto.pricingType();
-        var allBookingIdsByUser = getAllBookingIdsByUser(relatedUser, invoiceSummaryDto.month());
+        var pricingEngine = pricingStrategyResolver.resolve(pricingType);
 
-        if (pricingType == PricingType.PER_SLOT) {
-            //Computing final price of invoice summary
-            var price = getFinalPricePerSlot(allBookingIdsByUser);
+        var price = pricingEngine.computePrice(invoiceSummaryDto);
 
-            //setting price total amount
-            target.setTotalCentsAmount(price);
+        target.setTotalCentsAmount(price);
 
-        } else if (pricingType == PricingType.MONTHLY) {
-            var pricingRuleDto = invoiceSummaryDto.rule();
-            if (pricingRuleDto != null) {
-                var price = getFinalPriceMonthly(pricingRuleDto);
-                target.setTotalCentsAmount(price);
-            } else {
-                throw new NullPointerException("With monthly pricing type pricing rule must not be null");
-            }
-        }
-    }
-
-    /**
-     * Helper method. Computes final price of invoice in case PricingType is PER_SLOT, which is default
-     *
-     * @param allBookingIdByUser List of all booking ids related to user in concrete month
-     * @return Integer representation of invoice final price
-     */
-    private Integer getFinalPricePerSlot(List<Long> allBookingIdByUser) {
-        return allBookingIdByUser
-                .stream()
-                .mapToInt(bookingService::getPriceForBooking)
-                .sum();
-    }
-
-    /**
-     * Helper method. Computes final price of invoice in case
-     *
-     * @param pricingRuleDto Dto with concrete rule information
-     * @return Integer representation of invoice final price
-     */
-    private Integer getFinalPriceMonthly(PricingRuleDto pricingRuleDto) {
-        return pricingEngine.computePriceOfMonthlyPricingType(pricingRuleDto);
     }
 
     /**

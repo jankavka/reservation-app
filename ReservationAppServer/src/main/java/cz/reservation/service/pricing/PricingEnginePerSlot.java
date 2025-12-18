@@ -1,20 +1,28 @@
-package cz.reservation.service.utils;
+package cz.reservation.service.pricing;
 
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.PricingType;
 import cz.reservation.dto.*;
+import cz.reservation.service.pricing.pricinginterface.PricingEngine;
+import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.PlayerService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
+import cz.reservation.service.serviceinterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+
 @Component
 @RequiredArgsConstructor
-public class PricingEngineImpl implements PricingEngine {
+public class PricingEnginePerSlot implements PricingEngine {
 
     private final PlayerService playerService;
 
     private final PricingRuleService pricingRuleService;
+
+    private final BookingService bookingService;
+
+    private final UserService userService;
 
     private static final Integer PRIME_TIME_START = 16;
 
@@ -31,13 +39,34 @@ public class PricingEngineImpl implements PricingEngine {
     private static final String PRIME_TIME = "primeTime";
 
 
+    @Override
+    public PricingType supports() {
+        return PricingType.PER_SLOT;
+    }
+
+    @Override
+    public Integer computePrice(InvoiceSummaryDto invoiceSummaryDto) {
+
+        var relatedUser = userService.getUser(invoiceSummaryDto.user().id());
+        var allBookingsInMonthByUser = bookingService
+                .getAllBookingDto()
+                .stream()
+                .filter(bookingDto -> bookingDto.player().parent().equals(relatedUser))
+                .filter(bookingDto -> bookingDto.trainingSlot().startAt().getMonth().equals(invoiceSummaryDto.month()))
+                .toList();
+
+        return allBookingsInMonthByUser
+                .stream()
+                .mapToInt(this::computePriceOfSingleBooking)
+                .sum();
+    }
+
     /**
      * Computes total amount of cents based on defined conditions in pricing rule entity.
      *
      * @param bookingDto Data transfer object of current booking
      * @return amounts of cents as Integer
      */
-    @Override
     public Integer computePriceOfSingleBooking(BookingDto bookingDto) {
 
         var allPricingRules = pricingRuleService.getPricingRulesByPricingType(PricingType.PER_SLOT);
@@ -61,11 +90,6 @@ public class PricingEngineImpl implements PricingEngine {
             return pricePerHour * timeTotal;
 
         } else return 0;
-    }
-
-    @Override
-    public Integer computePriceOfMonthlyPricingType(PricingRuleDto rule) {
-        return rule.amountCents();
     }
 
 

@@ -18,9 +18,9 @@ public interface BookingService {
 
     ResponseEntity<List<BookingDto>> getAllBookings();
 
-    ResponseEntity<Map<String,String>> deleteBooking(Long id);
+    List<BookingDto> getAllBookingDto();
 
-    Integer getPriceForBooking(Long bookingId);
+    ResponseEntity<Map<String,String>> deleteBooking(Long id);
 
     Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId);
 

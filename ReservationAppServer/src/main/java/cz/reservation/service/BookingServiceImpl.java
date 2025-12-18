@@ -12,7 +12,6 @@ import cz.reservation.service.exception.LateBookingCancelingException;
 import cz.reservation.service.exception.TrainingAlreadyStartedException;
 import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.TrainingSlotService;
-import cz.reservation.service.utils.PricingEngine;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,8 +37,6 @@ public class BookingServiceImpl implements BookingService {
     private final PlayerRepository playerRepository;
 
     private final TrainingSlotService trainingSlotService;
-
-    private final PricingEngine pricingEngine;
 
     private static final String SERVICE_NAME = "booking";
 
@@ -144,6 +141,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingDto> getAllBookingDto() {
+        return bookingRepository
+                .findAll()
+                .stream()
+                .map(bookingMapper::toDto)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteBooking(Long id) {
         if (!bookingRepository.existsById(id)) {
@@ -153,15 +159,6 @@ public class BookingServiceImpl implements BookingService {
             return ResponseEntity
                     .ok(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.CANCELED)));
         }
-    }
-
-    @Override
-    public Integer getPriceForBooking(Long bookingId) {
-        var currentBookingDto = bookingMapper.toDto(bookingRepository
-                .findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        entityNotFoundExceptionMessage(SERVICE_NAME, bookingId))));
-        return pricingEngine.computePriceOfSingleBooking(currentBookingDto);
     }
 
     @Override
