@@ -153,37 +153,7 @@
                 </configuration>
 
             </plugin>
-                        <!--
-            Source - https://stackoverflow.com/a/77526361
-            Posted by Loïc DUBOIS-TERMOZ
-            Retrieved 2025-11-21, License - CC BY-SA 4.0
-            -->
 
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <argLine>@{argLine} -Xshare:off</argLine>
-                    <parallel>all</parallel>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <argLine>@{argLine} -Xshare:off</argLine>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
 
         </plugins>
     </build>
