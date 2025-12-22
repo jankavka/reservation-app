@@ -3,8 +3,6 @@ package cz.reservation.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.reservation.constant.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

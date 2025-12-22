@@ -13,6 +13,8 @@ public class EnrollmentAlreadyCanceledExceptionAdvice {
 
     @ExceptionHandler(EnrollmentAlreadyCanceledException.class)
     ResponseEntity<Map<String, String>> handleException(EnrollmentAlreadyCanceledException e ){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", e.getMessage()));
     }
 }

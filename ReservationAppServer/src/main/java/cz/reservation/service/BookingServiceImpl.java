@@ -167,12 +167,19 @@ public class BookingServiceImpl implements BookingService {
         return trainingSlotService.getUsedCapacityOfRelatedTrainingSlot(trainingSlotId);
     }
 
-    private void setForeignKeys(BookingEntity entityToSave, TrainingSlotEntity relatedTrainingSlot, BookingDto bookingDto) {
+    private void setForeignKeys(
+            BookingEntity entityToSave,
+            TrainingSlotEntity relatedTrainingSlot,
+            BookingDto bookingDto) {
+
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
         entityToSave.setTrainingSlot(relatedTrainingSlot);
     }
 
-    private void setBookingStatusDueToCurrentCapacity(TrainingSlotEntity relatedTrainingSlot, BookingEntity entityToSave) {
+    private void setBookingStatusDueToCurrentCapacity(
+            TrainingSlotEntity relatedTrainingSlot,
+            BookingEntity entityToSave) {
+
         if (usedCapacityOfRelatedTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
             entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
         } else {
