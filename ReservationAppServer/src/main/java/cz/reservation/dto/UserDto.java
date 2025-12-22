@@ -14,6 +14,11 @@ public record UserDto(
         @Email
         String email,
 
+        @Size(
+                min = 10,
+                message = "Telephone number must contain country code (+420) and has to have at least 10 characters ")
+        String telephoneNumber,
+
         @NotNull
         String fullName,
 

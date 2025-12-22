@@ -41,7 +41,7 @@ public class VenueServiceImpl implements VenueService {
     @Transactional(readOnly = true)
     public ResponseEntity<VenueDto> getVenue(Long id) {
 
-        return ResponseEntity.ok(venueMapper
+        return ResponseEntity.status(HttpStatus.CREATED).body(venueMapper
                 .toDto(venueRepository
                         .findById(id)
                         .orElseThrow(() -> new EntityNotFoundException(

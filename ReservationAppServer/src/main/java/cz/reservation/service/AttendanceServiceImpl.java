@@ -48,7 +48,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         presenceChecking(attendanceDto, relatedBooking);
 
         var savedEntity = attendanceRepository.save(entityToSave);
-        return ResponseEntity.status(HttpStatus.CREATED).body(attendanceMapper.toDto(savedEntity));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(attendanceMapper.toDto(savedEntity));
 
 
     }

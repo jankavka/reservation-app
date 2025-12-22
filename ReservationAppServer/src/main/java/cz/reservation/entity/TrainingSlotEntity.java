@@ -57,4 +57,5 @@ public class TrainingSlotEntity {
     @OneToOne
     @JoinColumn(name = "court_blocking_id", referencedColumnName = "id")
     private CourtBlockingEntity courtBlocking;
+
 }
