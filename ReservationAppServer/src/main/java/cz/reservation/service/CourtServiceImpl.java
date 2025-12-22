@@ -43,7 +43,7 @@ public class CourtServiceImpl implements CourtService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage("venue", venueId));
         }
         var savedEntity = courtRepository.save(entityToSave);
-        return ResponseEntity.ok(courtMapper.toDto(savedEntity));
+        return ResponseEntity.status(HttpStatus.CREATED).body(courtMapper.toDto(savedEntity));
 
 
     }

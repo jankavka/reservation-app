@@ -42,4 +42,9 @@ public class GroupEntity {
 
     @Column
     private Integer capacity;
+
+
+    public String toString() {
+        return this.name;
+    }
 }

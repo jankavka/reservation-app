@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.BookingDto;
+import cz.reservation.dto.CreatedBookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.TrainingSlotEntity;
@@ -14,6 +15,7 @@ import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.TrainingSlotService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,6 +40,8 @@ public class BookingServiceImpl implements BookingService {
 
     private final TrainingSlotService trainingSlotService;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private static final String SERVICE_NAME = "booking";
 
     private static final String MESSAGE = "message";
@@ -54,16 +58,13 @@ public class BookingServiceImpl implements BookingService {
 
         setForeignKeys(entityToSave, relatedTrainingSlot, bookingDto);
 
-        if (relatedTrainingSlot.getStartAt().isBefore(LocalDateTime.now())) {
-            throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
-        }
+        checkRelatedTrainingSlotIsBookable(relatedTrainingSlot);
 
-        if (usedCapacityOfRelatedTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
-            entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
-        } else {
-            entityToSave.setBookingStatus(BookingStatus.WAITLIST);
-        }
+        setBookingStatusDueToCurrentCapacity(relatedTrainingSlot, entityToSave);
+
         var savedEntity = bookingRepository.save(entityToSave);
+
+        eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -169,6 +170,20 @@ public class BookingServiceImpl implements BookingService {
     private void setForeignKeys(BookingEntity entityToSave, TrainingSlotEntity relatedTrainingSlot, BookingDto bookingDto) {
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
         entityToSave.setTrainingSlot(relatedTrainingSlot);
+    }
+
+    private void setBookingStatusDueToCurrentCapacity(TrainingSlotEntity relatedTrainingSlot, BookingEntity entityToSave) {
+        if (usedCapacityOfRelatedTrainingSlot(relatedTrainingSlot.getId()) < relatedTrainingSlot.getCapacity()) {
+            entityToSave.setBookingStatus(BookingStatus.CONFIRMED);
+        } else {
+            entityToSave.setBookingStatus(BookingStatus.WAITLIST);
+        }
+    }
+
+    private void checkRelatedTrainingSlotIsBookable(TrainingSlotEntity relatedTrainingSlot) {
+        if (relatedTrainingSlot.getStartAt().isBefore(LocalDateTime.now())) {
+            throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
+        }
     }
 
 

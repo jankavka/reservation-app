@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -95,7 +96,7 @@ class CourtServiceTest {
 
         var result = courtService.createCourt(courtDtoToSave);
 
-        assertEquals(ResponseEntity.ok(returnedCourtDto), result);
+        assertEquals(ResponseEntity.status(HttpStatus.CREATED).body(returnedCourtDto), result);
         verify(courtRepository).save(courtEntityToSave);
         verifyNoMoreInteractions(courtRepository);
         verify(venueRepository).getReferenceById(venue.getId());
