@@ -43,7 +43,4 @@ public class InvoiceSummaryEntity {
     private LocalDateTime generatedAt;
 
 
-
-
-
 }

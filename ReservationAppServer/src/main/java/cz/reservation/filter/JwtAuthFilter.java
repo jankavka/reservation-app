@@ -27,7 +27,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
     @Lazy
-    public JwtAuthFilter(UserDetailsService userDetailsService, JwtService jwtService){
+    public JwtAuthFilter(UserDetailsService userDetailsService, JwtService jwtService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
@@ -44,20 +44,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String userName = null;
 
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
                 token = authHeader.substring(7);
                 userName = jwtService.extractUserName(token);
 
                 //temporary solution because generating new token is not triggered with the old one still existing
-            } catch (ExpiredJwtException e){
+            } catch (ExpiredJwtException e) {
                 jwtService.generateToken(userName);
             }
         }
 
-        if(userName != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-            if(Boolean.TRUE.equals(jwtService.validateToken(token, userDetails))){
+            if (Boolean.TRUE.equals(jwtService.validateToken(token, userDetails))) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

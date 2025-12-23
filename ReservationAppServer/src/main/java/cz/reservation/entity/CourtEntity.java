@@ -41,5 +41,4 @@ public class CourtEntity {
     private VenueEntity venue;
 
 
-
 }

@@ -7,8 +7,7 @@ public enum PricingType {
 
     PER_SLOT("per-slot"),
     MONTHLY("monthly"),
-    PACKAGE("package"),
-    DISCOUNT_SIBLING("discount-sibling");
+    PACKAGE("package");
 
     private final String code;
 

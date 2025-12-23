@@ -1,32 +1,24 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
-import cz.reservation.dto.AuthRequestDTO;
-import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
+import cz.reservation.entity.userdetails.CustomUserDetails;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
-import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -34,35 +26,15 @@ import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final AuthenticationManager authenticationManager;
-
-    private final JwtService jwtService;
-
     private static final String SERVICE_NAME = "user";
 
-    @Lazy
-    public UserServiceImpl(
-            UserMapper userMapper,
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager,
-            JwtService jwtService
-
-    ) {
-        this.userMapper = userMapper;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-    }
 
     @Transactional(readOnly = true)
     @Override
@@ -90,46 +62,6 @@ public class UserServiceImpl implements UserService {
         return userEntities.stream()
                 .map(userMapper::toDto)
                 .toList();
-    }
-
-    @Transactional
-    @Override
-    public ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto) {
-
-        log.info("New user: {}", registrationRequestDto);
-        var entityToSave = new UserEntity();
-        entityToSave.setEmail(registrationRequestDto.email());
-        entityToSave.setFullName(registrationRequestDto.fullName());
-        entityToSave.setRoles(registrationRequestDto.roles());
-        entityToSave.setCreatedAt(LocalDateTime.now());
-        entityToSave.setPassword(passwordEncoder.encode(registrationRequestDto.password()));
-        UserEntity savedEntity = userRepository.save(entityToSave);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(userMapper.toDto(savedEntity));
-
-
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequestDTO.username(),
-                        authRequestDTO.password())
-        );
-        if (authentication.isAuthenticated()) {
-            var token = jwtService.generateToken(authRequestDTO.username());
-            var responseDto = new LoginResponseDto(
-                    token,
-                    jwtService.getJwtExpiration());
-            return ResponseEntity.ok(responseDto);
-        } else {
-            throw new UsernameNotFoundException("Invalid user request");
-        }
     }
 
     @Transactional(readOnly = true)
@@ -168,7 +100,8 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("User not found with email: " + username);
         }
         var user = userEntity.get();
-        return new User(user.getEmail(), user.getPassword(), user.getAuthorities());
+        var customUserDetails = new CustomUserDetails(user);
+        return new User(user.getEmail(), user.getPassword(), customUserDetails.getAuthorities());
 
     }
 }

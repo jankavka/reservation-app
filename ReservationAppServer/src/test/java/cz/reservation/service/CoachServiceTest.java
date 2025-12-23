@@ -6,8 +6,8 @@ import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.CoachMapper;
 import cz.reservation.entity.CoachEntity;
-import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.UserEntity;
+import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
@@ -46,7 +46,7 @@ class CoachServiceTest {
     CoachServiceImpl coachService;
 
 
-    LocalDateTime date = LocalDateTime.of(2025, 8, 10,0,0);
+    LocalDateTime date = LocalDateTime.of(2025, 8, 10, 0, 0);
 
 
     @Test
@@ -56,12 +56,14 @@ class CoachServiceTest {
         var relatedUserDto = new UserDto(
                 1L,
                 "example@email.com",
+                "12345609097",
                 "N",
                 roles,
                 date);
         var relatedUserEntity = new UserEntity(
                 1L,
                 "example@email.com",
+                "12345609097",
                 "123456",
                 "N",
                 roles,
@@ -114,6 +116,7 @@ class CoachServiceTest {
         var relatedUserEntity = new UserEntity(
                 1L,
                 "example@email.com",
+                "12345609097",
                 "123456",
                 "N",
                 roles,
@@ -124,6 +127,7 @@ class CoachServiceTest {
         var relatedUserDto = new UserDto(
                 1L,
                 "example@email.com",
+                "12345609097",
                 "N",
                 roles,
                 date);
@@ -165,10 +169,17 @@ class CoachServiceTest {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         var firstCoachDto = new CoachDto(1L, new UserDto(
-                1L, "a@b.com", "N", roles, date), "B", "C");
+                1L,
+                "a@b.com",
+                "12345609097",
+                "N", roles, date),
+                "B",
+                "C");
+
         var firstCoachEntity = new CoachEntity(1L, new UserEntity(
                 1L,
                 "a@b.com",
+                "12345609097",
                 null,
                 "M", roles,
                 null, date,
@@ -177,6 +188,7 @@ class CoachServiceTest {
                 "B",
                 "C",
                 null);
+
         var coachesDto = List.of(firstCoachDto);
         var coachesEntities = List.of(firstCoachEntity);
 
@@ -194,7 +206,7 @@ class CoachServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyListNoException(){
+    void shouldReturnEmptyListNoException() {
         when(coachRepository.findAll()).thenReturn(List.of());
 
         var result = coachService.getAllCoaches();
@@ -203,7 +215,7 @@ class CoachServiceTest {
     }
 
     @Test
-    void shouldThrowEntityNotFoundExceptionWhileDeletingCoach(){
+    void shouldThrowEntityNotFoundExceptionWhileDeletingCoach() {
         var exception = assertThrows(
                 EntityNotFoundException.class,
                 () -> coachService.deleteCoach(99L));
@@ -213,16 +225,17 @@ class CoachServiceTest {
     }
 
     @Test
-    void shouldReturnResponseEntityWithOkAndOkMessage(){
+    void shouldReturnResponseEntityWithOkAndOkMessage() {
         var id = 1L;
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         var relatedUserEntity = new UserEntity(
                 1L,
                 "a@b.com",
+                "12345609097",
                 "123456",
-                "N",roles,
-                null,date,
+                "N", roles,
+                null, date,
                 null,
                 null);
         var coachToDeleteEntity = new CoachEntity(
@@ -249,34 +262,34 @@ class CoachServiceTest {
     }
 
     @Test
-    void ShouldThrowExceptionWhileEditingNoExistingCoach(){
+    void ShouldThrowExceptionWhileEditingNoExistingCoach() {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         var id = 99L;
-        var user = new UserDto(1L,"a@b.com","N", roles,date);
-        var coach = new CoachDto(99L,user,"B","C");
-        var exception = assertThrows(EntityNotFoundException.class, () -> coachService.editCoach(coach,id));
+        var user = new UserDto(1L, "a@b.com", "12345609097", "N", roles, date);
+        var coach = new CoachDto(99L, user, "B", "C");
+        var exception = assertThrows(EntityNotFoundException.class, () -> coachService.editCoach(coach, id));
 
-        assertEquals(entityNotFoundExceptionMessage("coach",99L), exception.getMessage());
-        assertInstanceOf(EntityNotFoundException.class,exception);
+        assertEquals(entityNotFoundExceptionMessage("coach", 99L), exception.getMessage());
+        assertInstanceOf(EntityNotFoundException.class, exception);
 
     }
 
     @Test
-    void shouldReturnResponseEntityWithEditCoachDto(){
+    void shouldReturnResponseEntityWithEditCoachDto() {
         var id = 1L;
-        var coachDtoToSave = new CoachDto(1L,null,"B","C");
-        var coachEntityToSave = new CoachEntity(1L, null, "B","C", List.of());
-        var savedEntity = new CoachEntity(1L,null,"B","C", List.of());
-        var savedDto = new CoachDto(1L, null,"B","C");
-        var returnedDto = new CoachDto(1L, null,"B","C");
+        var coachDtoToSave = new CoachDto(1L, null, "B", "C");
+        var coachEntityToSave = new CoachEntity(1L, null, "B", "C", List.of());
+        var savedEntity = new CoachEntity(1L, null, "B", "C", List.of());
+        var savedDto = new CoachDto(1L, null, "B", "C");
+        var returnedDto = new CoachDto(1L, null, "B", "C");
 
         when(coachRepository.existsById(id)).thenReturn(Boolean.TRUE);
         when(coachMapper.toEntity(coachDtoToSave)).thenReturn(coachEntityToSave);
         when(coachRepository.save(coachEntityToSave)).thenReturn(savedEntity);
         when(coachMapper.toDto(savedEntity)).thenReturn(savedDto);
 
-        var result = coachService.editCoach(coachDtoToSave,id);
+        var result = coachService.editCoach(coachDtoToSave, id);
 
         assertEquals(ResponseEntity.ok(returnedDto), result);
         verify(coachRepository).save(coachEntityToSave);
