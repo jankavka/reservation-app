@@ -120,10 +120,5 @@ public class UserEntity {
         public UserEntity build(){
             return new UserEntity(this);
         }
-
-
-
-
-
     }
 }
