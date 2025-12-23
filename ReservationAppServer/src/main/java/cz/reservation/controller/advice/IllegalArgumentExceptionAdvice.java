@@ -11,7 +11,7 @@ import java.util.Map;
 public class IllegalArgumentExceptionAdvice {
 
     @ExceptionHandler({IllegalArgumentException.class, NullPointerException.class})
-    ResponseEntity<Map<String, String>> handleException(IllegalArgumentException e) {
+    ResponseEntity<Map<String, String>> handleException(RuntimeException e) {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

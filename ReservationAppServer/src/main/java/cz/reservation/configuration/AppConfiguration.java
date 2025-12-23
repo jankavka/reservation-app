@@ -1,6 +1,5 @@
 package cz.reservation.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +16,6 @@ public class AppConfiguration {
 
     private final UserDetailsService userDetailsService;
 
-    @Autowired
     public AppConfiguration(UserDetailsService userDetailsService){
         this.userDetailsService = userDetailsService;
     }

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "coaches")
-public class CoachEntity {
+public class CoachEntity  {
 
     @Id
     @Column(name = "user_id")

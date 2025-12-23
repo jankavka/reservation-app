@@ -8,20 +8,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class PricingEnginePerMonth implements PricingEngine {
+public class PricingEnginePerPackage implements PricingEngine {
 
     @Override
     public PricingType supports() {
-        return PricingType.MONTHLY;
+        return PricingType.PACKAGE;
     }
 
     @Override
     public Integer computePrice(InvoiceSummaryDto invoiceSummaryDto) {
-        var rule = invoiceSummaryDto.rule();
-        if (rule != null && rule.pricingType().equals(PricingType.MONTHLY)) {
-            return rule.amountCents();
-        } else {
-            throw new NullPointerException("If pricing type is MONTHLY rule can not be null");
-        }
+        return 0;
     }
 }

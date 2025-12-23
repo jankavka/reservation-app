@@ -1,8 +1,5 @@
 package cz.reservation.service.serviceinterface;
 
-import cz.reservation.dto.AuthRequestDTO;
-import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.RegistrationRequestDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.entity.UserEntity;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +16,6 @@ public interface UserService extends UserDetailsService {
     UserEntity getUserEntity(Long id);
 
     List<UserDto> getAllUsers();
-
-    ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto);
-
-    ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO);
 
     ResponseEntity<User> getCurrentUser();
 
