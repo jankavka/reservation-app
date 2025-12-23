@@ -39,7 +39,6 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
 
-
     @Override
     public ResponseEntity<LoginResponseDto> authenticate(AuthRequestDTO authRequestDTO) {
         var authentication = authenticationManager.authenticate(
@@ -62,13 +61,16 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ResponseEntity<UserDto> createUser(RegistrationRequestDto registrationRequestDto) {
         log.info("New user: {}", registrationRequestDto);
-        var entityToSave = new UserEntity();
-        entityToSave.setEmail(registrationRequestDto.email());
-        entityToSave.setFullName(registrationRequestDto.fullName());
-        entityToSave.setRoles(registrationRequestDto.roles());
-        entityToSave.setCreatedAt(LocalDateTime.now());
-        entityToSave.setPassword(passwordEncoder.encode(registrationRequestDto.password()));
-        entityToSave.setTelephoneNumber(registrationRequestDto.telephoneNumber());
+
+        var entityToSave = UserEntity.builder()
+                .email(registrationRequestDto.email())
+                .fullName(registrationRequestDto.fullName())
+                .roles(registrationRequestDto.roles())
+                .createdAt(LocalDateTime.now())
+                .password(passwordEncoder.encode(registrationRequestDto.password()))
+                .telephoneNumber(registrationRequestDto.telephoneNumber())
+                .build();
+
         UserEntity savedEntity = userRepository.save(entityToSave);
 
         return ResponseEntity
