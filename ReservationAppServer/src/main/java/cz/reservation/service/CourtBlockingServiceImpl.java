@@ -6,6 +6,7 @@ import cz.reservation.dto.mapper.CourtBlockingMapper;
 import cz.reservation.entity.CourtBlockingEntity;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
+import cz.reservation.service.exception.UnsupportedTimeRangeException;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,17 +35,24 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public ResponseEntity<CourtBlockingDto> createBlockingAndReturnResponseEntity(CourtBlockingDto courtBlockingDto) {
+        if (isTimeRangeValid(courtBlockingDto)) {
 
-        var savedEntity = createAndSaveBlocking(courtBlockingDto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
+            var savedEntity = createAndSaveBlocking(courtBlockingDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
+        } else {
+            throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
+        }
 
     }
 
     @Override
     public CourtBlockingDto createBlockingAndReturnDto(CourtBlockingDto courtBlockingDto) {
-        var savedEntity = createAndSaveBlocking(courtBlockingDto);
-        return courtBlockingMapper.toDto(savedEntity);
+        if (isTimeRangeValid(courtBlockingDto)) {
+            var savedEntity = createAndSaveBlocking(courtBlockingDto);
+            return courtBlockingMapper.toDto(savedEntity);
+        } else {
+            throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
+        }
     }
 
     @Override
@@ -118,6 +126,22 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
         entityToSave.setCourt(courtRepository.findById(courtId).orElseThrow(
                 () -> new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId))));
         return courtBlockingRepository.save(entityToSave);
+
+    }
+
+    /**
+     * This helper methods checks if the time for court blocking starts and ends at time with 00 or 30 minutes. Other
+     * values are not supported
+     *
+     * @param courtBlockingDto Dto with court blocking information
+     * @return true if given time values are valid
+     */
+    private boolean isTimeRangeValid(CourtBlockingDto courtBlockingDto) {
+        return (courtBlockingDto.blockedFrom().getMinute() == 0 ||
+                courtBlockingDto.blockedFrom().getMinute() == 30)
+                &&
+                (courtBlockingDto.blockedTo().getMinute() == 0 ||
+                        courtBlockingDto.blockedTo().getMinute() == 30);
 
 
     }
