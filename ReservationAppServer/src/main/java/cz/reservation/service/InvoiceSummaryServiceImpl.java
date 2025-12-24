@@ -46,7 +46,9 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         replaceSummaryIfAlreadyExists(invoiceSummaryDto, entityToSave);
 
         entityToSave.setGeneratedAt(LocalDateTime.now());
+
         setForeignKeys(entityToSave, invoiceSummaryDto);
+
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 
         return ResponseEntity
