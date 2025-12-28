@@ -40,3 +40,4 @@ build/
 **/application.yaml
 
 files/**
+qrcodes/**

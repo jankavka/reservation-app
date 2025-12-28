@@ -79,6 +79,7 @@ public class PricingEnginePerSlot implements PricingEngine {
             var pricePerHour = allPricingRules.stream()
                     .filter(pricingRuleDto -> isRuleValid(pricingRuleDto, bookingDto))
                     .mapToInt(pricingRuleDto -> {
+
                         if (pricingRuleDto.conditions().containsKey(PRIME_TIME)) {
                             return pricingRuleDto.amountCents() * hoursInPrimeTime;
                         } else {

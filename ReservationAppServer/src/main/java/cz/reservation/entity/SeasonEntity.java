@@ -32,6 +32,5 @@ public class SeasonEntity {
     private LocalDateTime dateUntil;
 
     @OneToMany(mappedBy = "season",cascade = CascadeType.ALL)
-    @ElementCollection
     private List<GroupEntity> groups = new ArrayList<>();
 }

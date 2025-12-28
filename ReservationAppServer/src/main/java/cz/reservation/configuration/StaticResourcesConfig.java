@@ -16,7 +16,7 @@ public class StaticResourcesConfig implements WebMvcConfigurer {
      * Adds resource handlers to application. Method addResourceHandler() determines a URL where we find
      * our resource. Method addResourceLocation is exact location of resource on server
      *
-     * @param registry param where resource infos are set
+     * @param registry object where resource infos are set
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
