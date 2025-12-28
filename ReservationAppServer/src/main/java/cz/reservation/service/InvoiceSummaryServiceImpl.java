@@ -5,16 +5,19 @@ import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
+import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.pricing.resolver.PricingStrategyResolver;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ import static cz.reservation.service.message.MessageHandling.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final InvoiceSummaryRepository invoiceSummaryRepository;
@@ -32,6 +36,8 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     private final UserService userService;
 
     private final PricingStrategyResolver pricingStrategyResolver;
+
+    private final InvoiceEngine invoiceEngine;
 
     private static final String SERVICE_NAME = "invoice summary";
 
@@ -50,6 +56,12 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         setForeignKeys(entityToSave, invoiceSummaryDto);
 
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
+
+        try {
+            invoiceEngine.createInvoice(savedEntity);
+        } catch (FileNotFoundException e) {
+            log.error("Error during creating invoice pdf: {}", e.getMessage());
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

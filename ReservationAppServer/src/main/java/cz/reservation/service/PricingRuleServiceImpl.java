@@ -72,7 +72,7 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     public List<PricingRuleDto> getAllRulesWithMonthlyType() {
 
         var rulesWithMonthlyType = pricingRulesRepository
-                .getAllPricingRulesByPricingType(PricingType.MONTHLY)
+                .getAllPricingRulesByPricingType(PricingType.MONTHLY.getCode())
                 .stream()
                 .map(pricingRuleMapper::toDto)
                 .toList();
@@ -110,7 +110,11 @@ public class PricingRuleServiceImpl implements PricingRuleService {
 
     @Override
     public List<PricingRuleDto> getPricingRulesByPricingType(PricingType pricingType) {
-        return List.of();
+        return pricingRulesRepository
+                .getAllPricingRulesByPricingType(pricingType.getCode())
+                .stream()
+                .map(pricingRuleMapper::toDto)
+                .toList();
     }
 
     @Override
