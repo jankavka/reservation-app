@@ -64,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
 
         var savedEntity = bookingRepository.save(entityToSave);
 
-        eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
+        //eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

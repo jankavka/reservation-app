@@ -17,8 +17,6 @@ public interface PricingRuleService {
 
     List<PricingRuleDto> getAllRulesWithMonthlyType();
 
-    List<PricingRuleDto> getAllPricingRulesDto();
-
     ResponseEntity<Map<String, String>> updateRule(PricingRuleDto pricingRulesDto, Long id);
 
     List<PricingRuleDto> getPricingRulesByPricingType(PricingType pricingType);

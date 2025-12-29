@@ -46,8 +46,9 @@ public class PlayerEntity {
     @Column
     private String note;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PackageEntity> packages;
+    @ManyToOne
+    @JoinColumn(name = "package")
+    private PackageEntity packagee;
 
 
 }

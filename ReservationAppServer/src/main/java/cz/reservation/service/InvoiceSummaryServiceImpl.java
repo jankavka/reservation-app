@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     @Override
     @Transactional
-    public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
+    public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) throws IOException {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
 
@@ -55,13 +55,11 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
         setForeignKeys(entityToSave, invoiceSummaryDto);
 
+        //creates the pdf file and sets the path of the file
+        entityToSave.setPath(invoiceEngine.createInvoice(entityToSave));
+
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 
-        try {
-            invoiceEngine.createInvoice(savedEntity);
-        } catch (FileNotFoundException e) {
-            log.error("Error during creating invoice pdf: {}", e.getMessage());
-        }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

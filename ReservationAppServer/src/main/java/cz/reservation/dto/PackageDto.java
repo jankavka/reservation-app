@@ -4,12 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record PackageDto(
         Long id,
 
-        @NotNull(message = "Player must not be null")
-        PlayerDto player,
+        List<PlayerDto> players,
 
         @NotBlank(message = "Name must not be blank")
         String name,

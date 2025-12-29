@@ -2,10 +2,10 @@ package cz.reservation.service.invoice;
 
 import cz.reservation.entity.InvoiceSummaryEntity;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public interface InvoiceEngine {
 
-    void createInvoice(InvoiceSummaryEntity entity) throws FileNotFoundException;
+    String createInvoice(InvoiceSummaryEntity entity) throws IOException;
 
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,9 +21,8 @@ public class PackageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "player_id")
-    @ManyToOne
-    private PlayerEntity player;
+    @OneToMany(mappedBy = "packagee")
+    private List<PlayerEntity> players;
 
     @Column
     private String name;

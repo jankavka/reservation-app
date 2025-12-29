@@ -26,6 +26,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import cz.reservation.entity.InvoiceSummaryEntity;
+import cz.reservation.service.serviceinterface.CompanyInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,10 +47,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
 
     private final String path;
-    java.lang.module.Configuration configuration;
+    private final CompanyInfoService companyInfoService;
 
-    public InvoiceEngineImpl(@Value("${qrcode.path}") String path) {
+    public InvoiceEngineImpl(@Value("${qrcode.path}") String path, CompanyInfoService companyInfoService) {
         this.path = path;
+        this.companyInfoService = companyInfoService;
     }
 
 
@@ -61,11 +63,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
      *                               the invoice
      */
     @Override
-    public void createInvoice(InvoiceSummaryEntity entity) throws FileNotFoundException {
+    public String createInvoice(InvoiceSummaryEntity entity) throws IOException {
 
-        var invoiceNumber = String.valueOf(entity.getGeneratedAt().getYear()) +
-                entity.getGeneratedAt().getMonth().getValue();
         var currentUser = entity.getUser();
+        var invoiceNumber = String.valueOf(entity.getGeneratedAt().getYear()) +
+                entity.getGeneratedAt().getMonth().getValue() + currentUser.getId();
         var userEmail = currentUser.getEmail();
         var userTelephone = currentUser.getTelephoneNumber();
         var userName = currentUser.getFullName();
@@ -76,9 +78,10 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         var monthString = entity.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault());
         var currency = entity.getCurrency();
         var identifier = UUID.randomUUID();
+        var companyInfo = companyInfoService.getCompanyInfo();
 
         //Setting up for later initialization
-        PdfWriter writer = new PdfWriter("files/invoice-" + identifier + ".pdf");
+        PdfWriter writer = new PdfWriter("pdf/invoice-" + identifier + ".pdf");
         PageSize ps = new PageSize(PageSize.A4);
         PdfDocument pdf = new PdfDocument(writer);
         pdf.setDefaultPageSize(ps);
@@ -87,7 +90,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         //Document initialization
         try (Document document = new Document(pdf)) {
 
-            //Rectangle set
+            //Rectangle set. Sets up visible margin of document
             float margin = 30;
             Rectangle mediaBox = page.getMediaBox();
             Rectangle newMediaBox = new Rectangle(
@@ -121,37 +124,37 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
             addRowInHeader(
                     "Dodavatel",
-                    "Jan Kavka",
+                    companyInfo.companyName(),
                     "Odběratel",
                     userName,
                     table);
             addRowInHeader(
                     "Adresa",
-                    "Šolcova 607/5, Ostrava-Hrabová",
+                    companyInfo.address(),
                     null,
                     "Beskydská 12, Ostrava-Přívoz",
                     table);
             addRowInHeader(
                     "IČO",
-                    "0975468854",
+                    companyInfo.businessId(),
                     null,
                     "987657897",
                     table);
             addRowInHeader(
                     "DIČ",
-                    "CZ0986544678",
+                    companyInfo.taxNumber(),
                     null,
                     null,
                     table);
             addRowInHeader(
                     "Email",
-                    "jankavka@seznam.cz",
+                    companyInfo.email(),
                     null,
                     userEmail,
                     table);
             addRowInHeader(
                     "Telefon",
-                    "+420 731 103 217",
+                    companyInfo.telNumber(),
                     null,
                     userTelephone,
                     table);
@@ -163,7 +166,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             document.add(paymentInfoTitle);
 
             Table paymentInfo = new Table(UnitValue.createPercentArray(new float[]{50f, 50f})).useAllAvailableWidth();
-            addRowInPaymentInfo("Číslo účtu", "0987654678/0800", paymentInfo);
+            addRowInPaymentInfo("Číslo účtu", companyInfo.bankAccount(), paymentInfo);
             addRowInPaymentInfo("Variabilní symbol", invoiceNumber, paymentInfo);
             addRowInPaymentInfo("Datum vystavení", issuedDate, paymentInfo);
             addRowInPaymentInfo("Datum zdanitelného plnění", issuedDate, paymentInfo);
@@ -182,13 +185,22 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
             document.add(items);
 
-            createQRCode(price, monthString, invoiceNumber, currency, path, identifier.toString());
+            createQRCode(
+                    price,
+                    monthString,
+                    invoiceNumber,
+                    currency,
+                    path,
+                    identifier.toString(),
+                    companyInfo.bankAccountInternationalFormat());
 
             addQrCode(document, path, identifier.toString());
 
         } catch (Exception e) {
             log.error("Error while creating invoice: {} ", e.getMessage());
         }
+
+        return "/files/invoice-" + identifier + ".pdf";
 
     }
 
@@ -230,7 +242,8 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
     private void addRowInItems(String item, Double price, Table table) {
         table.addCell(new Cell().add(new Paragraph(item)));
-        table.addCell(new Cell().add(new Paragraph(price + ",- Kč")));
+        table.addCell(new Cell().add(new Paragraph(
+                String.format("%.2f", price).replace(",", ".") + ",- Kč")));
     }
 
 
@@ -252,18 +265,20 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             String variableSymbol,
             String currency,
             String path,
-            String identifier) throws WriterException, IOException {
+            String identifier,
+            String bankAccount) throws WriterException, IOException {
 
-        String bankAccount = "CZ40 0800 0000 0023 5806 2133";
         bankAccount = bankAccount.replace(" ", "");
         String message = "PLATBA ZA MESIC " + month;
+        String finalPrice = String.format("%.2f", price).replace(",", ".");
 
 
         String spd = "SPD*1.0*ACC:" + bankAccount +
-                "*AM:" + price +
-                "*CC:" + currency +
-                "*MSG:" + message +
+                "*AM:" + finalPrice +
+                "*CC:" + currency.toUpperCase() +
+                "*MSG:" + message.toUpperCase().trim() +
                 "*X-VS:" + variableSymbol;
+
 
         BitMatrix matrix = new MultiFormatWriter().encode(spd, BarcodeFormat.QR_CODE, 300, 300);
 
