@@ -21,7 +21,9 @@ public record PlayerDto(
         @NotNull(message = "Parent must not be null")
         UserDto parent,
 
-        String note
+        String note,
+
+        PackageDto packagee
 
 ) {
 }

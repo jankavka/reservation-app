@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class InvoiceSummaryController {
 
     @PostMapping
     public ResponseEntity<InvoiceSummaryDto> createInvoiceSummary(
-            @RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto) {
+            @RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto) throws IOException {
         return invoiceSummaryService.createSummary(invoiceSummaryDto);
     }
 

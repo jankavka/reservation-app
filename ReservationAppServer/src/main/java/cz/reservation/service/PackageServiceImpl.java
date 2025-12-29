@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,18 +26,20 @@ public class PackageServiceImpl implements PackageService {
 
     private final PackageMapper packageMapper;
 
-    private final PlayerRepository playerRepository;
-
     private static final String SERVICE_NAME = "package";
 
     @Override
+    @Transactional
     public PackageDto createPackage(PackageDto packageDto) {
         var entityToSave = packageMapper.toEntity(packageDto);
-        entityToSave.setPlayer(playerRepository.getReferenceById(packageDto.player().id()));
+        if(packageDto.slotUsed() == null){
+            entityToSave.setSlotUsed(0);
+        }
         return packageMapper.toDto(packageRepository.save(entityToSave));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Map<String, String>> editPackage(PackageDto packageDto, Long id) {
         var entityToUpdate = packageRepository
                 .findById(id)
@@ -48,6 +51,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Map<String, String>> deletePackage(Long id) {
         if (packageRepository.existsById(id)) {
             packageRepository.deleteById(id);
@@ -60,6 +64,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PackageDto getPackage(Long id) {
         return packageMapper.toDto(packageRepository
                 .findById(id)
@@ -67,6 +72,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PackageDto> getAllPackages() {
         return packageRepository
                 .findAll()

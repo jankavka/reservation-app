@@ -42,5 +42,8 @@ public class InvoiceSummaryEntity {
     @Column
     private LocalDateTime generatedAt;
 
+    @Column
+    private String path;
+
 
 }

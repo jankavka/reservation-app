@@ -5,6 +5,7 @@ import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.exception.EmptyListException;
@@ -34,6 +35,8 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final UserRepository userRepository;
 
+    private final PackageRepository packageRepository;
+
     private static final String SERVICE_NAME = "player";
 
     @Override
@@ -60,6 +63,15 @@ public class PlayerServiceImpl implements PlayerService {
             entityToSave.setParent(userRepository
                     .findById(parentId)
                     .orElseThrow());
+
+            if (playerDTO.packagee() != null) {
+                entityToSave.setPackagee(packageRepository
+                        .findById(playerDTO.packagee().id())
+                        .orElseThrow(
+                                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                        "package", playerDTO.packagee().id()))));
+            }
+
 
             var savedEntity = playerRepository.save(entityToSave);
 

@@ -28,6 +28,8 @@ public record InvoiceSummaryDto(
         @NotBlank(message = "Currency must not be blank")
         String currency,
 
-        LocalDateTime generatedAt
+        LocalDateTime generatedAt,
+
+        String path
 ) {
 }

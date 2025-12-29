@@ -86,15 +86,6 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<PricingRuleDto> getAllPricingRulesDto() {
-        return pricingRulesRepository.findAll()
-                .stream()
-                .map(pricingRuleMapper::toDto)
-                .toList();
-    }
-
-    @Override
     @Transactional
     public ResponseEntity<Map<String, String>> updateRule(PricingRuleDto pricingRulesDto, Long id) {
         if (!pricingRulesRepository.existsById(id)) {

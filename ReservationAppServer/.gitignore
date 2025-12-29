@@ -39,5 +39,6 @@ build/
 
 **/application.yaml
 
-files/**
+pdf/**
 qrcodes/**
+files/**
