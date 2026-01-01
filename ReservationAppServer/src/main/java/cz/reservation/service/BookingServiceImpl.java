@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.BookingDto;
+import cz.reservation.dto.CreatedBookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.TrainingSlotEntity;
@@ -63,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
 
         var savedEntity = bookingRepository.save(entityToSave);
 
-        //eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
+        eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
