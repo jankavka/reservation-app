@@ -14,7 +14,7 @@ public interface SeasonService {
 
     ResponseEntity<SeasonDto> getSeason(Long id);
 
-    ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id);
+    ResponseEntity<Map<String,String>> editSeason(SeasonDto seasonDto, Long id);
 
     ResponseEntity<Map<String, String>> deleteSeason(Long id);
 }

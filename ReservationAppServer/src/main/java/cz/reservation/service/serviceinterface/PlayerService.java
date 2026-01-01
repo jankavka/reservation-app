@@ -9,13 +9,17 @@ import java.util.Map;
 
 public interface PlayerService {
 
-    ResponseEntity<PlayerDto> getPlayer(Long id);
+    ResponseEntity<Map<String, Object>> getPlayer(Long id);
+
+    PlayerDto getPlayerDto(Long id);
+
+    PlayerEntity getPlayerEntity(Long id);
 
     ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO);
 
     List<PlayerDto> getAllPlayers();
 
-    ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id);
+    ResponseEntity<Map<String, String>> editPlayer(PlayerDto playerDto, Long id);
 
     ResponseEntity<Map<String, String>> deletePLayer(Long id);
 

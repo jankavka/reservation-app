@@ -14,7 +14,7 @@ public interface EnrollmentService {
 
     ResponseEntity<List<EnrollmentDto>> getAllEnrollments();
 
-    ResponseEntity<EnrollmentDto> editEnrollment(EnrollmentDto enrollmentDto, Long id);
+    ResponseEntity<Map<String, String>> editEnrollment(EnrollmentDto enrollmentDto, Long id);
 
     ResponseEntity<Map<String, String>> deleteEnrollment(Long id);
 }

@@ -19,8 +19,6 @@ import java.util.*;
 @Table(name = "users")
 public class UserEntity {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,14 +43,11 @@ public class UserEntity {
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<PlayerEntity> players = new ArrayList<>();
 
     @Column
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InvoiceSummaryEntity> invoices = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private CoachEntity coach;

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -41,15 +42,35 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<PlayerDto> getPlayer(Long id) {
+    public ResponseEntity<Map<String, Object>> getPlayer(Long id) {
+
+        //relatedPlayer
+        var playerDto = playerMapper.toDto(playerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
+                entityNotFoundExceptionMessage(SERVICE_NAME, id))));
+        var missingPricingTypeMessage = (playerDto.pricingType() == null) ?
+                "Pricing type has to be added before start of training" : Optional.empty();
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(playerMapper.toDto(playerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+                .body(Map.of(SERVICE_NAME, playerDto, "message", missingPricingTypeMessage));
 
+    }
+
+    @Override
+    public PlayerDto getPlayerDto(Long id) {
+        return playerMapper.
+                toDto(playerRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
+    }
+
+    @Override
+    public PlayerEntity getPlayerEntity(Long id) {
+        return playerRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
     }
 
     @Override
@@ -57,32 +78,13 @@ public class PlayerServiceImpl implements PlayerService {
     public ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO) {
 
         var entityToSave = playerMapper.toEntity(playerDTO);
-        Long parentId = playerDTO.parent().id();
-        if (userRepository.existsById(parentId)) {
-            userRepository.getReferenceById(parentId).getRoles().add(Role.PARENT);
-            entityToSave.setParent(userRepository
-                    .findById(parentId)
-                    .orElseThrow());
+        setForeignKeys(entityToSave, playerDTO);
 
-            if (playerDTO.packagee() != null) {
-                entityToSave.setPackagee(packageRepository
-                        .findById(playerDTO.packagee().id())
-                        .orElseThrow(
-                                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
-                                        "package", playerDTO.packagee().id()))));
-            }
+        var savedEntity = playerRepository.save(entityToSave);
 
-
-            var savedEntity = playerRepository.save(entityToSave);
-
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(playerMapper.toDto(savedEntity));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("parent user", parentId));
-        }
-
-
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(playerMapper.toDto(savedEntity));
     }
 
     @Override
@@ -98,18 +100,18 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     @Transactional
-    public ResponseEntity<PlayerDto> editPlayer(PlayerDto playerDto, Long id) {
-        if (playerRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+    public ResponseEntity<Map<String, String>> editPlayer(PlayerDto playerDto, Long id) {
 
-        } else {
-            var entityToEdit = playerMapper.toEntity(playerDto);
-            entityToEdit.setId(id);
-            var savedEntity = playerRepository.save(entityToEdit);
+        var entityToUpdate = playerRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-            return ResponseEntity.ok(playerMapper.toDto(savedEntity));
+        playerMapper.updateEntity(entityToUpdate, playerDto);
+        setForeignKeys(entityToUpdate, playerDto);
+        return ResponseEntity.ok().body(Map.of(
+                "message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
 
-        }
+
     }
 
     @Override
@@ -145,6 +147,22 @@ public class PlayerServiceImpl implements PlayerService {
             return playerRepository.findByParentId(parentId);
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage("User", parentId));
+        }
+    }
+
+
+    private void setForeignKeys(PlayerEntity target, PlayerDto source) {
+
+        target.setParent(userRepository.
+                findById(source.parent().id())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                "user", source.parent().id()))));
+        if (source.packagee() != null) {
+            target.setPackagee(packageRepository
+                    .findById(source.packagee().id())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            entityNotFoundExceptionMessage("package", source.packagee().id()))));
         }
     }
 }

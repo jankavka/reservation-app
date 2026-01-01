@@ -58,16 +58,14 @@ public class SeasonServiceImpl implements SeasonService {
 
     @Override
     @Transactional
-    public ResponseEntity<SeasonDto> editSeason(SeasonDto seasonDto, Long id) {
-        if (!seasonRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToSave = seasonMapper.toEntity(seasonDto);
-            entityToSave.setId(id);
-            var savedEntity = seasonRepository.save(entityToSave);
-            return ResponseEntity
-                    .ok(seasonMapper.toDto(savedEntity));
-        }
+    public ResponseEntity<Map<String,String>> editSeason(SeasonDto seasonDto, Long id) {
+        var entityToUpdate = seasonRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id)));
+
+        seasonMapper.updateEntity(entityToUpdate, seasonDto);
+        return ResponseEntity.ok().body(Map.of("message", successMessage(SERVICE_NAME,id,EventStatus.UPDATED)));
     }
 
     @Override

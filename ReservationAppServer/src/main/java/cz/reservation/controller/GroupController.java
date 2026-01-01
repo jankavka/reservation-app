@@ -17,35 +17,35 @@ public class GroupController {
     private final GroupService groupService;
 
     @Autowired
-    public GroupController(GroupService groupService){
+    public GroupController(GroupService groupService) {
         this.groupService = groupService;
     }
 
     @PostMapping
-    public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid GroupDto groupDto){
+    public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid GroupDto groupDto) {
         return groupService.createGroup(groupDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GroupDto> getGroup(@PathVariable Long id){
+    public ResponseEntity<GroupDto> getGroup(@PathVariable Long id) {
         return groupService.getGroup(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<GroupDto>> getAllGroups(){
+    public ResponseEntity<List<GroupDto>> getAllGroups() {
         return groupService.getAllGroups();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GroupDto> editGroup(
+    public ResponseEntity<Map<String, String>> editGroup(
             @RequestBody @Valid GroupDto groupDto,
-            @PathVariable Long id){
+            @PathVariable Long id) {
 
         return groupService.editGroup(groupDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteGroup(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deleteGroup(@PathVariable Long id) {
         return groupService.deleteGroup(id);
     }
 }

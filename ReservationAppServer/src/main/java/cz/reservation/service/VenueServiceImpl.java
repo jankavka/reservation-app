@@ -51,17 +51,14 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     @Transactional
-    public ResponseEntity<VenueDto> editVenue(VenueDto venueDto, Long id) {
-        if (!venueRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+    public ResponseEntity<Map<String, String>> editVenue(VenueDto venueDto, Long id) {
+        var entityToUpdate = venueRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME,id)));
 
-        } else {
-            var entityToSave = venueMapper.toEntity(venueDto);
-            entityToSave.setId(id);
-            var savedEntity = venueRepository.save(entityToSave);
+        venueMapper.updateEntity(entityToUpdate, venueDto);
 
-            return ResponseEntity.ok(venueMapper.toDto(savedEntity));
-        }
+        return ResponseEntity.ok().body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
 
     }
 

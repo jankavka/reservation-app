@@ -36,7 +36,7 @@ public class EnrollmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EnrollmentDto> editEnrollment(@RequestBody @Valid EnrollmentDto enrollmentDto, @PathVariable Long id){
+    public ResponseEntity<Map<String, String>> editEnrollment(@RequestBody @Valid EnrollmentDto enrollmentDto, @PathVariable Long id){
         return enrollmentService.editEnrollment(enrollmentDto,id);
     }
 

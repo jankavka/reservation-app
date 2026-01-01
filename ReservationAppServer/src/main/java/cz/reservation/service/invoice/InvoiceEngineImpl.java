@@ -65,9 +65,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
     @Override
     public String createInvoice(InvoiceSummaryEntity entity) throws IOException {
 
-        var currentUser = entity.getUser();
+
+        var currentPlayer = entity.getPlayer();
+        var currentUser = currentPlayer.getParent();
         var invoiceNumber = String.valueOf(entity.getGeneratedAt().getYear()) +
-                entity.getGeneratedAt().getMonth().getValue() + currentUser.getId();
+                entity.getGeneratedAt().getMonth().getValue() + currentPlayer.getId();
         var userEmail = currentUser.getEmail();
         var userTelephone = currentUser.getTelephoneNumber();
         var userName = currentUser.getFullName();
@@ -181,7 +183,8 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             Table items = new Table(UnitValue.createPercentArray(new float[]{80f, 20f})).useAllAvailableWidth();
             items.addHeaderCell(new Paragraph("Položka").setBold());
             items.addHeaderCell(new Paragraph("Cena").setBold());
-            addRowInItems("Fakturace tréninků v měsíci " + monthString, price, items);
+            addRowInItems("Fakturace tréninků v měsíci " + monthString + " za hráče " +
+                    currentPlayer.getFullName(), price, items) ;
 
             document.add(items);
 

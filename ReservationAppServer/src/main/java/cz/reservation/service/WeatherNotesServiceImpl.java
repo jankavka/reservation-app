@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.WeatherNotesDto;
 import cz.reservation.dto.mapper.WeatherNotesMapper;
+import cz.reservation.entity.WeatherNotesEntity;
 import cz.reservation.entity.repository.TrainingSlotRepository;
 import cz.reservation.entity.repository.WeatherNotesRepository;
 import cz.reservation.service.serviceinterface.WeatherNotesService;
@@ -34,7 +35,7 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
     @Transactional
     public ResponseEntity<WeatherNotesDto> createWeatherNote(WeatherNotesDto weatherNotesDto) {
         var entityToSave = weatherNotesMapper.toEntity(weatherNotesDto);
-        entityToSave.setTrainingSlot(trainingSlotRepository.getReferenceById(weatherNotesDto.trainingSlot().id()));
+        setForeignKeys(entityToSave, weatherNotesDto);
         var savedEntity = weatherNotesRepository.save(entityToSave);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(weatherNotesMapper.toDto(savedEntity));
@@ -67,17 +68,15 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
     @Transactional
     public ResponseEntity<Map<String, String>> editWeatherNote(WeatherNotesDto weatherNotesDto, Long id) {
 
-        if (weatherNotesRepository.existsById(id)) {
-            var entityToUpdate = weatherNotesRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        var entityToUpdate = weatherNotesRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-            weatherNotesMapper.updateEntity(entityToUpdate, weatherNotesDto);
+        weatherNotesMapper.updateEntity(entityToUpdate, weatherNotesDto);
+        setForeignKeys(entityToUpdate, weatherNotesDto);
 
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        }
+        return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+
 
     }
 
@@ -91,5 +90,13 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
 
             return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
+    }
+
+    private void setForeignKeys(WeatherNotesEntity target, WeatherNotesDto source) {
+        target.setTrainingSlot(trainingSlotRepository
+                .findById(source.trainingSlot().id())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                "training slot", source.trainingSlot().id()))));
     }
 }

@@ -37,12 +37,14 @@ public class SeasonController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SeasonDto> editSeason(@RequestBody @Valid SeasonDto seasonDto, @PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> editSeason(
+            @RequestBody @Valid SeasonDto seasonDto,
+            @PathVariable Long id) {
         return seasonService.editSeason(seasonDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String,String>> deleteSeason(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteSeason(@PathVariable Long id) {
         return seasonService.deleteSeason(id);
     }
 }

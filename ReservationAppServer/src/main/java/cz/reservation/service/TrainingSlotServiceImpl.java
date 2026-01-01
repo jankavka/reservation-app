@@ -152,32 +152,34 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id) {
-        if (!trainingSlotRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
 
-            var entityToUpdate = trainingSlotRepository.getReferenceById(id);
 
-            var allBlockings = courtBlockingService.getAllBlockingsEntities();
+        var entityToUpdate = trainingSlotRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-            //Object to use in collision check
-            var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlockingId());
+        setForeignKeys(entityToUpdate, trainingSlotDto);
 
-            //Collision check. looking for collision between current slot and all blockings of current court
-            validateNoTimeCollision(
-                    allBlockings,
-                    relatedCourtBlockingEntity,
-                    trainingSlotDto);
+        var allBlockings = courtBlockingService.getAllBlockingsEntities();
 
-            updateRelatedCourtBlocking(relatedCourtBlockingEntity, trainingSlotDto);
+        //Object to use in collision check
+        var relatedCourtBlockingEntity = courtBlockingService.getBlockingEntity(trainingSlotDto.courtBlockingId());
 
-            //Editing current training slot
-            trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
+        //Collision check. looking for collision between current slot and all blockings of current court
+        validateNoTimeCollision(
+                allBlockings,
+                relatedCourtBlockingEntity,
+                trainingSlotDto);
 
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
-        }
+        updateRelatedCourtBlocking(relatedCourtBlockingEntity, trainingSlotDto);
+
+        //Editing current training slot
+        trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
+
     }
 
     @Override

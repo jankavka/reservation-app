@@ -13,7 +13,7 @@ public interface InvoiceSummaryService {
 
     ResponseEntity<InvoiceSummaryDto> getSummary(Long id);
 
-    ResponseEntity<InvoiceSummaryDto> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id);
+    ResponseEntity<Map<String, String>> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id);
 
     ResponseEntity<List<InvoiceSummaryDto>> getAllSummaries();
 

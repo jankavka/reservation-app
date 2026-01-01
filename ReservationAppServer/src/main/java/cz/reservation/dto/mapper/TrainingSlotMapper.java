@@ -14,5 +14,9 @@ public interface TrainingSlotMapper {
 
     TrainingSlotEntity toEntity(TrainingSlotDto trainingSlotsDto);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "group", ignore = true)
+    @Mapping(target = "court", ignore = true)
+    @Mapping(target = "courtBlocking", ignore = true)
     void updateEntity(@MappingTarget TrainingSlotEntity target, TrainingSlotDto source);
 }

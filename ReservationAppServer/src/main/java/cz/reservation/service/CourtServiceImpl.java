@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtMapper;
+import cz.reservation.entity.CourtEntity;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.serviceinterface.CourtService;
@@ -36,12 +37,7 @@ public class CourtServiceImpl implements CourtService {
     public ResponseEntity<CourtDto> createCourt(CourtDto courtDto) {
 
         var entityToSave = courtMapper.toEntity(courtDto);
-        var venueId = courtDto.venue().id();
-        if (venueRepository.existsById(venueId)) {
-            entityToSave.setVenue(venueRepository.getReferenceById(venueId));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("venue", venueId));
-        }
+        setForeignKeys(entityToSave, courtDto);
         var savedEntity = courtRepository.save(entityToSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(courtMapper.toDto(savedEntity));
 
@@ -86,17 +82,23 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editCourt(CourtDto courtDto, Long id) {
-        if (!courtRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToUpdate = courtRepository.getReferenceById(id);
-            courtMapper.updateEntity(entityToUpdate, courtDto);
-            var updatedDto = courtMapper.toDto(courtRepository.getReferenceById(id));
-            return ResponseEntity.ok(Map.of(
-                    "message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED),
-                    "object", updatedDto.toString()));
-        }
+        var entityToUpdate = courtRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        courtMapper.updateEntity(entityToUpdate, courtDto);
+        setForeignKeys(entityToUpdate, courtDto);
+        var updatedDto = courtMapper.toDto(courtRepository.getReferenceById(id));
+        return ResponseEntity.ok(Map.of(
+                "message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED),
+                "object", updatedDto.toString()));
 
 
+    }
+
+    private void setForeignKeys(CourtEntity target, CourtDto source) {
+        var venueId = source.venue().id();
+        target.setVenue(venueRepository
+                .findById(venueId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                "venue", venueId))));
     }
 }

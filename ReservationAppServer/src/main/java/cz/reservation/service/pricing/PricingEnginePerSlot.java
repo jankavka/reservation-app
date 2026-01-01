@@ -7,7 +7,6 @@ import cz.reservation.service.pricing.pricinginterface.PricingEngine;
 import cz.reservation.service.serviceinterface.BookingService;
 import cz.reservation.service.serviceinterface.PlayerService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
-import cz.reservation.service.serviceinterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +20,6 @@ public class PricingEnginePerSlot implements PricingEngine {
     private final PricingRuleService pricingRuleService;
 
     private final BookingService bookingService;
-
-    private final UserService userService;
 
     private static final Integer PRIME_TIME_START = 16;
 
@@ -47,11 +44,11 @@ public class PricingEnginePerSlot implements PricingEngine {
     @Override
     public Integer computePrice(InvoiceSummaryDto invoiceSummaryDto) {
 
-        var relatedUser = userService.getUser(invoiceSummaryDto.user().id());
+        var relatedPlayer = playerService.getPlayerDto(invoiceSummaryDto.player().id());
         var allBookingsInMonthByUser = bookingService
                 .getAllBookingDto()
                 .stream()
-                .filter(bookingDto -> bookingDto.player().parent().equals(relatedUser))
+                .filter(bookingDto -> bookingDto.player().equals(relatedPlayer))
                 .filter(bookingDto -> bookingDto.trainingSlot().startAt().getMonth().equals(invoiceSummaryDto.month()))
                 .toList();
 

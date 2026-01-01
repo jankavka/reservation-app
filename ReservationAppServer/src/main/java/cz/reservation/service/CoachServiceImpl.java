@@ -4,6 +4,7 @@ import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.mapper.CoachMapper;
+import cz.reservation.entity.CoachEntity;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
@@ -42,12 +43,7 @@ public class CoachServiceImpl implements CoachService {
     public ResponseEntity<CoachDto> createCoach(CoachDto coachDto) throws NonUniqueObjectException {
 
         var entityToSave = coachMapper.toEntity(coachDto);
-        var userId = coachDto.user().id();
-        if (userRepository.existsById(userId)) {
-            entityToSave.setUser(userRepository.getReferenceById(userId));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("user", userId));
-        }
+        setForeignKeys(entityToSave, coachDto);
         entityToSave.getUser().getRoles().add(Role.COACH);
 
         var savedEntity = coachRepository.save(entityToSave);
@@ -114,15 +110,21 @@ public class CoachServiceImpl implements CoachService {
 
     @Override
     @Transactional
-    public ResponseEntity<CoachDto> editCoach(CoachDto coachDto, Long id) {
-        if (coachRepository.existsById(id)) {
-            var entityToSave = coachMapper.toEntity(coachDto);
-            entityToSave.setId(id);
-            var savedEntity = coachRepository.save(entityToSave);
-            return ResponseEntity.ok(coachMapper.toDto(savedEntity));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        }
+    public ResponseEntity<Map<String, String>> editCoach(CoachDto coachDto, Long id) {
+        var entityToUpdate = coachRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        coachMapper.updateEntity(entityToUpdate, coachDto);
+        setForeignKeys(entityToUpdate, coachDto);
+        return ResponseEntity.ok().body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+    }
+
+    private void setForeignKeys(CoachEntity target, CoachDto source) {
+        var userId = source.user().id();
+        target.setUser(userRepository
+                .findById(userId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage("user", userId))));
     }
 
 

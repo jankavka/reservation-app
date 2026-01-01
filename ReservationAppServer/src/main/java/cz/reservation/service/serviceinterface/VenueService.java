@@ -12,7 +12,7 @@ public interface VenueService {
 
     ResponseEntity<VenueDto> getVenue(Long id);
 
-    ResponseEntity<VenueDto> editVenue(VenueDto venueDto, Long id);
+    ResponseEntity<Map<String,String>> editVenue(VenueDto venueDto, Long id);
 
     ResponseEntity<List<VenueDto>> getAllVenues();
 

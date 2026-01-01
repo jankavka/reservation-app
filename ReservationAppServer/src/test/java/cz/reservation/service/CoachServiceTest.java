@@ -69,7 +69,6 @@ class CoachServiceTest {
                 roles,
                 null,
                 date,
-                null,
                 null);
         var coachToSaveDto = new CoachDto(
                 null, relatedUserDto,
@@ -94,8 +93,7 @@ class CoachServiceTest {
                 null);
 
         when(coachMapper.toEntity(coachToSaveDto)).thenReturn(coachToSaveEntity);
-        when(userRepository.existsById(relatedUserDto.id())).thenReturn(true);
-        when(userRepository.getReferenceById(coachToSaveDto.user().id())).thenReturn(relatedUserEntity);
+        when(userRepository.findById(relatedUserDto.id())).thenReturn(Optional.of(relatedUserEntity));
         when(coachRepository.save(coachToSaveEntity)).thenReturn(savedCoachEntity);
         when(coachMapper.toDto(savedCoachEntity)).thenReturn(savedCoachDto);
 
@@ -122,7 +120,6 @@ class CoachServiceTest {
                 roles,
                 null,
                 date,
-                null,
                 null);
         var relatedUserDto = new UserDto(
                 1L,
@@ -182,8 +179,8 @@ class CoachServiceTest {
                 "12345609097",
                 null,
                 "M", roles,
-                null, date,
                 null,
+                date,
                 null),
                 "B",
                 "C",
@@ -235,8 +232,8 @@ class CoachServiceTest {
                 "12345609097",
                 "123456",
                 "N", roles,
-                null, date,
                 null,
+                date,
                 null);
         var coachToDeleteEntity = new CoachEntity(
                 1L, relatedUserEntity,
@@ -278,22 +275,22 @@ class CoachServiceTest {
     @Test
     void shouldReturnResponseEntityWithEditCoachDto() {
         var id = 1L;
-        var coachDtoToSave = new CoachDto(1L, null, "B", "C");
-        var coachEntityToSave = new CoachEntity(1L, null, "B", "C", List.of());
-        var savedEntity = new CoachEntity(1L, null, "B", "C", List.of());
-        var savedDto = new CoachDto(1L, null, "B", "C");
-        var returnedDto = new CoachDto(1L, null, "B", "C");
+        var relatedUserDto = new UserDto(1L, "a@b.cz","123456789","N",null, date);
+        var relatedUserEntity = new UserEntity(1L,"a@b.cz","123456789",null,"N",null,null,date,null);
+        var coachDtoToSave = new CoachDto(1L, relatedUserDto, "B", "C");
+        var coachEntityToUpdate = new CoachEntity(1L, relatedUserEntity,"B","C",null);
 
-        when(coachRepository.existsById(id)).thenReturn(Boolean.TRUE);
-        when(coachMapper.toEntity(coachDtoToSave)).thenReturn(coachEntityToSave);
-        when(coachRepository.save(coachEntityToSave)).thenReturn(savedEntity);
-        when(coachMapper.toDto(savedEntity)).thenReturn(savedDto);
+        when(coachRepository.findById(id)).thenReturn(Optional.of(coachEntityToUpdate));
+        when(userRepository.findById(id)).thenReturn(Optional.of(relatedUserEntity));
 
         var result = coachService.editCoach(coachDtoToSave, id);
 
-        assertEquals(ResponseEntity.ok(returnedDto), result);
-        verify(coachRepository).save(coachEntityToSave);
+        assertEquals(ResponseEntity.ok(Map.of(
+                "message", successMessage("coach", id, EventStatus.UPDATED))), result);
+        verify(coachRepository).findById(id);
+        verify(userRepository).findById(id);
         verifyNoMoreInteractions(coachRepository);
+
     }
 
 
