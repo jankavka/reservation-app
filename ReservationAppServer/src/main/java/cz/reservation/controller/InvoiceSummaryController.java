@@ -34,7 +34,7 @@ public class InvoiceSummaryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InvoiceSummaryDto> editSummary(
+    public ResponseEntity<Map<String, String>> editSummary(
             @RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto,
             @PathVariable Long id) {
 

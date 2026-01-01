@@ -3,7 +3,6 @@ package cz.reservation.service;
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.BookingDto;
-import cz.reservation.dto.CreatedBookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.TrainingSlotEntity;
@@ -56,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
 
         entityToSave.setBookedAt(LocalDateTime.now());
 
-        setForeignKeys(entityToSave, relatedTrainingSlot, bookingDto);
+        setForeignKeys(entityToSave, bookingDto);
 
         checkRelatedTrainingSlotIsBookable(relatedTrainingSlot);
 
@@ -120,9 +119,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editBookingAsAdmin(BookingDto bookingDto, Long id) {
+
         if (bookingRepository.existsById(id)) {
             var entityToUpdate = bookingRepository.getReferenceById(id);
             bookingMapper.updateEntity(entityToUpdate, bookingDto);
+            setForeignKeys(entityToUpdate, bookingDto);
             return ResponseEntity.ok().body(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         } else {
 
@@ -169,8 +170,9 @@ public class BookingServiceImpl implements BookingService {
 
     private void setForeignKeys(
             BookingEntity entityToSave,
-            TrainingSlotEntity relatedTrainingSlot,
             BookingDto bookingDto) {
+
+        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
 
         entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
         entityToSave.setTrainingSlot(relatedTrainingSlot);

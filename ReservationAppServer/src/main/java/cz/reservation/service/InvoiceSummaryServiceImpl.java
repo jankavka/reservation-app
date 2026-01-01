@@ -8,7 +8,7 @@ import cz.reservation.entity.repository.InvoiceSummaryRepository;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.pricing.resolver.PricingStrategyResolver;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
-import cz.reservation.service.serviceinterface.UserService;
+import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     private final InvoiceSummaryMapper invoiceSummaryMapper;
 
-    private final UserService userService;
+    private final PlayerService playerService;
 
     private final PricingStrategyResolver pricingStrategyResolver;
 
@@ -82,13 +82,19 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     @Override
     @Transactional
-    public ResponseEntity<InvoiceSummaryDto> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id) {
+    public ResponseEntity<Map<String, String>> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id) {
 
-        var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
-        setForeignKeys(entityToSave, invoiceSummaryDto);
-        entityToSave.setId(id);
-        var savedEntity = invoiceSummaryRepository.save(entityToSave);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceSummaryMapper.toDto(savedEntity));
+        var entityToUpdate = invoiceSummaryRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+        invoiceSummaryMapper.updateEntity(entityToUpdate, invoiceSummaryDto);
+        setForeignKeys(entityToUpdate, invoiceSummaryDto);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
 
     }
 
@@ -111,7 +117,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(invoiceSummaryRepository
-                        .findByUserId(userId)
+                        .findByPlayerId(userId)
                         .stream()
                         .map(invoiceSummaryMapper::toDto)
                         .toList());
@@ -139,7 +145,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
      * @param source Dto with foreign keys
      */
     private void setForeignKeys(InvoiceSummaryEntity target, InvoiceSummaryDto source) {
-        target.setUser(userService.getUserEntity(source.user().id()));
+        target.setPlayer(playerService.getPlayerEntity(source.player().id()));
     }
 
 
@@ -147,12 +153,19 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
             InvoiceSummaryEntity target,
             InvoiceSummaryDto invoiceSummaryDto) {
 
-        var pricingType = invoiceSummaryDto.pricingType();
-        var pricingEngine = pricingStrategyResolver.resolve(pricingType);
+        var relatedPlayer = playerService.getPlayerEntity(invoiceSummaryDto.player().id());
+        var packagee = relatedPlayer.getPackagee();
+        var pricingType = relatedPlayer.getPricingType();
+        if (pricingType == null) {
+            throw new IllegalArgumentException(notNullMessage("Pricing type"));
+        }
+        if (packagee == null) {
+            var pricingEngine = pricingStrategyResolver.resolve(pricingType);
 
-        var price = pricingEngine.computePrice(invoiceSummaryDto);
+            var price = pricingEngine.computePrice(invoiceSummaryDto);
 
-        target.setTotalCentsAmount(price);
+            target.setTotalCentsAmount(price);
+        }
 
     }
 

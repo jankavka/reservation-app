@@ -17,5 +17,5 @@ public interface CoachService {
 
     ResponseEntity<Map<String,String>> deleteCoach(Long id);
 
-    ResponseEntity<CoachDto> editCoach(CoachDto coachDto, Long id);
+    ResponseEntity<Map<String, String>> editCoach(CoachDto coachDto, Long id);
 }

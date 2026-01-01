@@ -3,8 +3,8 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.PackageDto;
 import cz.reservation.dto.mapper.PackageMapper;
+import cz.reservation.entity.PackageEntity;
 import cz.reservation.entity.repository.PackageRepository;
-import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -69,6 +70,11 @@ public class PackageServiceImpl implements PackageService {
         return packageMapper.toDto(packageRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
+    }
+
+    @Override
+    public Optional<PackageEntity> getPackageByPlayerId(Long playerId) {
+        return packageRepository.findByPlayersId(playerId);
     }
 
     @Override

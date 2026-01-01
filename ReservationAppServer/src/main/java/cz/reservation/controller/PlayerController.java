@@ -17,37 +17,39 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @Autowired
-    public PlayerController(PlayerService playerService){
+    public PlayerController(PlayerService playerService) {
         this.playerService = playerService;
     }
 
     @GetMapping
-    public List<PlayerDto> getAllPlayers(){
+    public List<PlayerDto> getAllPlayers() {
         return playerService.getAllPlayers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerDto> getPlayer(@PathVariable Long id){
+    public ResponseEntity<Map<String, Object>> getPlayer(@PathVariable Long id) {
         return playerService.getPlayer(id);
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PlayerDto>> getPlayerByParentId(@PathVariable Long id){
+    public ResponseEntity<List<PlayerDto>> getPlayerByParentId(@PathVariable Long id) {
         return playerService.getPlayersByParentId(id);
     }
 
     @PostMapping
-    public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto){
+    public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto) {
         return playerService.createPlayer(playerDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlayerDto> editPlayer(@RequestBody @Valid PlayerDto playerDto, @PathVariable Long id){
-        return playerService.editPlayer(playerDto,id);
+    public ResponseEntity<Map<String, String>> editPlayer(
+            @RequestBody @Valid PlayerDto playerDto,
+            @PathVariable Long id) {
+        return playerService.editPlayer(playerDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deletePlayer(@PathVariable Long id){
+    public ResponseEntity<Map<String, String>> deletePlayer(@PathVariable Long id) {
         return playerService.deletePLayer(id);
     }
 }

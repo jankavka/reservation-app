@@ -1,6 +1,7 @@
 package cz.reservation.dto;
 
 import cz.reservation.constant.Handedness;
+import cz.reservation.constant.PricingType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -20,6 +21,9 @@ public record PlayerDto(
 
         @NotNull(message = "Parent must not be null")
         UserDto parent,
+
+        //TODO resolve when to set up pricing type to concrete player
+        PricingType pricingType,
 
         String note,
 

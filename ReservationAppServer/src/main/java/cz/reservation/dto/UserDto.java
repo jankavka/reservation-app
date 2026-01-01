@@ -21,10 +21,6 @@ public record UserDto(
         @NotEmpty(message = "Roles must not be empty")
         Set<Role> roles,
 
-        //List<PlayerDto> players,
-
-        //List<InvoiceSummaryDto> invoices,
-
         LocalDateTime createdAt
 ) {
 }

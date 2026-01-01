@@ -90,18 +90,20 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     @Transactional
-    public ResponseEntity<EnrollmentDto> editEnrollment(EnrollmentDto enrollmentDto, Long id) {
-        if (!enrollmentRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
-            entityToSave.setId(id);
-            EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
+    public ResponseEntity<Map<String, String>> editEnrollment(EnrollmentDto enrollmentDto, Long id) {
+        var entityToUpdate = enrollmentRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(enrollmentMapper.toDto(savedEntity));
-        }
+        enrollmentMapper.updateEntity(entityToUpdate, enrollmentDto);
+
+
+        setForeignKeys(entityToUpdate, enrollmentDto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+
     }
 
     @Override

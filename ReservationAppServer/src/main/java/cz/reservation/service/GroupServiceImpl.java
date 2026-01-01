@@ -42,20 +42,7 @@ public class GroupServiceImpl implements GroupService {
     public ResponseEntity<GroupDto> createGroup(GroupDto groupDto) {
 
         var entityToSave = groupMapper.toEntity(groupDto);
-        var seasonId = groupDto.season().id();
-        var coachId = groupDto.coach() == null ? null : groupDto.coach().id();
-
-        if (seasonRepository.existsById(seasonId)) {
-            if (coachId != null && coachRepository.existsById(coachId)) {
-                setForeignKeys(entityToSave, groupDto);
-            } else {
-                throw new EntityNotFoundException(entityNotFoundExceptionMessage("coach", coachId));
-            }
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage("season", seasonId));
-
-        }
-
+        setForeignKeys(entityToSave, groupDto);
         var savedEntity = groupRepository.save(entityToSave);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -88,15 +75,16 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id) {
-        if (groupRepository.existsById(id)) {
-            var entityToSave = groupMapper.toEntity(groupDto);
-            setForeignKeys(entityToSave, groupDto);
-            var savedEntity = groupRepository.save(entityToSave);
-            return ResponseEntity.status(HttpStatus.OK).body(groupMapper.toDto(savedEntity));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        }
+    public ResponseEntity<Map<String, String>> editGroup(GroupDto groupDto, Long id) {
+        var entityToUpdate = groupRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+        groupMapper.updateEntity(entityToUpdate, groupDto);
+        setForeignKeys(entityToUpdate, groupDto);
+        return ResponseEntity.ok().body(Map.of("message", successMessage(SERVICE_NAME, id,EventStatus.UPDATED)));
+
     }
 
     @Override
@@ -117,9 +105,17 @@ public class GroupServiceImpl implements GroupService {
 
     private void setForeignKeys(GroupEntity target, GroupDto source) {
         if (source.coach() != null) {
-            target.setCoach(coachRepository.getReferenceById(source.coach().id()));
+            target.setCoach(coachRepository
+                    .findById(source.coach().id())
+                    .orElseThrow(
+                            () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                    "coach", source.coach().id()))));
         }
-        target.setSeason(seasonRepository.getReferenceById(source.season().id()));
+        target.setSeason(seasonRepository
+                .findById(source.season().id())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                "season", source.season().id()))));
     }
 
 }

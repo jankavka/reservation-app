@@ -24,8 +24,8 @@ public class InvoiceSummaryEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @JoinColumn(name = "player_id")
+    private PlayerEntity player;
 
     @Column
     private Month month;
@@ -33,8 +33,6 @@ public class InvoiceSummaryEntity {
     @Column
     private Integer totalCentsAmount;
 
-    @Column
-    private PricingType pricingType;
 
     @Column
     private String currency;

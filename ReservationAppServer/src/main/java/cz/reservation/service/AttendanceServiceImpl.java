@@ -4,11 +4,13 @@ import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.dto.mapper.AttendanceMapper;
+import cz.reservation.entity.AttendanceEntity;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.repository.AttendanceRepository;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.AttendanceService;
+import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private final BookingRepository bookingRepository;
 
+    private final PackageService packageService;
+
     private static final String SERVICE_NAME = "attendance";
 
     @Override
@@ -41,11 +45,14 @@ public class AttendanceServiceImpl implements AttendanceService {
                 () -> new EntityNotFoundException(
                         entityNotFoundExceptionMessage("Booking", attendanceDto.booking().id())));
 
-        //Sets related booking
-        entityToSave.setBooking(relatedBooking);
+        //Sets FK
+        setForeignKeys(entityToSave, attendanceDto);
 
-        //Checking if player was not present and if his absence was excused properly
+        //Checking if player was present, otherwise if his absence was excused properly
         presenceChecking(attendanceDto, relatedBooking);
+
+        //Actualizes used slots in package if exists
+        actualizePackageIfExists(attendanceDto);
 
         var savedEntity = attendanceRepository.save(entityToSave);
 
@@ -92,6 +99,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             var entityToUpdate = attendanceRepository.getReferenceById(id);
             attendanceMapper.updateEntity(entityToUpdate, attendanceDto);
+            setForeignKeys(entityToUpdate, attendanceDto);
 
             return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         }
@@ -113,6 +121,24 @@ public class AttendanceServiceImpl implements AttendanceService {
                 !relatedBooking.getBookingStatus().equals(BookingStatus.CANCELED)) {
             relatedBooking.setBookingStatus(BookingStatus.NO_SHOW);
         }
+    }
+
+    //TODO: What if used slots are bigger that total number of slots
+    private void actualizePackageIfExists(AttendanceDto attendanceDto) {
+        var hoursUsed = attendanceDto.booking().trainingSlot().endAt().getHour() -
+                attendanceDto.booking().trainingSlot().startAt().getHour();
+        var relatedPlayer = attendanceDto.booking().player();
+        var relatedPackage = packageService.getPackageByPlayerId(relatedPlayer.id());
+        relatedPackage.ifPresent(packageEntity -> packageEntity.setSlotUsed(packageEntity.getSlotUsed() + hoursUsed));
+    }
+
+
+    private void setForeignKeys(AttendanceEntity target, AttendanceDto source) {
+        target.setBooking(bookingRepository
+                .findById(source.booking().id())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                                "booking", source.booking().id()))));
     }
 
 

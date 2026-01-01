@@ -14,7 +14,7 @@ public interface GroupService {
 
     ResponseEntity<List<GroupDto>> getAllGroups();
 
-    ResponseEntity<GroupDto> editGroup(GroupDto groupDto, Long id);
+    ResponseEntity<Map<String, String>> editGroup(GroupDto groupDto, Long id);
 
     ResponseEntity<Map<String, String>> deleteGroup(Long id);
 }

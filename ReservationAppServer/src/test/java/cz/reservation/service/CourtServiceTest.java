@@ -89,8 +89,7 @@ class CourtServiceTest {
                 venueDto);
 
         when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
-        when(venueRepository.existsById(venue.getId())).thenReturn(true);
-        when(venueRepository.getReferenceById(venue.getId())).thenReturn(venue);
+        when(venueRepository.findById(venue.getId())).thenReturn(Optional.of(venue));
         when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
         when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
 
@@ -99,7 +98,7 @@ class CourtServiceTest {
         assertEquals(ResponseEntity.status(HttpStatus.CREATED).body(returnedCourtDto), result);
         verify(courtRepository).save(courtEntityToSave);
         verifyNoMoreInteractions(courtRepository);
-        verify(venueRepository).getReferenceById(venue.getId());
+        verify(venueRepository).findById(venue.getId());
 
     }
 
@@ -213,7 +212,7 @@ class CourtServiceTest {
                 Surface.HARD,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                new VenueDto(1L,"NAME","ADDRESS","123456789"));
+                new VenueDto(1L, "NAME", "ADDRESS", "123456789"));
         var courtEntity = new CourtEntity(
                 1L,
                 "N",
@@ -224,16 +223,19 @@ class CourtServiceTest {
                 venue
         );
 
-
-        when(courtRepository.existsById(id)).thenReturn(true);
-        when(courtRepository.getReferenceById(id)).thenReturn(courtEntity);
+        when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
+        when(venueRepository.findById(id)).thenReturn(Optional.of(venue));
         when(courtMapper.toDto(courtEntity)).thenReturn(dtoToSave);
+        when(courtRepository.getReferenceById(id)).thenReturn(courtEntity);
 
         var result = courtService.editCourt(dtoToSave, id);
 
         assertEquals(ResponseEntity.ok(Map.of("message", successMessage(
-                "court",1L,EventStatus.UPDATED), "object", dtoToSave.toString())), result);
-        verify(courtRepository).existsById(id);
+                "court", 1L, EventStatus.UPDATED), "object", dtoToSave.toString())), result);
+        verify(courtRepository).findById(id);
+        verify(venueRepository).findById(id);
+        verify(courtMapper).toDto(courtEntity);
+
 
     }
 
@@ -250,9 +252,8 @@ class CourtServiceTest {
         var exception = assertThrows(EntityNotFoundException.class, () -> courtService.editCourt(dtoToSave, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals(entityNotFoundExceptionMessage("court",id), exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("court", id), exception.getMessage());
     }
-
 
 
 }
