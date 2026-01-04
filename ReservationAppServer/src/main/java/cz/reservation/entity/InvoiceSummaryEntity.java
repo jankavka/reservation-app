@@ -1,7 +1,6 @@
 package cz.reservation.entity;
 
 
-import cz.reservation.constant.PricingType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

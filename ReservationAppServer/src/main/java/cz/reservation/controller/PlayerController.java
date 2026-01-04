@@ -1,10 +1,12 @@
 package cz.reservation.controller;
 
+import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +38,7 @@ public class PlayerController {
         return playerService.getPlayersByParentId(id);
     }
 
+    @Secured("ADMIN")
     @PostMapping
     public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto) {
         return playerService.createPlayer(playerDto);

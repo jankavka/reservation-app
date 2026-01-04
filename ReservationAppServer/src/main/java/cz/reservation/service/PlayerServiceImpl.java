@@ -1,7 +1,6 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
-import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
@@ -40,6 +39,8 @@ public class PlayerServiceImpl implements PlayerService {
 
     private static final String SERVICE_NAME = "player";
 
+    private static final String MESSAGE = "message";
+
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getPlayer(Long id) {
@@ -52,7 +53,7 @@ public class PlayerServiceImpl implements PlayerService {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Map.of(SERVICE_NAME, playerDto, "message", missingPricingTypeMessage));
+                .body(Map.of(SERVICE_NAME, playerDto, MESSAGE, missingPricingTypeMessage));
 
     }
 
@@ -109,7 +110,7 @@ public class PlayerServiceImpl implements PlayerService {
         playerMapper.updateEntity(entityToUpdate, playerDto);
         setForeignKeys(entityToUpdate, playerDto);
         return ResponseEntity.ok().body(Map.of(
-                "message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+                MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
 
 
     }
@@ -126,7 +127,7 @@ public class PlayerServiceImpl implements PlayerService {
 
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
+                    .body(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 

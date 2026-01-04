@@ -22,7 +22,7 @@ public class CourtBlockingController {
 
     @PostMapping
     public ResponseEntity<CourtBlockingDto> createBlocking(@Valid @RequestBody CourtBlockingDto courtBlockingDto) {
-        return courtBlockingService.createBlockingAndReturnResponseEntity(courtBlockingDto);
+        return courtBlockingService.createBlocking(courtBlockingDto);
     }
 
     @GetMapping("/{id}")

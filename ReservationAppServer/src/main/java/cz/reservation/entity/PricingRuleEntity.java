@@ -11,7 +11,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 

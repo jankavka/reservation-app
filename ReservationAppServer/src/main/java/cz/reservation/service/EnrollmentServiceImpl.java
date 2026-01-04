@@ -43,10 +43,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public ResponseEntity<EnrollmentDto> createEnrollment(EnrollmentDto enrollmentDto) {
 
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
-        setForeignKeys(entityToSave, enrollmentDto);
-        entityToSave.setCreatedAt(LocalDateTime.now());
         var relatedGroup = entityToSave.getGroup();
         var countOfEnrolmentsInGroup = enrollmentRepository.countEnrollmentsByGroupId(relatedGroup.getId());
+
+        setForeignKeys(entityToSave, enrollmentDto);
+        entityToSave.setCreatedAt(LocalDateTime.now());
+
+
+        //Sets up state of enrollment
         if (relatedGroup.getCapacity() > countOfEnrolmentsInGroup) {
             entityToSave.setState(EnrollmentState.ACTIVE);
         } else {
