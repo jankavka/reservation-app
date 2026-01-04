@@ -34,25 +34,20 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional
-    public ResponseEntity<CourtBlockingDto> createBlockingAndReturnResponseEntity(CourtBlockingDto courtBlockingDto) {
-        if (isTimeRangeValid(courtBlockingDto)) {
+    public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
+        timeRangeValidation(courtBlockingDto);
+        var savedEntity = createAndSaveBlocking(courtBlockingDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
 
-            var savedEntity = createAndSaveBlocking(courtBlockingDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
-        } else {
-            throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
-        }
 
     }
 
     @Override
     public CourtBlockingDto createBlockingAndReturnDto(CourtBlockingDto courtBlockingDto) {
-        if (isTimeRangeValid(courtBlockingDto)) {
-            var savedEntity = createAndSaveBlocking(courtBlockingDto);
-            return courtBlockingMapper.toDto(savedEntity);
-        } else {
-            throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
-        }
+        timeRangeValidation(courtBlockingDto);
+        var savedEntity = createAndSaveBlocking(courtBlockingDto);
+        return courtBlockingMapper.toDto(savedEntity);
+
     }
 
     @Override
@@ -119,10 +114,8 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     private CourtBlockingEntity createAndSaveBlocking(CourtBlockingDto courtBlockingDto) {
         var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
         var courtId = courtBlockingDto.court().id();
-        if (!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())) {
-            throw new IllegalArgumentException("Date `from` has to be before date `to`");
-        }
 
+        //Check for existing court
         entityToSave.setCourt(courtRepository.findById(courtId).orElseThrow(
                 () -> new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId))));
         return courtBlockingRepository.save(entityToSave);
@@ -131,18 +124,26 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     /**
      * This helper methods checks if the time for court blocking starts and ends at time with 00 or 30 minutes. Other
-     * values are not supported
+     * values are not supported. Also checks if date "from" is before date "to".
      *
      * @param courtBlockingDto Dto with court blocking information
-     * @return true if given time values are valid
      */
-    private boolean isTimeRangeValid(CourtBlockingDto courtBlockingDto) {
-        return (courtBlockingDto.blockedFrom().getMinute() == 0 ||
+    private void timeRangeValidation(CourtBlockingDto courtBlockingDto) {
+
+        if (!((courtBlockingDto.blockedFrom().getMinute() == 0 ||
                 courtBlockingDto.blockedFrom().getMinute() == 30)
                 &&
                 (courtBlockingDto.blockedTo().getMinute() == 0 ||
-                        courtBlockingDto.blockedTo().getMinute() == 30);
+                        courtBlockingDto.blockedTo().getMinute() == 30))) {
+
+            throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
+        }
+        if (!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())) {
+            throw new IllegalArgumentException("Date `from` has to be before date `to`");
+
+        }
 
 
     }
+
 }

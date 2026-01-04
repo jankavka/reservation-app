@@ -17,10 +17,11 @@ import java.io.IOException;
 public class CompanyInfoServiceImpl implements CompanyInfoService {
 
     private final File file;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public CompanyInfoServiceImpl(@Value("${company-info.path}") String companyInfoPath) {
+    public CompanyInfoServiceImpl(@Value("${company-info.path}") String companyInfoPath, ObjectMapper objectMapper) {
         this.file = new File(companyInfoPath);
+        this.objectMapper = objectMapper;
     }
 
     @Override

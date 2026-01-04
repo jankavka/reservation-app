@@ -82,7 +82,9 @@ public class CourtServiceImpl implements CourtService {
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> editCourt(CourtDto courtDto, Long id) {
-        var entityToUpdate = courtRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        var entityToUpdate = courtRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
         courtMapper.updateEntity(entityToUpdate, courtDto);
         setForeignKeys(entityToUpdate, courtDto);
         var updatedDto = courtMapper.toDto(courtRepository.getReferenceById(id));

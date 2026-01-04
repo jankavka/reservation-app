@@ -214,7 +214,8 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
 
     /**
-     * Helper method. Looking for collision between current slot and all blockings of related court
+     * Helper method. Looking for collision between current slot and all blockings of related court. THIS METHOD
+     * WILL BE REPLACED BY DB CONSTRAINT
      *
      * @param allBlockings    All court blocking entities, which are present in db
      * @param relatedCourt    entity of related court
