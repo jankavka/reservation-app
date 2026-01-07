@@ -28,7 +28,7 @@ public record PackageDto(
         LocalDate generatedAt,
 
         @NotNull(message = "Pricing rule must not be empty")
-        PricingRuleDto pricingRuleDto
+        PricingRuleDto pricingRule
 
 ) {
 }

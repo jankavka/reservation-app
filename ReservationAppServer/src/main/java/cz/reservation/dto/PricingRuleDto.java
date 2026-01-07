@@ -4,6 +4,7 @@ import cz.reservation.constant.PricingType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 public record PricingRuleDto(
@@ -21,7 +22,9 @@ public record PricingRuleDto(
         @NotNull(message = "currency must not be null")
         String currency,
 
-        Map<String, Object> conditions
+        Map<String, Object> conditions,
+
+        List<PackageDto> packagee
 
 
 
