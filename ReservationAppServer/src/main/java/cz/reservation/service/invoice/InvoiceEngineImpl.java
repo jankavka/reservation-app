@@ -26,6 +26,8 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import cz.reservation.entity.InvoiceSummaryEntity;
+import cz.reservation.entity.PackageEntity;
+import cz.reservation.entity.PlayerEntity;
 import cz.reservation.service.serviceinterface.CompanyInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +42,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -48,6 +51,9 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
     private final String path;
     private final CompanyInfoService companyInfoService;
+
+    private static final String DATE_PATTERN = "dd.MM.yyyy";
+
 
     public InvoiceEngineImpl(@Value("${qrcode.path}") String path, CompanyInfoService companyInfoService) {
         this.path = path;
@@ -73,9 +79,8 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         var userEmail = currentUser.getEmail();
         var userTelephone = currentUser.getTelephoneNumber();
         var userName = currentUser.getFullName();
-        var datePattern = "dd.MM.yyyy";
-        var issuedDate = DateTimeFormatter.ofPattern(datePattern).format(LocalDate.now());
-        var dueDate = DateTimeFormatter.ofPattern(datePattern).format(LocalDate.now().plusDays(14));
+        var issuedDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now());
+        var dueDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now().plusDays(14));
         var price = Double.valueOf(entity.getTotalCentsAmount() / 100.0);
         var monthString = entity.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault());
         var currency = entity.getCurrency();
@@ -184,7 +189,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             items.addHeaderCell(new Paragraph("Položka").setBold());
             items.addHeaderCell(new Paragraph("Cena").setBold());
             addRowInItems("Fakturace tréninků v měsíci " + monthString + " za hráče " +
-                    currentPlayer.getFullName(), price, items) ;
+                    currentPlayer.getFullName(), price, items);
 
             document.add(items);
 
@@ -200,11 +205,156 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             addQrCode(document, path, identifier.toString());
 
         } catch (Exception e) {
-            log.error("Error while creating invoice: {} ", e.getMessage());
+            logErrorMessage(e.getMessage());
         }
 
         return "/files/invoice-" + identifier + ".pdf";
 
+    }
+
+    @Override
+    public String createInvoice(PackageEntity entity) throws IOException {
+        var players = entity.getPlayers();
+        var playersNamesString = String.join(", ", players.stream().map(PlayerEntity::getFullName).toList());
+        var identifier = UUID.randomUUID();
+        var playersIds = players.stream().map(PlayerEntity::getId).map(String::valueOf).toList();
+        var stringValueOfIds = String.join("", playersIds);
+        var invoiceNumber = String.valueOf(entity.getGeneratedAt().getYear()) +
+                entity.getGeneratedAt().getMonth().getValue() + stringValueOfIds;
+        var companyInfo = companyInfoService.getCompanyInfo();
+        var user = players.get(0).getParent();
+        var userName = user.getFullName();
+        var userEmail = user.getEmail();
+        var userTelephone = user.getTelephoneNumber();
+        var issuedDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now());
+        var dueDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now().plusDays(14));
+        var price = Double.valueOf(entity.getPricingRuleEntity().getAmountCents() / 100.0);
+        var currency = entity.getPricingRuleEntity().getCurrency();
+
+
+        //Setting up for later initialization
+        PdfWriter writer = new PdfWriter("pdf/invoice-" + identifier + ".pdf");
+        PageSize ps = new PageSize(PageSize.A4);
+        PdfDocument pdf = new PdfDocument(writer);
+        pdf.setDefaultPageSize(ps);
+        PdfPage page = pdf.addNewPage();
+
+        //Document initialization
+        try (Document document = new Document(pdf)) {
+
+            //Rectangle set. Sets up visible margin of document
+            float margin = 30;
+            Rectangle mediaBox = page.getMediaBox();
+            Rectangle newMediaBox = new Rectangle(
+                    mediaBox.getLeft() - margin,
+                    mediaBox.getBottom() - margin,
+                    mediaBox.getWidth() + margin * 2,
+                    mediaBox.getHeight() + margin * 2);
+
+            page.setMediaBox(newMediaBox);
+            PdfCanvas over = new PdfCanvas(page);
+            over.setStrokeColor(Color.BLACK);
+            over.rectangle(mediaBox.getLeft(), mediaBox.getBottom(), mediaBox.getWidth(), mediaBox.getHeight());
+            over.stroke();
+
+
+            //Font setting
+            PdfFont font = PdfFontFactory.createFont(FontConstants.COURIER, PdfEncodings.CP1250);
+            document.setFont(font);
+
+            //Adding title
+            Paragraph title = new Paragraph("FAKTURA " + invoiceNumber)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontSize(16)
+                    .setBold();
+            document.add(title.setMarginBottom(20));
+
+
+            //Adding table fo header info
+            float[] columnsWidths = new float[]{23f, 50f, 10f, 23f, 50f};
+            Table table = new Table(UnitValue.createPercentArray(columnsWidths)).useAllAvailableWidth();
+
+            addRowInHeader(
+                    "Dodavatel",
+                    companyInfo.companyName(),
+                    "Odběratel",
+                    userName,
+                    table);
+            addRowInHeader(
+                    "Adresa",
+                    companyInfo.address(),
+                    null,
+                    "Beskydská 12, Ostrava-Přívoz",
+                    table);
+            addRowInHeader(
+                    "IČO",
+                    companyInfo.businessId(),
+                    null,
+                    "987657897",
+                    table);
+            addRowInHeader(
+                    "DIČ",
+                    companyInfo.taxNumber(),
+                    null,
+                    null,
+                    table);
+            addRowInHeader(
+                    "Email",
+                    companyInfo.email(),
+                    null,
+                    userEmail,
+                    table);
+            addRowInHeader(
+                    "Telefon",
+                    companyInfo.telNumber(),
+                    null,
+                    userTelephone,
+                    table);
+
+            document.add(table);
+
+            //Payment info
+            Paragraph paymentInfoTitle = new Paragraph("Platební údaje").setBold().setMarginTop(50);
+            document.add(paymentInfoTitle);
+
+            Table paymentInfo = new Table(UnitValue.createPercentArray(new float[]{50f, 50f})).useAllAvailableWidth();
+            addRowInPaymentInfo("Číslo účtu", companyInfo.bankAccount(), paymentInfo);
+            addRowInPaymentInfo("Variabilní symbol", invoiceNumber, paymentInfo);
+            addRowInPaymentInfo("Datum vystavení", issuedDate, paymentInfo);
+            addRowInPaymentInfo("Datum zdanitelného plnění", issuedDate, paymentInfo);
+            addRowInPaymentInfo("Datum splatnosti", dueDate, paymentInfo);
+
+            document.add(paymentInfo);
+
+            //Items
+            Paragraph itemsTitle = new Paragraph("Předmět fakturace").setBold().setMarginTop(50);
+            document.add(itemsTitle);
+
+            Table items = new Table(UnitValue.createPercentArray(new float[]{80f, 20f})).useAllAvailableWidth();
+            items.addHeaderCell(new Paragraph("Položka").setBold());
+            items.addHeaderCell(new Paragraph("Cena").setBold());
+            addRowInItems("Fakturace předplatného tréninkového balíčku za hráče " + playersNamesString
+                    , price, items);
+
+            document.add(items);
+
+            createQRCode(
+                    price,
+                    null,
+                    invoiceNumber,
+                    currency,
+                    path,
+                    identifier.toString(),
+                    companyInfo.bankAccountInternationalFormat());
+
+            addQrCode(document, path, identifier.toString());
+
+        } catch (Exception e) {
+            logErrorMessage(e.getMessage());
+        }
+
+
+        return "";
     }
 
     /**
@@ -272,7 +422,12 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             String bankAccount) throws WriterException, IOException {
 
         bankAccount = bankAccount.replace(" ", "");
-        String message = "PLATBA ZA MESIC " + month;
+        String message;
+        if (month == null) {
+            message = "PLATBA ZA PACKAGE";
+        } else {
+            message = "PLATBA ZA MESIC " + month;
+        }
         String finalPrice = String.format("%.2f", price).replace(",", ".");
 
 
@@ -311,6 +466,10 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
         document.add(new Paragraph("QR kód").setBold().setMarginTop(50));
         document.add(image);
+    }
+
+    public void logErrorMessage(String errorMessage) {
+        log.error("Error while creating invoice: {} ", errorMessage);
     }
 
 

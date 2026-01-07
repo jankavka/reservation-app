@@ -1,9 +1,6 @@
 package cz.reservation.service;
 
-import cz.reservation.dto.AuthRequestDTO;
-import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.RegistrationRequestDto;
-import cz.reservation.dto.UserDto;
+import cz.reservation.dto.*;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
@@ -11,6 +8,7 @@ import cz.reservation.service.serviceinterface.AuthService;
 import cz.reservation.service.serviceinterface.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final ApplicationEventPublisher publisher;
 
 
     @Override
@@ -72,6 +72,8 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         UserEntity savedEntity = userRepository.save(entityToSave);
+
+        publisher.publishEvent(new CreatedUserDto(this, savedEntity));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

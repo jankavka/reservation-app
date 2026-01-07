@@ -23,7 +23,12 @@ public record PackageDto(
         LocalDate validFrom,
 
         @NotNull(message = "Date when ends validity of package must not be null" )
-        LocalDate validTo
+        LocalDate validTo,
+
+        LocalDate generatedAt,
+
+        @NotNull(message = "Pricing rule must not be empty")
+        PricingRuleDto pricingRuleDto
 
 ) {
 }

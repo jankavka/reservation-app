@@ -39,4 +39,10 @@ public class PackageEntity {
     @Column
     private LocalDate validTo;
 
+    @Column
+    private LocalDate generatedAt;
+
+    @Column
+    private PricingRuleEntity pricingRuleEntity;
+
 }
