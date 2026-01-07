@@ -42,7 +42,8 @@ public class PackageEntity {
     @Column
     private LocalDate generatedAt;
 
-    @Column
-    private PricingRuleEntity pricingRuleEntity;
+    @ManyToOne
+    @JoinColumn(name = "pricing_rule")
+    private PricingRuleEntity pricingRule;
 
 }

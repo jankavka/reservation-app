@@ -228,8 +228,8 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         var userTelephone = user.getTelephoneNumber();
         var issuedDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now());
         var dueDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now().plusDays(14));
-        var price = Double.valueOf(entity.getPricingRuleEntity().getAmountCents() / 100.0);
-        var currency = entity.getPricingRuleEntity().getCurrency();
+        var price = Double.valueOf(entity.getPricingRule().getAmountCents() / 100.0);
+        var currency = entity.getPricingRule().getCurrency();
 
 
         //Setting up for later initialization
