@@ -1,6 +1,7 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
 import cz.reservation.entity.InvoiceSummaryEntity;
@@ -148,7 +149,14 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         target.setPlayer(playerService.getPlayerEntity(source.player().id()));
     }
 
-
+    /**
+     * Sets price to "InvoiceSummaryEntity" object. The pricing type computing is based on
+     * pricingType attribute in "InvoiceSummaryDto" object. Method uses "pricingStrategyResolver"
+     * object for resolve which instance of "PricingEngine" to use for computing the price.
+     *
+     * @param target            target instance of InvoiceSummaryEntity
+     * @param invoiceSummaryDto Dto with actual data for computing the price
+     */
     private void setPriceToEntity(
             InvoiceSummaryEntity target,
             InvoiceSummaryDto invoiceSummaryDto) {
@@ -159,13 +167,16 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         if (pricingType == null) {
             throw new IllegalArgumentException(notNullMessage("Pricing type"));
         }
-        if (packagee == null) {
-            var pricingEngine = pricingStrategyResolver.resolve(pricingType);
-
-            var price = pricingEngine.computePrice(invoiceSummaryDto);
-
-            target.setTotalCentsAmount(price);
+        if (pricingType.equals(PricingType.PACKAGE) && packagee == null) {
+            throw new IllegalArgumentException("Current player doesn't have active package");
         }
+
+        var pricingEngine = pricingStrategyResolver.resolve(pricingType);
+
+        var price = pricingEngine.computePrice(invoiceSummaryDto);
+
+        target.setTotalCentsAmount(price);
+
 
     }
 

@@ -18,11 +18,17 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class BookingCreatedListener {
 
-    @Value("${notification-api.client-id}")
-    private String clientId;
+    private final String clientId;
 
-    @Value("${notification-api.client-secret}")
-    private String clientSecret;
+    private final String clientSecret;
+
+    public BookingCreatedListener(
+            @Value("${notification-api.client-id}") String clientId,
+            @Value("${notification-api.client-secret}") String clientSecret) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
+
 
     @EventListener
     public void handleCreatedBooking(CreatedBookingDto createdBookingDto) throws IOException {

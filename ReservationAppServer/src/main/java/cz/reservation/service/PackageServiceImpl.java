@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class PackageServiceImpl implements PackageService {
         var entityToSave = packageMapper.toEntity(packageDto);
         if(packageDto.slotUsed() == null){
             entityToSave.setSlotUsed(0);
+            entityToSave.setGeneratedAt(LocalDate.now());
         }
         return packageMapper.toDto(packageRepository.save(entityToSave));
     }
