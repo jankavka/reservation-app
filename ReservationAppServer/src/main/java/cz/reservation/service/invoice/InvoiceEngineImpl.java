@@ -62,14 +62,16 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
 
     /**
-     * Creates invoice as pdf file based on entity object
+     * Creates invoice as pdf file based on entity object. Its purpose is for players which have
+     * * pricing type set to "PricingType.PER_SLOT"
      *
-     * @param entity object which contains data for invoice
-     * @throws FileNotFoundException when there is no found right existing path for saving
+     * @param entity Object which contains data for invoice creation
+     * @return The exact path to the file in String format
+     * @throws FileNotFoundException When there is no found right existing path for saving
      *                               the invoice
      */
     @Override
-    public String createInvoice(InvoiceSummaryEntity entity) throws IOException {
+    public String createInvoice(InvoiceSummaryEntity entity) throws FileNotFoundException {
 
 
         var currentPlayer = entity.getPlayer();
@@ -212,8 +214,17 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
     }
 
+    /**
+     * Creates pdf invoice based on passed "PackageEntity" object. Its purpose is for players which have
+     * pricing type set to "PricingType.PACKAGE"
+     *
+     * @param entity Object which contains data for invoice creation
+     * @return The exact path to the file in String format
+     * @throws FileNotFoundException When there is no found right existing path for saving
+     *                               *                               the invoice
+     */
     @Override
-    public String createInvoice(PackageEntity entity) throws IOException {
+    public String createInvoiceForPackage(PackageEntity entity) throws FileNotFoundException {
         var players = entity.getPlayers();
         var playersNamesString = String.join(", ", players.stream().map(PlayerEntity::getFullName).toList());
         var identifier = UUID.randomUUID();
@@ -388,11 +399,25 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         table.addCell(new Cell().add(new Paragraph(secondValue)).setBorder(Border.NO_BORDER));
     }
 
+    /**
+     * Helper method. Adds row in payment info such as variable symbol etc
+     *
+     * @param subject name of concrete information subject
+     * @param value   value of concrete information subject
+     * @param table   table where the row will be inserted
+     */
     private void addRowInPaymentInfo(String subject, String value, Table table) {
         table.addCell(new Cell().add(new Paragraph(subject)));
         table.addCell(new Cell().add(new Paragraph(value)).setTextAlignment(TextAlignment.RIGHT));
     }
 
+    /**
+     * Helper method. Adds row in items info. For example the exact name of invoiced item
+     *
+     * @param item  Description of invoiced item
+     * @param price price of an item
+     * @param table table where the row will be inserted
+     */
     private void addRowInItems(String item, Double price, Table table) {
         table.addCell(new Cell().add(new Paragraph(item)));
         table.addCell(new Cell().add(new Paragraph(
@@ -401,7 +426,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
 
     /**
-     * Generates qr code and saves it to path in storage.
+     * Helper method. Generates qr code and saves it to the exact path in storage.
      *
      * @param price          actual price for services
      * @param month          month we make invoice for
@@ -447,7 +472,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
     }
 
     /**
-     * Adds qr code to the file(invoice in pdf format)
+     * Helper method. Adds qr code to the file(invoice in pdf format)
      *
      * @param document   current pdf document
      * @param path       path of where the qr code is stored
@@ -468,6 +493,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         document.add(image);
     }
 
+    /**
+     * Helper method. A template for creating custom error message
+     *
+     * @param errorMessage given error message
+     */
     public void logErrorMessage(String errorMessage) {
         log.error("Error while creating invoice: {} ", errorMessage);
     }

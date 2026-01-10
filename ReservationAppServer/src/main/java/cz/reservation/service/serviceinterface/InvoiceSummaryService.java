@@ -3,13 +3,12 @@ package cz.reservation.service.serviceinterface;
 import cz.reservation.dto.InvoiceSummaryDto;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public interface InvoiceSummaryService {
 
-    ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) throws IOException;
+    ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) ;
 
     ResponseEntity<InvoiceSummaryDto> getSummary(Long id);
 

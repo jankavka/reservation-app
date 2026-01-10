@@ -1,6 +1,5 @@
 package cz.reservation.controller;
 
-import cz.reservation.constant.Role;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.validation.Valid;

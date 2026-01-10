@@ -2,6 +2,8 @@ package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.PricingType;
+import cz.reservation.constant.SupportedConditionsPerPackage;
+import cz.reservation.constant.SupportedConditionsPerSlot;
 import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.PricingRuleMapper;
 import cz.reservation.entity.repository.PricingRulesRepository;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -127,5 +130,26 @@ public class PricingRuleServiceImpl implements PricingRuleService {
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
+    }
+
+    @Override
+    public List<String> getSupportedConditionsPerSlot() {
+        return Arrays
+                .stream(SupportedConditionsPerSlot.values())
+                .map(SupportedConditionsPerSlot::getCode)
+                .toList();
+    }
+
+    @Override
+    public List<String> getSupportedConditionsPerPackage() {
+        return Arrays
+                .stream(SupportedConditionsPerPackage.values())
+                .map(SupportedConditionsPerPackage::getCode)
+                .toList();
+    }
+
+    @Override
+    public List<String> getSupportedConditionsPerMonth() {
+        return List.of();
     }
 }

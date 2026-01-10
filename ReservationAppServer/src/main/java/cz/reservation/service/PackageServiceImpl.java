@@ -10,6 +10,8 @@ import cz.reservation.entity.PlayerEntity;
 import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.PricingRulesRepository;
+import cz.reservation.service.exception.InvoiceStorageException;
+import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,8 @@ public class PackageServiceImpl implements PackageService {
     private final PlayerRepository playerRepository;
 
     private final PricingRulesRepository pricingRulesRepository;
+
+    private final InvoiceEngine invoiceEngine;
 
     private static final String SERVICE_NAME = "package";
 
@@ -58,6 +63,12 @@ public class PackageServiceImpl implements PackageService {
         }
         entityToSave.setGeneratedAt(LocalDate.now());
         setPricingRuleToPackage(entityToSave, packageDto);
+
+        try {
+            entityToSave.setPath(invoiceEngine.createInvoiceForPackage(entityToSave));
+        } catch (IOException e) {
+            throw new InvoiceStorageException("An problem occurred during saving pdf invoice");
+        }
 
         var savedEntity = packageRepository.save(entityToSave);
 

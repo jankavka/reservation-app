@@ -3,12 +3,13 @@ package cz.reservation.service.invoice;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.PackageEntity;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
+
 
 public interface InvoiceEngine {
 
-    String createInvoice(InvoiceSummaryEntity entity) throws IOException;
+    String createInvoice(InvoiceSummaryEntity entity) throws FileNotFoundException;
 
-    String createInvoice(PackageEntity entity) throws IOException;
+    String createInvoiceForPackage(PackageEntity entity) throws FileNotFoundException;
 
 }

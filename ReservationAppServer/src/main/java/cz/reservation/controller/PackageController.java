@@ -20,6 +20,7 @@ public class PackageController {
     @PostMapping("/create")
     public PackageDto createPackage(@Valid @RequestBody PackageDto packageDto) {
         return packageService.createPackage(packageDto);
+
     }
 
     @PutMapping("/{id}")
