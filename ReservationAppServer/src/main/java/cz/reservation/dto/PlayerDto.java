@@ -22,7 +22,6 @@ public record PlayerDto(
         @NotNull(message = "Parent must not be null")
         UserDto parent,
 
-        //TODO resolve when to set up pricing type to concrete player
         PricingType pricingType,
 
         String note,

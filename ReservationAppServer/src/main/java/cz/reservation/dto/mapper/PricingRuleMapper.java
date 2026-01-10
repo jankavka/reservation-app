@@ -9,6 +9,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface PricingRuleMapper {
 
+    @Mapping(target = "packagee", ignore = true)
     PricingRuleDto toDto(PricingRuleEntity pricingRuleEntity);
 
     PricingRuleEntity toEntity(PricingRuleDto pricingRulesDto);

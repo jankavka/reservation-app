@@ -1,6 +1,5 @@
 package cz.reservation.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.reservation.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,6 @@ public class UserEntity {
     private String telephoneNumber;
 
     @Column
-    @JsonIgnore
     private String password;
 
     @Column

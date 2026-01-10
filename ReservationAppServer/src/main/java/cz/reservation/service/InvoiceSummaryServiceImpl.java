@@ -56,8 +56,12 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
         setForeignKeys(entityToSave, invoiceSummaryDto);
 
-        //creates the pdf file and sets the path of the file
-        entityToSave.setPath(invoiceEngine.createInvoice(entityToSave));
+        if (entityToSave.getTotalCentsAmount() == 0) {
+            entityToSave.setPath(null);
+        } else {
+            //creates the pdf file and sets the path of the file
+            entityToSave.setPath(invoiceEngine.createInvoice(entityToSave));
+        }
 
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 

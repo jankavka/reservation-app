@@ -46,8 +46,9 @@ public class PlayerServiceImpl implements PlayerService {
     public ResponseEntity<Map<String, Object>> getPlayer(Long id) {
 
         //relatedPlayer
-        var playerDto = playerMapper.toDto(playerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
-                entityNotFoundExceptionMessage(SERVICE_NAME, id))));
+        var playerDto = playerMapper.toDto(playerRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id))));
         var missingPricingTypeMessage = (playerDto.pricingType() == null) ?
                 "Pricing type has to be added before start of training" : Optional.empty();
 

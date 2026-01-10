@@ -4,6 +4,4 @@ import cz.reservation.entity.CoachEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CoachRepository extends JpaRepository<CoachEntity, Long> {
-
-    CoachEntity findByUserId(Long userId);
 }
