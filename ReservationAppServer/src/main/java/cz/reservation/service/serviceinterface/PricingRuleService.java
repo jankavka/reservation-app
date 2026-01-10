@@ -22,4 +22,10 @@ public interface PricingRuleService {
     List<PricingRuleDto> getPricingRulesByPricingType(PricingType pricingType);
 
     ResponseEntity<Map<String, String>> deleteRule(Long id);
+
+    List<String> getSupportedConditionsPerSlot();
+
+    List<String> getSupportedConditionsPerPackage();
+
+    List<String> getSupportedConditionsPerMonth();
 }

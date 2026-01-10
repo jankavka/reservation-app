@@ -6,6 +6,7 @@ import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.dto.mapper.InvoiceSummaryMapper;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
+import cz.reservation.service.exception.InvoiceStorageException;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.pricing.resolver.PricingStrategyResolver;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
@@ -44,7 +45,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
     @Override
     @Transactional
-    public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) throws IOException {
+    public ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) {
 
         var entityToSave = invoiceSummaryMapper.toEntity(invoiceSummaryDto);
 
@@ -56,12 +57,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
 
         setForeignKeys(entityToSave, invoiceSummaryDto);
 
-        if (entityToSave.getTotalCentsAmount() == 0) {
-            entityToSave.setPath(null);
-        } else {
-            //creates the pdf file and sets the path of the file
-            entityToSave.setPath(invoiceEngine.createInvoice(entityToSave));
-        }
+        makeInvoicePdf(entityToSave);
 
         InvoiceSummaryEntity savedEntity = invoiceSummaryRepository.save(entityToSave);
 
@@ -195,5 +191,25 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
         var existingSummary = invoiceSummaryRepository.getSummaryOfCurrentMonth(source.month().getValue());
 
         existingSummary.ifPresent(summary -> target.setId(summary.getId()));
+    }
+
+    /**
+     * Makes an invoice pdf and ale sets up the exact path to created invoice
+     *
+     * @param target Object as base for creating invoice
+     */
+    private void makeInvoicePdf(InvoiceSummaryEntity target) {
+
+        //Checking for "totalCentsAmount" because if it's null, then we don't have to make the invoice
+        if (target.getTotalCentsAmount() == 0) {
+            target.setPath(null);
+        } else {
+            //creates the pdf file and sets the path of the file
+            try {
+                target.setPath(invoiceEngine.createInvoice(target));
+            } catch (IOException e) {
+                throw new InvoiceStorageException("An problem occurred during creating pdf invoice");
+            }
+        }
     }
 }

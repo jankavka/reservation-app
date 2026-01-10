@@ -61,4 +61,14 @@ public class PricingRuleController {
         return pricingRuleService.deleteRule(id);
     }
 
+    @GetMapping("/per-slot-cond")
+    List<String> getSupportedConditionsPerSlot(){
+        return pricingRuleService.getSupportedConditionsPerSlot();
+    }
+
+    @GetMapping("/package-cond")
+    List<String> getSupportedConditionsPerPackage(){
+        return pricingRuleService.getSupportedConditionsPerPackage();
+    }
+
 }

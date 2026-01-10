@@ -27,6 +27,8 @@ public record PackageDto(
 
         LocalDate generatedAt,
 
+        String path,
+
         @NotNull(message = "Pricing rule must not be empty")
         Long pricingRuleId
 
