@@ -9,12 +9,12 @@ import java.util.List;
 public record PackageDto(
         Long id,
 
+        @NotNull(message = "Players must not be null. You have to select at least one player")
         List<PlayerDto> players,
 
         @NotBlank(message = "Name must not be blank")
         String name,
 
-        @NotNull(message = "Total number of slots must not be null")
         Integer slotTotal,
 
         Integer slotUsed,
@@ -28,7 +28,7 @@ public record PackageDto(
         LocalDate generatedAt,
 
         @NotNull(message = "Pricing rule must not be empty")
-        PricingRuleDto pricingRule
+        Long pricingRuleId
 
 ) {
 }

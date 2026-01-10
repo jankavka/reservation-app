@@ -11,6 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +40,12 @@ public class PricingRuleEntity {
     private String currency;
 
     @OneToMany(mappedBy = "pricingRule")
-    private List<PackageEntity> packagee;
+    private List<PackageEntity> packagee = new ArrayList<>();
 
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", unique = true)
     private Map<String, Object> conditions = new HashMap<>();
-
 
 
 }

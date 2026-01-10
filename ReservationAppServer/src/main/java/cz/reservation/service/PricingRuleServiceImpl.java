@@ -34,6 +34,14 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     @Override
     @Transactional
     public ResponseEntity<PricingRuleDto> createPricingRule(PricingRuleDto pricingRulesDto) {
+
+        //Checking for "slots" condition present in "pricingRuleDto"
+        if (!(pricingRulesDto.pricingType().equals(PricingType.PACKAGE) &&
+                pricingRulesDto.conditions().containsKey("slots"))) {
+            throw new IllegalArgumentException(
+                    "If pricing rule is set on pricing type \"package\", than conditions has to contains \"slots\"");
+        }
+
         var entityToSave = pricingRuleMapper.toEntity(pricingRulesDto);
         var savedEntity = pricingRulesRepository.save(entityToSave);
         return ResponseEntity

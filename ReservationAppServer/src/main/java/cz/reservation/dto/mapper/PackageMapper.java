@@ -10,8 +10,10 @@ import org.mapstruct.MappingTarget;
 public interface PackageMapper {
 
     @Mapping(target = "players", ignore = true)
+    @Mapping(target = "pricingRuleId", source = "pricingRule.id")
     PackageDto toDto(PackageEntity packageEntity);
 
+    @Mapping(target = "pricingRule", ignore = true)
     PackageEntity toEntity(PackageDto packageDto);
 
     void updateEntity(@MappingTarget PackageEntity target, PackageDto source);

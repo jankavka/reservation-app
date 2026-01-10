@@ -5,10 +5,12 @@ import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.EnrollmentDto;
 import cz.reservation.dto.mapper.EnrollmentMapper;
 import cz.reservation.entity.EnrollmentEntity;
+import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.repository.EnrollmentRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.service.exception.EnrollmentAlreadyCanceledException;
+import cz.reservation.service.exception.MissingPricingTypeException;
 import cz.reservation.service.serviceinterface.EnrollmentService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,18 +46,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
         var relatedGroup = entityToSave.getGroup();
-        var countOfEnrolmentsInGroup = enrollmentRepository.countEnrollmentsByGroupId(relatedGroup.getId());
 
         setForeignKeys(entityToSave, enrollmentDto);
         entityToSave.setCreatedAt(LocalDateTime.now());
 
-
-        //Sets up state of enrollment
-        if (relatedGroup.getCapacity() > countOfEnrolmentsInGroup) {
-            entityToSave.setState(EnrollmentState.ACTIVE);
-        } else {
-            entityToSave.setState(EnrollmentState.WAITLIST);
-        }
+        setUpState(entityToSave, relatedGroup);
 
         EnrollmentEntity savedEntity = enrollmentRepository.save(entityToSave);
 
@@ -110,6 +105,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     }
 
+    /**
+     * This method doesn't delete concrete "enrollmentEntity" represented by id, but it sets up
+     * its "state" to "EnrollmentState.CANCELLED. Also, the enrollment with the earliest value of date
+     * in current group, which have state set to "EnrollmentState.WAITLIST" is set to "EnrollmentState.ACTIVE".
+     * In other words the first enrollment on waitlist is added to group as active.
+     *
+     * @param id represents concrete object in database
+     * @return ResponseEntity with message about successful result of operation if no Exception was thrown
+     */
     @Override
     @Transactional
     public ResponseEntity<Map<String, String>> deleteEnrollment(Long id) {
@@ -126,7 +130,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             //Canceling the enrollment
             enrollmentForCancel.setState(EnrollmentState.CANCELLED);
 
-            //list with all enrollments
+            //List with all enrollments connected with concrete group
             List<EnrollmentEntity> allEnrollmentsByGroup = enrollmentRepository.findByGroupId(relatedGroupId);
 
             //Finding the one with EnrollmentState.WAITLIST and lowest date of creation and
@@ -139,21 +143,30 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
     }
 
+    /**
+     * Sets foreign keys as "playerEntity" and "groupEntity" to current enrollment. Also checks if related
+     * player has picked pricing type. If there is no "pricingType" an MissingPricingTypeException is thrown.
+     * Player has pick"pricingType" before he makes enrollment to the training group.
+     *
+     * @param target entity we set foreign keys for
+     * @param source Dto with data of foreign keys to set up
+     */
     private void setForeignKeys(EnrollmentEntity target, EnrollmentDto source) {
-        if (playerRepository.existsById(source.player().id())) {
+        var player = playerRepository.findById(source.player().id()).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                        "Player", source.player().id())));
+
+        if (player.getPricingType() == null) {
+            throw new MissingPricingTypeException("There is no pricing type for player id "
+                    + player.getId() + ". You have to pick it first or buy a package");
+        } else {
             target.setPlayer(playerRepository.getReferenceById(source.player().id()));
-
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
-                    "Player", source.player().id()));
         }
 
-        if (groupRepository.existsById(source.group().id())) {
-            target.setGroup(groupRepository.getReferenceById(source.group().id()));
-        } else {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(
-                    "Group", source.group().id()));
-        }
+        var group = groupRepository.findById(source.group().id()).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                        "Group", source.group().id())));
+        target.setGroup(groupRepository.getReferenceById(group.getId()));
     }
 
     private void setEnrollmentActive(List<EnrollmentEntity> allEnrollments) {
@@ -163,6 +176,24 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .min(Comparator.comparing(EnrollmentEntity::getCreatedAt))
                 .orElseThrow()
                 .setState(EnrollmentState.ACTIVE);
+    }
+
+
+    /**
+     * Sets up state to current "enrollmentEntity" based on number of active enrollments
+     * in related group. If the number of active enrollments is lower that capacity of
+     * the group then "EnrollmentState.ACTIVE" is set, otherwise "EnrollmentState.WAITLIST"
+     * is set.
+     *
+     * @param target       "EnrollmentEntity" object the state is set for
+     * @param relatedGroup "GroupEntity" object with related group
+     */
+    private void setUpState(EnrollmentEntity target, GroupEntity relatedGroup) {
+        var countOfEnrolmentsInGroup = enrollmentRepository.countEnrollmentsByGroupId(relatedGroup.getId());
+        var condition = relatedGroup.getCapacity() > countOfEnrolmentsInGroup;
+
+        target.setState(condition ? EnrollmentState.ACTIVE : EnrollmentState.WAITLIST);
+
     }
 
 

@@ -354,7 +354,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
         }
 
 
-        return "";
+        return "/files/invoice-" + identifier + ".pdf";
     }
 
     /**
