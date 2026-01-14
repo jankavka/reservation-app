@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,17 +20,14 @@ public class PackageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "packagee")
-    private List<PlayerEntity> players;
+    @OneToOne(mappedBy = "packagee")
+    private PlayerEntity player;
 
     @Column
     private String name;
 
     @Column
-    private Integer slotTotal;
-
-    @Column
-    private Integer slotUsed;
+    private Integer availableSlots;
 
     @Column
     private LocalDate validFrom;
@@ -45,8 +41,5 @@ public class PackageEntity {
     @Column
     private String path;
 
-    @ManyToOne
-    @JoinColumn(name = "pricing_rule")
-    private PricingRuleEntity pricingRule;
 
 }

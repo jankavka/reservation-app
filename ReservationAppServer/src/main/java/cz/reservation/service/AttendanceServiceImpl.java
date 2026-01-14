@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.constant.BookingStatus;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AttendanceDto;
+import cz.reservation.dto.NoSlotsInPackageDto;
 import cz.reservation.dto.mapper.AttendanceMapper;
 import cz.reservation.entity.AttendanceEntity;
 import cz.reservation.entity.BookingEntity;
@@ -13,6 +14,7 @@ import cz.reservation.service.serviceinterface.AttendanceService;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final BookingRepository bookingRepository;
 
     private final PackageService packageService;
+
+    private final ApplicationEventPublisher publisher;
 
     private static final String SERVICE_NAME = "attendance";
 
@@ -123,13 +127,21 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
     }
 
-    //TODO: What if used slots are bigger that total number of slots
     private void actualizePackageIfExists(AttendanceDto attendanceDto) {
         var hoursUsed = attendanceDto.booking().trainingSlot().endAt().getHour() -
                 attendanceDto.booking().trainingSlot().startAt().getHour();
+
         var relatedPlayer = attendanceDto.booking().player();
-        var relatedPackage = packageService.getPackageByPlayerId(relatedPlayer.id());
-        relatedPackage.ifPresent(packageEntity -> packageEntity.setSlotUsed(packageEntity.getSlotUsed() + hoursUsed));
+
+        var relatedPackage = packageService.getPackageByPlayerId(relatedPlayer.id()).orElseThrow(
+                () -> new EntityNotFoundException("Package not found"));
+
+        relatedPackage.setAvailableSlots(relatedPackage.getAvailableSlots() - hoursUsed);
+
+        if (relatedPackage.getAvailableSlots() <= 0) {
+            publisher.publishEvent(new NoSlotsInPackageDto(this, relatedPackage));
+        }
+
     }
 
 

@@ -11,9 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -27,7 +25,7 @@ public class PricingRuleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @Column
@@ -39,12 +37,9 @@ public class PricingRuleEntity {
     @Column
     private String currency;
 
-    @OneToMany(mappedBy = "pricingRule")
-    private List<PackageEntity> packagee = new ArrayList<>();
-
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", unique = true)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> conditions = new HashMap<>();
 
 

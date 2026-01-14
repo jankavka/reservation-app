@@ -27,7 +27,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.PackageEntity;
-import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.service.serviceinterface.CompanyInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +42,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -224,23 +223,22 @@ public class InvoiceEngineImpl implements InvoiceEngine {
      *                               *                               the invoice
      */
     @Override
-    public String createInvoiceForPackage(PackageEntity entity) throws FileNotFoundException {
-        var players = entity.getPlayers();
-        var playersNamesString = String.join(", ", players.stream().map(PlayerEntity::getFullName).toList());
+    public String createInvoiceForPackage(PackageEntity entity, PricingRuleEntity rule) throws FileNotFoundException {
+        var player = entity.getPlayer();
+        var playersNamesString = player.getFullName();
         var identifier = UUID.randomUUID();
-        var playersIds = players.stream().map(PlayerEntity::getId).map(String::valueOf).toList();
-        var stringValueOfIds = String.join("", playersIds);
+        var stringValueOfIds = String.valueOf(player.getId());
         var invoiceNumber = String.valueOf(entity.getGeneratedAt().getYear()) +
                 entity.getGeneratedAt().getMonth().getValue() + stringValueOfIds;
         var companyInfo = companyInfoService.getCompanyInfo();
-        var user = players.get(0).getParent();
+        var user = player.getParent();
         var userName = user.getFullName();
         var userEmail = user.getEmail();
         var userTelephone = user.getTelephoneNumber();
         var issuedDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now());
         var dueDate = DateTimeFormatter.ofPattern(DATE_PATTERN).format(LocalDate.now().plusDays(14));
-        var price = Double.valueOf(entity.getPricingRule().getAmountCents() / 100.0);
-        var currency = entity.getPricingRule().getCurrency();
+        var computedPrice = Double.valueOf(rule.getAmountCents() / 100.0);
+        var currency = rule.getCurrency();
 
 
         //Setting up for later initialization
@@ -345,12 +343,12 @@ public class InvoiceEngineImpl implements InvoiceEngine {
             items.addHeaderCell(new Paragraph("Položka").setBold());
             items.addHeaderCell(new Paragraph("Cena").setBold());
             addRowInItems("Fakturace předplatného tréninkového balíčku za hráče " + playersNamesString
-                    , price, items);
+                    , computedPrice, items);
 
             document.add(items);
 
             createQRCode(
-                    price,
+                    computedPrice,
                     null,
                     invoiceNumber,
                     currency,

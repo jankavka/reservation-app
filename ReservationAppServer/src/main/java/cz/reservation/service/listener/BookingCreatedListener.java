@@ -1,13 +1,9 @@
 package cz.reservation.service.listener;
 
-import com.notificationapi.NotificationApi;
-import com.notificationapi.model.EmailOptions;
-import com.notificationapi.model.NotificationRequest;
-import com.notificationapi.model.SmsOptions;
 import com.notificationapi.model.User;
 import cz.reservation.dto.CreatedBookingDto;
+import cz.reservation.service.email.NotificationSender;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -18,15 +14,11 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class BookingCreatedListener {
 
-    private final String clientId;
-
-    private final String clientSecret;
+    private final NotificationSender notificationSender;
 
     public BookingCreatedListener(
-            @Value("${notification-api.client-id}") String clientId,
-            @Value("${notification-api.client-secret}") String clientSecret) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+            NotificationSender notificationSender) {
+        this.notificationSender = notificationSender;
     }
 
 
@@ -63,31 +55,12 @@ public class BookingCreatedListener {
                 "<p>Ends at: " + endsAt + "</p>" +
                 "<p>Status: " + bookingStatus + "</p>";
 
+        User user = new User(coach.getId().toString())
+                .setEmail(coachEmail)
+                .setNumber(coachTelephone);
 
-        try (NotificationApi api = new NotificationApi(clientId, clientSecret)) {
-
-            // Create user
-            User user = new User(coach.getId().toString())
-                    .setEmail(coachEmail)
-                    .setNumber(coachTelephone);
-
-
-            // Create and send notification request
-            NotificationRequest request = new NotificationRequest("reservation_app", user)
-                    .setEmail(new EmailOptions()
-                            .setSubject("Notification")
-                            .setHtml(notificationEmailString))
-                    .setSms(new SmsOptions()
-                            .setMessage(notificationSmsString));
-
-            log.info("Sending notification request...");
-            String response = api.send(request);
-            log.info("Response: {}", response);
-
-        } catch (IOException e) {
-            throw new IOException("IOException during sending notifications");
-        }
-
+        notificationSender.sendEmail(notificationEmailString, user);
+        notificationSender.sendSms(notificationSmsString, user);
 
     }
 }

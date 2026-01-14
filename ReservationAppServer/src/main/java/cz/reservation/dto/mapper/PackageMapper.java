@@ -9,11 +9,9 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface PackageMapper {
 
-    @Mapping(target = "players", ignore = true)
-    @Mapping(target = "pricingRuleId", source = "pricingRule.id")
+    //@Mapping(target = "player", ignore = true)
     PackageDto toDto(PackageEntity packageEntity);
 
-    @Mapping(target = "pricingRule", ignore = true)
     PackageEntity toEntity(PackageDto packageDto);
 
     void updateEntity(@MappingTarget PackageEntity target, PackageDto source);

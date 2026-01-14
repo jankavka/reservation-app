@@ -42,6 +42,11 @@ public class UserController {
         return userService.getCurrentUser();
     }
 
+    @GetMapping("/all-admins")
+    public List<UserDto> getAllAdmins(){
+        return userService.getAllAdmins();
+    }
+
     @DeleteMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest req) throws ServletException {
         req.logout();

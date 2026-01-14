@@ -1,12 +1,9 @@
 package cz.reservation.service.listener;
 
-import com.notificationapi.NotificationApi;
-import com.notificationapi.model.EmailOptions;
-import com.notificationapi.model.NotificationRequest;
 import com.notificationapi.model.User;
 import cz.reservation.dto.CreatedUserDto;
+import cz.reservation.service.email.NotificationSender;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -16,15 +13,11 @@ import java.io.IOException;
 @Slf4j
 public class UserCreatedListener {
 
-    private final String clientId;
+    private final NotificationSender notificationSender;
 
-    private final String clientSecret;
 
-    UserCreatedListener(
-            @Value("${notification-api.client-id}") String clientId,
-            @Value("${notification-api.client-secret}") String clientSecret) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    UserCreatedListener(NotificationSender notificationSender) {
+        this.notificationSender = notificationSender;
     }
 
     @EventListener
@@ -35,26 +28,11 @@ public class UserCreatedListener {
         var htmlContent = "<h3>Ahoj " + userName + "!</h3>" +
                 "<p>Tvoje regestrace v rezervačním systému je tímto potvrzena!</p>";
 
-        try (NotificationApi api = new NotificationApi(clientId, clientSecret)) {
+        User newUser = new User(userId.toString())
+                .setEmail(userEmail);
 
-            //Create instance of new user as a part of notification prepare
-            User newUser = new User(userId.toString())
-                    .setEmail(userEmail);
+        notificationSender.sendEmail(htmlContent, newUser);
 
-            NotificationRequest request = new NotificationRequest("reservation_app", newUser)
-                    .setEmail(new EmailOptions()
-                            .setSubject("Notification")
-                            .setHtml(htmlContent));
-
-            log.info("Sending notification request...");
-            String response = api.send(request);
-            log.info("Response: {}", response);
-
-
-        } catch (IOException e) {
-            throw new IOException("IOException during sending notifications");
-
-        }
 
     }
 }

@@ -40,21 +40,20 @@ public class PlayerEntity {
     @Column
     private PricingType pricingType;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EnrollmentEntity> enrollments = new ArrayList<>();
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceSummaryEntity> invoices = new ArrayList<>();
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingEntity> bookings = new ArrayList<>();
 
     @Column
     private String note;
 
-    @ManyToOne
-    @JoinColumn(name = "package")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "package", referencedColumnName = "id")
     private PackageEntity packagee;
-
 
 }
