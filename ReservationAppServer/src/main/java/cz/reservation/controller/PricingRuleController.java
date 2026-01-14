@@ -62,13 +62,18 @@ public class PricingRuleController {
     }
 
     @GetMapping("/per-slot-cond")
-    List<String> getSupportedConditionsPerSlot(){
+    List<String> getSupportedConditionsPerSlot() {
         return pricingRuleService.getSupportedConditionsPerSlot();
     }
 
     @GetMapping("/package-cond")
-    List<String> getSupportedConditionsPerPackage(){
+    List<String> getSupportedConditionsPerPackage() {
         return pricingRuleService.getSupportedConditionsPerPackage();
+    }
+
+    @GetMapping("/month-cond")
+    List<String> getSupportedConditionsPerMonth() {
+        return pricingRuleService.getSupportedConditionsPerMonth();
     }
 
 }

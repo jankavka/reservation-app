@@ -1,7 +1,6 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.UserDto;
-import cz.reservation.entity.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,11 +12,11 @@ public interface UserService extends UserDetailsService {
 
     UserDto getUser(Long id);
 
-    UserEntity getUserEntity(Long id);
-
     List<UserDto> getAllUsers();
 
     ResponseEntity<User> getCurrentUser();
 
     ResponseEntity<Map<String, String>> deleteUser(Long id);
+
+    List<UserDto> getAllAdmins();
 }

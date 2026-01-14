@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PackageRepository extends JpaRepository<PackageEntity, Long> {
 
-    Optional<PackageEntity> findByPlayersId(Long playerId);
+    Optional<PackageEntity> findByPlayerId(Long playerId);
 }

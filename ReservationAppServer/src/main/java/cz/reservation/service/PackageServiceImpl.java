@@ -3,16 +3,15 @@ package cz.reservation.service;
 import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.PricingType;
 import cz.reservation.dto.PackageDto;
-import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PackageMapper;
 import cz.reservation.entity.PackageEntity;
-import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
-import cz.reservation.entity.repository.PricingRulesRepository;
 import cz.reservation.service.exception.InvoiceStorageException;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.serviceinterface.PackageService;
+import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,7 @@ public class PackageServiceImpl implements PackageService {
 
     private final PlayerRepository playerRepository;
 
-    private final PricingRulesRepository pricingRulesRepository;
+    private final PricingRuleService pricingRuleService;
 
     private final InvoiceEngine invoiceEngine;
 
@@ -48,31 +47,20 @@ public class PackageServiceImpl implements PackageService {
     @Transactional
     public PackageDto createPackage(PackageDto packageDto) {
         var entityToSave = packageMapper.toEntity(packageDto);
-        var slotTotal = pricingRulesRepository.findById(packageDto.pricingRuleId()).orElseThrow(
-                        () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
-                                "pricing rule", packageDto.pricingRuleId())))
-                .getConditions()
-                .get("slots");
+        var selectedPricingRule = pricingRuleService.getPricingRuleEntity(packageDto.pricingRuleId());
 
-        entityToSave.setSlotUsed(0);
-
-        if (slotTotal != null) {
-            entityToSave.setSlotTotal((Integer) slotTotal);
-        } else {
-            throw new IllegalArgumentException("Selected rule doesn't have \"slots\" condition");
-        }
         entityToSave.setGeneratedAt(LocalDate.now());
-        setPricingRuleToPackage(entityToSave, packageDto);
+        setSlotsToPackage(entityToSave, selectedPricingRule);
+        setPackageToPlayer(packageDto, entityToSave);
 
         try {
-            entityToSave.setPath(invoiceEngine.createInvoiceForPackage(entityToSave));
+            entityToSave.setPath(invoiceEngine.createInvoiceForPackage(entityToSave, selectedPricingRule));
         } catch (IOException e) {
             throw new InvoiceStorageException("An problem occurred during saving pdf invoice");
         }
 
         var savedEntity = packageRepository.save(entityToSave);
 
-        setPackageToPlayers(packageDto, savedEntity);
 
         return packageMapper.toDto(savedEntity);
     }
@@ -83,8 +71,11 @@ public class PackageServiceImpl implements PackageService {
         var entityToUpdate = packageRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
-        setPackageToPlayers(packageDto, entityToUpdate);
-        setPricingRuleToPackage(entityToUpdate, packageDto);
+        var selectedPricingRule = pricingRuleService.getPricingRuleEntity(packageDto.pricingRuleId());
+
+        setPackageToPlayer(packageDto, entityToUpdate);
+        setSlotsToPackage(entityToUpdate, selectedPricingRule);
+
         packageMapper.updateEntity(entityToUpdate, packageDto);
         return ResponseEntity
                 .ok()
@@ -114,7 +105,7 @@ public class PackageServiceImpl implements PackageService {
 
     @Override
     public Optional<PackageEntity> getPackageByPlayerId(Long playerId) {
-        return packageRepository.findByPlayersId(playerId);
+        return packageRepository.findByPlayerId(playerId);
     }
 
     @Override
@@ -127,20 +118,53 @@ public class PackageServiceImpl implements PackageService {
     }
 
 
-    private void setPackageToPlayers(PackageDto source, PackageEntity target) {
-        var playersIds = source.players().stream().map(PlayerDto::id).toList();
-        var playerEntities = playerRepository.findAllById(playersIds);
+    /**
+     * Sets Package to concrete "PlayerEntity"
+     *
+     * @param source Dto with data for mapping to target
+     * @param target Entity object to which the data is mapped
+     */
+    private void setPackageToPlayer(PackageDto source, PackageEntity target) {
+        var playerId = source.player().id();
+        var playerEntity = playerRepository.findById(playerId).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("player", playerId)));
+        target.setPlayer(playerEntity);
+    }
 
-        for (PlayerEntity p : playerEntities) {
-            p.setPackagee(target);
-            p.setPricingType(PricingType.PACKAGE);
+    /**
+     * Sets number of slots to "PackageEntity". Code contains check for the right pricingType on object
+     * "selectedPricingRule". Then it checks if the value of "slots" condition on "selectedPricingRule"
+     * object is not null. Then it count new value of "availableSlots" on "target" object. This depends
+     * on the fact if the "target" object is created or edited. If it is created the value of
+     * "target.getAvailableSlots()" is null, so we have to set the value. If it is edited we have to
+     * compute new value of "target.availableSlots" by summing it with the
+     * "selectedPricingRule.getConditions().get("slots")" property.
+     *
+     * @param target              target entity
+     * @param selectedPricingRule Pricing rule form which new number of slot in package will be count
+     */
+    private void setSlotsToPackage(PackageEntity target, PricingRuleEntity selectedPricingRule) {
+
+        if (selectedPricingRule.getPricingType() != PricingType.PACKAGE) {
+            throw new IllegalArgumentException("Selected pricing rule must have pricing type PACKAGE");
         }
+
+        var plusSlots = selectedPricingRule
+                .getConditions()
+                .get("slots");
+
+        if (plusSlots == null) {
+            throw new IllegalArgumentException("Selected rule doesn't have \"slots\" condition");
+        }
+
+
+        if (target.getAvailableSlots() == null) {
+            target.setAvailableSlots((Integer) plusSlots);
+        } else {
+            target.setAvailableSlots(target.getAvailableSlots() + (Integer) plusSlots);
+        }
+
     }
 
-    private void setPricingRuleToPackage(PackageEntity target, PackageDto packageDto) {
-        target.setPricingRule(pricingRulesRepository.findById(packageDto.pricingRuleId()).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(
-                        "Pricing rule", packageDto.pricingRuleId()))
-        ));
-    }
+
 }

@@ -1,6 +1,7 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.EventStatus;
+import cz.reservation.constant.Role;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
 import cz.reservation.entity.userdetails.CustomUserDetails;
@@ -44,13 +45,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public UserEntity getUserEntity(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
-                entityNotFoundExceptionMessage(SERVICE_NAME, id)));
-    }
-
     @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers() {
@@ -88,6 +82,14 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new EntityNotFoundException("User not found");
         }
+    }
+
+    @Override
+    public List<UserDto> getAllAdmins() {
+        return userRepository.getAllByRoles(Role.ADMIN)
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)

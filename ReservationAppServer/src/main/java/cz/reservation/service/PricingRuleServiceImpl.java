@@ -1,11 +1,9 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
-import cz.reservation.constant.PricingType;
-import cz.reservation.constant.SupportedConditionsPerPackage;
-import cz.reservation.constant.SupportedConditionsPerSlot;
+import cz.reservation.constant.*;
 import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.PricingRuleMapper;
+import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.PricingRulesRepository;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PricingRuleService;
@@ -17,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +38,25 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     public ResponseEntity<PricingRuleDto> createPricingRule(PricingRuleDto pricingRulesDto) {
 
         //Checking for "slots" condition present in "pricingRuleDto"
-        if (!(pricingRulesDto.pricingType().equals(PricingType.PACKAGE) &&
-                pricingRulesDto.conditions().containsKey("slots"))) {
+        if (pricingRulesDto.pricingType().equals(PricingType.PACKAGE)
+                && !pricingRulesDto.conditions().containsKey("slots")) {
             throw new IllegalArgumentException(
                     "If pricing rule is set on pricing type \"package\", than conditions has to contains \"slots\"");
+
         }
+
 
         var entityToSave = pricingRuleMapper.toEntity(pricingRulesDto);
         var savedEntity = pricingRulesRepository.save(entityToSave);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(pricingRuleMapper.toDto(savedEntity));
+    }
+
+    @Override
+    public PricingRuleEntity getPricingRuleEntity(Long id) {
+        return pricingRulesRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
     }
 
     @Override
@@ -150,6 +157,9 @@ public class PricingRuleServiceImpl implements PricingRuleService {
 
     @Override
     public List<String> getSupportedConditionsPerMonth() {
-        return List.of();
+        return Arrays
+                .stream(SupportedConditionsPerMonth.values())
+                .map(SupportedConditionsPerMonth::getCode)
+                .toList();
     }
 }

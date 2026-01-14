@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.PackageDto;
+import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

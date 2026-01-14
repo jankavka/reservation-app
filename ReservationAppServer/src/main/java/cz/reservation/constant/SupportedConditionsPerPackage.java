@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum SupportedConditionsPerPackage {
 
-    SLOTS("slots");
+    SLOTS("slots"),
+    VALID_UNTIL("validUntil");
 
     private final String code;
 
