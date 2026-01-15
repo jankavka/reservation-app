@@ -2,28 +2,27 @@ package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.entity.PlayerEntity;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
 
 public interface PlayerService {
 
-    ResponseEntity<Map<String, Object>> getPlayer(Long id);
+    Map<String, Object> getPlayer(Long id);
 
     PlayerDto getPlayerDto(Long id);
 
     PlayerEntity getPlayerEntity(Long id);
 
-    ResponseEntity<PlayerDto> createPlayer(PlayerDto playerDTO);
+    PlayerDto createPlayer(PlayerDto playerDTO);
 
     List<PlayerDto> getAllPlayers();
 
-    ResponseEntity<Map<String, String>> editPlayer(PlayerDto playerDto, Long id);
+    void editPlayer(PlayerDto playerDto, Long id);
 
-    ResponseEntity<Map<String, String>> deletePLayer(Long id);
+    void deletePlayer(Long id);
 
-    ResponseEntity<List<PlayerDto>> getPlayersByParentId(Long id);
+    List<PlayerDto> getPlayersByParentId(Long id);
 
     List<PlayerEntity> getPlayersEntitiesByParentId(Long parentId);
 }

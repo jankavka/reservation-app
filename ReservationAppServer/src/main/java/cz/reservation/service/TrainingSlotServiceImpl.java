@@ -53,11 +53,11 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      * training slot and related court blocking is created.
      *
      * @param trainingSlotDto data object with new training slot
-     * @return ResponseEntity with status CREATED and created object as an instance of TrainingSlotDto
+     * @return trainingSlotDto as created object
      */
     @Override
     @Transactional
-    public ResponseEntity<TrainingSlotDto> createTrainingSlot(TrainingSlotDto trainingSlotDto) {
+    public TrainingSlotDto createTrainingSlot(TrainingSlotDto trainingSlotDto) {
 
         var entityToSave = trainingSlotMapper.toEntity(trainingSlotDto);
 
@@ -81,24 +81,20 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
         var savedEntity = trainingSlotRepository.save(entityToSave);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(trainingSlotMapper.toDto(savedEntity));
+        return trainingSlotMapper.toDto(savedEntity);
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<TrainingSlotDto> getTrainingSlot(Long id) {
+    public TrainingSlotDto getTrainingSlot(Long id) {
         if (!trainingSlotRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(trainingSlotMapper.toDto(trainingSlotRepository
-                            .findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+            return trainingSlotMapper.toDto(trainingSlotRepository
+                    .findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            entityNotFoundExceptionMessage(SERVICE_NAME, id))));
         }
     }
 
@@ -113,30 +109,29 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlots() {
+    public List<TrainingSlotDto> getAllTrainingSlots() {
         var allTrainingSlots = trainingSlotRepository.findAll();
         if (allTrainingSlots.isEmpty()) {
             throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         } else {
-            return ResponseEntity.ok(allTrainingSlots
+            return allTrainingSlots
                     .stream()
                     .map(trainingSlotMapper::toDto)
-                    .toList());
+                    .toList();
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlotsByGroupId(Long groupId) {
+    public List<TrainingSlotDto> getAllTrainingSlotsByGroupId(Long groupId) {
         var allTrainingSlotsByGroupId = trainingSlotRepository.findByGroupId(groupId);
         if (allTrainingSlotsByGroupId.isEmpty()) {
             throw new EmptyListException("There are no training slots with group id " + groupId);
         }
-        return ResponseEntity
-                .ok(allTrainingSlotsByGroupId
-                        .stream()
-                        .map(trainingSlotMapper::toDto)
-                        .toList());
+        return allTrainingSlotsByGroupId
+                .stream()
+                .map(trainingSlotMapper::toDto)
+                .toList();
     }
 
     /**
@@ -151,7 +146,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      */
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id) {
+    public void editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id) {
 
 
         var entityToUpdate = trainingSlotRepository
@@ -176,22 +171,17 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         //Editing current training slot
         trainingSlotMapper.updateEntity(entityToUpdate, trainingSlotDto);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
 
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteTrainingSlot(Long id) {
+    public void deleteTrainingSlot(Long id) {
         if (!trainingSlotRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             trainingSlotRepository.deleteById(id);
 
-            return ResponseEntity
-                    .ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 
@@ -292,7 +282,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     private void createAndSetRelatedCourtBlocking(
             CourtBlockingDto relatedCourtBlockingDto, TrainingSlotEntity entityToSave) {
 
-        var relatedCourtBlocking = courtBlockingService.createBlockingAndReturnDto(relatedCourtBlockingDto);
+        var relatedCourtBlocking = courtBlockingService.createBlocking(relatedCourtBlockingDto);
 
         entityToSave.setCourtBlocking(courtBlockingService.getBlockingEntity(relatedCourtBlocking.id()));
 

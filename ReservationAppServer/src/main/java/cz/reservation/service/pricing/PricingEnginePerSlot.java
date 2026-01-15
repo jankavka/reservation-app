@@ -10,6 +10,8 @@ import cz.reservation.service.serviceinterface.PricingRuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 
 @Component
 @RequiredArgsConstructor
@@ -43,14 +45,14 @@ public class PricingEnginePerSlot implements PricingEngine {
 
     @Override
     public Integer computePrice(InvoiceSummaryDto invoiceSummaryDto) {
+        var playerId = invoiceSummaryDto.player().id();
+        var month = invoiceSummaryDto.month();
+        var year = invoiceSummaryDto.generatedAt() != null
+                ? invoiceSummaryDto.generatedAt().getYear()
+                : LocalDate.now().getYear();
 
-        var relatedPlayer = playerService.getPlayerDto(invoiceSummaryDto.player().id());
         var allBookingsInMonthByUser = bookingService
-                .getAllBookingDto()
-                .stream()
-                .filter(bookingDto -> bookingDto.player().equals(relatedPlayer))
-                .filter(bookingDto -> bookingDto.trainingSlot().startAt().getMonth().equals(invoiceSummaryDto.month()))
-                .toList();
+                .getBookingsByPlayerIdAndMonth(playerId, month, year);
 
         return allBookingsInMonthByUser
                 .stream()

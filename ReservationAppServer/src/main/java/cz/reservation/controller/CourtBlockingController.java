@@ -3,11 +3,10 @@ package cz.reservation.controller;
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/court-block")
@@ -21,29 +20,30 @@ public class CourtBlockingController {
 
 
     @PostMapping
-    public ResponseEntity<CourtBlockingDto> createBlocking(@Valid @RequestBody CourtBlockingDto courtBlockingDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CourtBlockingDto createBlocking(@Valid @RequestBody CourtBlockingDto courtBlockingDto) {
         return courtBlockingService.createBlocking(courtBlockingDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourtBlockingDto> getBlocking(@PathVariable Long id) {
+    public CourtBlockingDto getBlocking(@PathVariable Long id) {
         return courtBlockingService.getBlocking(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<CourtBlockingDto>> getAllBlockings() {
+    public List<CourtBlockingDto> getAllBlockings() {
         return courtBlockingService.getAllBlockings();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editBlocking(
-            @Valid @RequestBody CourtBlockingDto courtBlockingDto, @PathVariable Long id) {
-
-        return courtBlockingService.editBlocking(courtBlockingDto,id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editBlocking(@Valid @RequestBody CourtBlockingDto courtBlockingDto, @PathVariable Long id) {
+        courtBlockingService.editBlocking(courtBlockingDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteBlocking(@PathVariable Long id){
-        return courtBlockingService.deleteBlocking(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBlocking(@PathVariable Long id) {
+        courtBlockingService.deleteBlocking(id);
     }
 }

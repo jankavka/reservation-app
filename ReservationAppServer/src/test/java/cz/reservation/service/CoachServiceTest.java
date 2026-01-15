@@ -1,13 +1,12 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.CoachMapper;
 import cz.reservation.entity.CoachEntity;
-import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.GroupEntity;
+import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
@@ -17,15 +16,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
+import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static cz.reservation.service.message.MessageHandling.*;
 
 @ExtendWith(MockitoExtension.class)
 class CoachServiceTest {
@@ -45,12 +44,10 @@ class CoachServiceTest {
     @InjectMocks
     CoachServiceImpl coachService;
 
-
     LocalDateTime date = LocalDateTime.of(2025, 8, 10, 0, 0);
 
-
     @Test
-    void shouldReturnCoachDtoAndStatusOk() {
+    void shouldCreateCoachAndReturnDto() {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         var relatedUserDto = new UserDto(
@@ -71,7 +68,8 @@ class CoachServiceTest {
                 date,
                 null);
         var coachToSaveDto = new CoachDto(
-                null, relatedUserDto,
+                null,
+                relatedUserDto,
                 "B",
                 "C");
         var savedCoachDto = new CoachDto(
@@ -97,19 +95,16 @@ class CoachServiceTest {
         when(coachRepository.save(coachToSaveEntity)).thenReturn(savedCoachEntity);
         when(coachMapper.toDto(savedCoachEntity)).thenReturn(savedCoachDto);
 
-
         var result = coachService.createCoach(coachToSaveDto);
 
-        assertEquals(ResponseEntity.status(HttpStatus.CREATED).body(savedCoachDto), result);
+        assertEquals(savedCoachDto, result);
         verify(coachRepository).save(coachToSaveEntity);
-
     }
 
     @Test
-    void shouldReturnResponseEntityWithCoachDto() {
+    void shouldReturnCoachDto() {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
-
         var id = 1L;
         var relatedUserEntity = new UserEntity(
                 1L,
@@ -134,23 +129,20 @@ class CoachServiceTest {
                 "B",
                 "C",
                 null);
-
         var coachDto = new CoachDto(
                 1L,
                 relatedUserDto,
                 "B",
                 "C");
 
-        when(coachMapper.toDto(coachEntity)).thenReturn(coachDto);
         when(coachRepository.findById(id)).thenReturn(Optional.of(coachEntity));
+        when(coachMapper.toDto(coachEntity)).thenReturn(coachDto);
 
+        var result = coachService.getCoach(id);
 
-        var result = coachService.getCoach(1L);
-
-        assertEquals(ResponseEntity.status(200).body(coachDto), result);
-        verify(coachRepository).findById(1L);
-        verifyNoMoreInteractions(coachMapper);
-        verifyNoMoreInteractions(coachRepository);
+        assertEquals(coachDto, result);
+        verify(coachRepository).findById(id);
+        verify(coachMapper).toDto(coachEntity);
     }
 
     @Test
@@ -162,53 +154,57 @@ class CoachServiceTest {
     }
 
     @Test
-    void shouldReturnResponseEntityWithAllCoaches() {
+    void shouldReturnAllCoaches() {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
-        var firstCoachDto = new CoachDto(1L, new UserDto(
+        var firstUserDto = new UserDto(
                 1L,
                 "a@b.com",
                 "12345609097",
-                "N", roles, date),
-                "B",
-                "C");
-
-        var firstCoachEntity = new CoachEntity(1L, new UserEntity(
+                "N",
+                roles,
+                date);
+        var firstUserEntity = new UserEntity(
                 1L,
                 "a@b.com",
                 "12345609097",
                 null,
-                "M", roles,
+                "M",
+                roles,
                 null,
                 date,
-                null),
+                null);
+        var firstCoachDto = new CoachDto(
+                1L,
+                firstUserDto,
+                "B",
+                "C");
+        var firstCoachEntity = new CoachEntity(
+                1L,
+                firstUserEntity,
                 "B",
                 "C",
                 null);
-
         var coachesDto = List.of(firstCoachDto);
         var coachesEntities = List.of(firstCoachEntity);
-
 
         when(coachRepository.findAll()).thenReturn(coachesEntities);
         when(coachMapper.toDto(firstCoachEntity)).thenReturn(firstCoachDto);
 
-
         var result = coachService.getAllCoaches();
 
-        assertEquals(ResponseEntity.ok(coachesDto), result);
+        assertEquals(coachesDto, result);
         verify(coachRepository).findAll();
-        verifyNoMoreInteractions(coachRepository);
-        verifyNoMoreInteractions(coachMapper);
+        verify(coachMapper).toDto(firstCoachEntity);
     }
 
     @Test
-    void shouldReturnEmptyListNoException() {
+    void shouldReturnEmptyListWhenNoCoaches() {
         when(coachRepository.findAll()).thenReturn(List.of());
 
         var result = coachService.getAllCoaches();
 
-        assertEquals(ResponseEntity.ok(List.of()), result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -218,80 +214,111 @@ class CoachServiceTest {
                 () -> coachService.deleteCoach(99L));
 
         assertEquals(entityNotFoundExceptionMessage("coach", 99L), exception.getMessage());
-
     }
 
     @Test
-    void shouldReturnResponseEntityWithOkAndOkMessage() {
+    void shouldDeleteCoachSuccessfully() {
         var id = 1L;
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
+        roles.add(Role.COACH);
         var relatedUserEntity = new UserEntity(
                 1L,
                 "a@b.com",
                 "12345609097",
                 "123456",
-                "N", roles,
+                "N",
+                roles,
                 null,
                 date,
                 null);
         var coachToDeleteEntity = new CoachEntity(
-                1L, relatedUserEntity,
+                1L,
+                relatedUserEntity,
                 "B",
                 "C",
                 null);
-        var groupEntity = List.of(new GroupEntity(
+        var groupEntities = List.of(new GroupEntity(
                 1L,
-                "G", coachToDeleteEntity,
+                "G",
+                coachToDeleteEntity,
                 null,
                 null,
                 4));
 
         when(coachRepository.existsById(id)).thenReturn(true);
         when(coachRepository.getReferenceById(id)).thenReturn(coachToDeleteEntity);
-        when(groupRepository.findByCoachId(1L)).thenReturn(groupEntity);
+        when(groupRepository.findByCoachId(id)).thenReturn(groupEntities);
 
+        assertDoesNotThrow(() -> coachService.deleteCoach(id));
 
-        var result = coachService.deleteCoach(id);
-
-        assertEquals(ResponseEntity
-                .ok(Map.of("message", successMessage("coach", 1L, EventStatus.DELETED))), result);
+        assertFalse(relatedUserEntity.getRoles().contains(Role.COACH));
+        assertNull(groupEntities.get(0).getCoach());
+        verify(coachRepository).deleteById(id);
     }
 
     @Test
-    void ShouldThrowExceptionWhileEditingNoExistingCoach() {
+    void shouldThrowExceptionWhenEditingNonExistingCoach() {
         var roles = new HashSet<Role>();
         roles.add(Role.ADMIN);
         var id = 99L;
-        var user = new UserDto(1L, "a@b.com", "12345609097", "N", roles, date);
-        var coach = new CoachDto(99L, user, "B", "C");
+        var user = new UserDto(
+                1L,
+                "a@b.com",
+                "12345609097",
+                "N",
+                roles,
+                date);
+        var coach = new CoachDto(
+                99L,
+                user,
+                "B",
+                "C");
+
         var exception = assertThrows(EntityNotFoundException.class, () -> coachService.editCoach(coach, id));
 
         assertEquals(entityNotFoundExceptionMessage("coach", 99L), exception.getMessage());
-        assertInstanceOf(EntityNotFoundException.class, exception);
-
     }
 
     @Test
-    void shouldReturnResponseEntityWithEditCoachDto() {
+    void shouldEditCoachSuccessfully() {
         var id = 1L;
-        var relatedUserDto = new UserDto(1L, "a@b.cz","123456789","N",null, date);
-        var relatedUserEntity = new UserEntity(1L,"a@b.cz","123456789",null,"N",null,null,date,null);
-        var coachDtoToSave = new CoachDto(1L, relatedUserDto, "B", "C");
-        var coachEntityToUpdate = new CoachEntity(1L, relatedUserEntity,"B","C",null);
+        var relatedUserDto = new UserDto(
+                1L,
+                "a@b.cz",
+                "123456789",
+                "N",
+                null,
+                date);
+        var relatedUserEntity = new UserEntity(
+                1L,
+                "a@b.cz",
+                "123456789",
+                null,
+                "N",
+                null,
+                null,
+                date,
+                null);
+        var coachDtoToSave = new CoachDto(
+                1L,
+                relatedUserDto,
+                "B",
+                "C");
+        var coachEntityToUpdate = new CoachEntity(
+                1L,
+                relatedUserEntity,
+                "B",
+                "C",
+                null);
 
         when(coachRepository.findById(id)).thenReturn(Optional.of(coachEntityToUpdate));
         when(userRepository.findById(id)).thenReturn(Optional.of(relatedUserEntity));
 
-        var result = coachService.editCoach(coachDtoToSave, id);
+        assertDoesNotThrow(() -> coachService.editCoach(coachDtoToSave, id));
 
-        assertEquals(ResponseEntity.ok(Map.of(
-                "message", successMessage("coach", id, EventStatus.UPDATED))), result);
         verify(coachRepository).findById(id);
+        verify(coachMapper).updateEntity(coachEntityToUpdate, coachDtoToSave);
         verify(userRepository).findById(id);
-        verifyNoMoreInteractions(coachRepository);
-
     }
-
-
 }

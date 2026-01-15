@@ -3,47 +3,44 @@ package cz.reservation.controller;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/coach")
+@RequiredArgsConstructor
 public class CoachController {
 
     private final CoachService coachService;
 
-    @Autowired
-    private CoachController(CoachService coachService) {
-        this.coachService = coachService;
-    }
-
     @PostMapping
     public ResponseEntity<CoachDto> createCoach(@RequestBody @Valid CoachDto coachDto) {
-        return coachService.createCoach(coachDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(coachService.createCoach(coachDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CoachDto> getCoach(@PathVariable Long id) {
+    public CoachDto getCoach(@PathVariable Long id) {
         return coachService.getCoach(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<CoachDto>> getAllCoaches() {
+    public List<CoachDto> getAllCoaches() {
         return coachService.getAllCoaches();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteCoach(@PathVariable Long id) {
-        return coachService.deleteCoach(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCoach(@PathVariable Long id) {
+        coachService.deleteCoach(id);
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editCoach(@RequestBody @Valid CoachDto coachDto, @PathVariable Long id) {
-        return coachService.editCoach(coachDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editCoach(@RequestBody @Valid CoachDto coachDto, @PathVariable Long id) {
+        coachService.editCoach(coachDto, id);
     }
 }

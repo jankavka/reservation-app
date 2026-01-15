@@ -33,40 +33,39 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
 
     @Override
     @Transactional
-    public ResponseEntity<WeatherNotesDto> createWeatherNote(WeatherNotesDto weatherNotesDto) {
+    public WeatherNotesDto createWeatherNote(WeatherNotesDto weatherNotesDto) {
         var entityToSave = weatherNotesMapper.toEntity(weatherNotesDto);
         setForeignKeys(entityToSave, weatherNotesDto);
         var savedEntity = weatherNotesRepository.save(entityToSave);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(weatherNotesMapper.toDto(savedEntity));
+        return weatherNotesMapper.toDto(savedEntity);
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<WeatherNotesDto> getWeatherNote(Long id) {
+    public WeatherNotesDto getWeatherNote(Long id) {
 
-        return ResponseEntity
-                .ok(weatherNotesMapper.toDto(weatherNotesRepository
-                        .findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        return weatherNotesMapper.toDto(weatherNotesRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id))));
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<WeatherNotesDto>> getAllWeatherNotes() {
-        return ResponseEntity.ok(weatherNotesRepository
+    public List<WeatherNotesDto> getAllWeatherNotes() {
+        return weatherNotesRepository
                 .findAll()
                 .stream()
                 .map(weatherNotesMapper::toDto)
-                .toList());
+                .toList();
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editWeatherNote(WeatherNotesDto weatherNotesDto, Long id) {
+    public void editWeatherNote(WeatherNotesDto weatherNotesDto, Long id) {
 
         var entityToUpdate = weatherNotesRepository
                 .findById(id)
@@ -75,20 +74,15 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
         weatherNotesMapper.updateEntity(entityToUpdate, weatherNotesDto);
         setForeignKeys(entityToUpdate, weatherNotesDto);
 
-        return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
-
-
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteWeatherNote(Long id) {
+    public void deleteWeatherNote(Long id) {
         if (!weatherNotesRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             weatherNotesRepository.deleteById(id);
-
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 

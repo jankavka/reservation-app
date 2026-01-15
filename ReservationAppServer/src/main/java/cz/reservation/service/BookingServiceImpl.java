@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseEntity<BookingDto> createBooking(BookingDto bookingDto) {
+    public BookingDto createBooking(BookingDto bookingDto) {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
         var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
@@ -66,28 +68,25 @@ public class BookingServiceImpl implements BookingService {
 
         eventPublisher.publishEvent(new CreatedBookingDto(this, savedEntity));
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(bookingMapper.toDto(savedEntity));
+        return bookingMapper.toDto(savedEntity);
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<BookingDto> getBooking(Long id) {
+    public BookingDto getBooking(Long id) {
 
-        return ResponseEntity
-                .ok(bookingMapper.toDto(bookingRepository
-                        .findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+        return bookingMapper.toDto(bookingRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id))));
 
 
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editBooking(BookingDto bookingDto, Long id) {
+    public void editBooking(BookingDto bookingDto, Long id) {
         if (!bookingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
@@ -107,7 +106,6 @@ public class BookingServiceImpl implements BookingService {
                     LocalDateTime.now().isBefore(relatedTrainingSlot.getStartAt().minusHours(24))) {
 
                 bookingMapper.updateEntity(entityToUpdate, bookingDto);
-                return ResponseEntity.ok(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
             } else {
                 throw new LateBookingCancelingException(
                         "Can not cancel reservation less than 24 hours before training slot");
@@ -119,13 +117,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editBookingAsAdmin(BookingDto bookingDto, Long id) {
+    public void editBookingAsAdmin(BookingDto bookingDto, Long id) {
 
         if (bookingRepository.existsById(id)) {
             var entityToUpdate = bookingRepository.getReferenceById(id);
             bookingMapper.updateEntity(entityToUpdate, bookingDto);
             setForeignKeys(entityToUpdate, bookingDto);
-            return ResponseEntity.ok().body(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         } else {
 
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
@@ -134,17 +131,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<BookingDto>> getAllBookings() {
-        return ResponseEntity
-                .ok(bookingRepository
-                        .findAll()
-                        .stream()
-                        .map(bookingMapper::toDto)
-                        .toList());
-    }
-
-    @Override
-    public List<BookingDto> getAllBookingDto() {
+    public List<BookingDto> getAllBookings() {
         return bookingRepository
                 .findAll()
                 .stream()
@@ -154,13 +141,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteBooking(Long id) {
+    public void deleteBooking(Long id) {
         if (!bookingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             bookingRepository.getReferenceById(id).setBookingStatus(BookingStatus.CANCELED);
-            return ResponseEntity
-                    .ok(Map.of(MESSAGE, successMessage(SERVICE_NAME, id, EventStatus.CANCELED)));
+
         }
     }
 
@@ -197,18 +183,25 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    //Every booking older than 3 months is deleted from db
-    @Scheduled(cron = "0 0 1 1 * ?", zone = "Europe/Prague")
-    public void deleteOldBookings() {
-        bookingRepository
-                .findAll()
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingDto> getBookingsByPlayerIdAndMonth(Long playerId, Month month, int year) {
+        var yearMonth = YearMonth.of(year, month);
+        var startDate = yearMonth.atDay(1).atStartOfDay();
+        var endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+
+        return bookingRepository
+                .findByPlayerIdAndTrainingSlotStartAtBetween(playerId, startDate, endDate)
                 .stream()
-                .filter(booking -> booking.getBookedAt().isBefore(
-                        LocalDateTime
-                                .now()
-                                .minusMonths(3)))
-                .forEach(bookingRepository::delete);
+                .map(bookingMapper::toDto)
+                .toList();
     }
 
+    @Scheduled(cron = "0 0 1 1 * ?", zone = "Europe/Prague")
+    @Transactional
+    public void deleteOldBookings() {
+        var cutoffDate = LocalDateTime.now().minusMonths(3);
+        bookingRepository.deleteByBookedAtBefore(cutoffDate);
+    }
 
 }

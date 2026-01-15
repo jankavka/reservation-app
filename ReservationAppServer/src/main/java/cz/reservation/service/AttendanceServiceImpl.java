@@ -15,13 +15,10 @@ import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -43,7 +40,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public ResponseEntity<AttendanceDto> createAttendance(AttendanceDto attendanceDto) {
+    public AttendanceDto createAttendance(AttendanceDto attendanceDto) {
         var entityToSave = attendanceMapper.toEntity(attendanceDto);
         var relatedBooking = bookingRepository.findById(attendanceDto.booking().id()).orElseThrow(
                 () -> new EntityNotFoundException(
@@ -60,43 +57,38 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         var savedEntity = attendanceRepository.save(entityToSave);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(attendanceMapper.toDto(savedEntity));
+        return attendanceMapper.toDto(savedEntity);
 
 
     }
 
     @Transactional(readOnly = true)
     @Override
-    public ResponseEntity<AttendanceDto> getAttendance(Long id) {
-
-        return ResponseEntity
-                .ok(attendanceMapper.toDto(attendanceRepository
-                        .findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+    public AttendanceDto getAttendance(Long id) {
+        return attendanceMapper.toDto(attendanceRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage(SERVICE_NAME, id))));
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<AttendanceDto>> getAllAttendances() {
+    public List<AttendanceDto> getAllAttendances() {
         var allAttendances = attendanceRepository.findAll();
         if (allAttendances.isEmpty()) {
             throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         } else {
-            return ResponseEntity
-                    .ok(allAttendances
-                            .stream()
-                            .map(attendanceMapper::toDto)
-                            .toList());
+            return allAttendances
+                    .stream()
+                    .map(attendanceMapper::toDto)
+                    .toList();
         }
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editAttendance(AttendanceDto attendanceDto, Long id) {
+    public void editAttendance(AttendanceDto attendanceDto, Long id) {
 
         if (!attendanceRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
@@ -105,16 +97,14 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceMapper.updateEntity(entityToUpdate, attendanceDto);
             setForeignKeys(entityToUpdate, attendanceDto);
 
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         }
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteAttendance(Long id) {
+    public void deleteAttendance(Long id) {
         if (attendanceRepository.existsById(id)) {
             attendanceRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }

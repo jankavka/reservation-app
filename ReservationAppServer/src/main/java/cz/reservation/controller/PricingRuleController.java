@@ -4,6 +4,7 @@ import cz.reservation.constant.PricingRuleCondition;
 import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,9 @@ public class PricingRuleController {
 
     @PostMapping
     public ResponseEntity<PricingRuleDto> createRule(@RequestBody @Valid PricingRuleDto pricingRuleDto) {
-        return pricingRuleService.createPricingRule(pricingRuleDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(pricingRuleService.createPricingRule(pricingRuleDto));
     }
 
     @GetMapping("/monthly-type-rules")
@@ -33,7 +36,7 @@ public class PricingRuleController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<PricingRuleDto> getRule(@PathVariable Long id) {
+    public PricingRuleDto getRule(@PathVariable Long id) {
         return pricingRuleService.getPricingRule(id);
     }
 
@@ -44,21 +47,24 @@ public class PricingRuleController {
 
 
     @GetMapping
-    public ResponseEntity<List<PricingRuleDto>> getAllRules() {
+    public List<PricingRuleDto> getAllRules() {
         return pricingRuleService.getAllPricingRules();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> updateRule(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateRule(
             @RequestBody @Valid PricingRuleDto pricingRuleDto,
             @PathVariable Long id) {
 
-        return pricingRuleService.updateRule(pricingRuleDto, id);
+        pricingRuleService.updateRule(pricingRuleDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteRule(@PathVariable Long id) {
-        return pricingRuleService.deleteRule(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+
+    public void deleteRule(@PathVariable Long id) {
+        pricingRuleService.deleteRule(id);
     }
 
     @GetMapping("/per-slot-cond")

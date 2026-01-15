@@ -2,6 +2,7 @@ package cz.reservation.filter;
 
 import cz.reservation.service.serviceinterface.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,9 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -45,13 +48,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
             try {
-                token = authHeader.substring(7);
                 userName = jwtService.extractUserName(token);
-
-                //temporary solution because generating new token is not triggered with the old one still existing
             } catch (ExpiredJwtException e) {
-                jwtService.generateToken(userName);
+                log.debug("JWT token expired for request: {}", request.getRequestURI());
+            } catch (JwtException e) {
+                log.warn("Invalid JWT token: {}", e.getMessage());
             }
         }
 

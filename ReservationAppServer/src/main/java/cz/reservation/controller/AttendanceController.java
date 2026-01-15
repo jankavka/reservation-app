@@ -3,11 +3,10 @@ package cz.reservation.controller;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.service.serviceinterface.AttendanceService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -20,29 +19,31 @@ public class AttendanceController {
     }
 
     @PostMapping
-    public ResponseEntity<AttendanceDto> createAttendance(@RequestBody @Valid AttendanceDto attendanceDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public AttendanceDto createAttendance(@RequestBody @Valid AttendanceDto attendanceDto) {
         return attendanceService.createAttendance(attendanceDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AttendanceDto> getAttendance(@PathVariable Long id) {
+    public AttendanceDto getAttendance(@PathVariable Long id) {
         return attendanceService.getAttendance(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<AttendanceDto>> getAllAttendances() {
+    public List<AttendanceDto> getAllAttendances() {
         return attendanceService.getAllAttendances();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editAttendance(
-            @RequestBody @Valid AttendanceDto attendanceDto, @PathVariable Long id) {
-        return attendanceService.editAttendance(attendanceDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editAttendance(@RequestBody @Valid AttendanceDto attendanceDto, @PathVariable Long id) {
+        attendanceService.editAttendance(attendanceDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteAttendance(@PathVariable Long id) {
-        return attendanceService.deleteAttendance(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAttendance(@PathVariable Long id) {
+        attendanceService.deleteAttendance(id);
     }
 
 }

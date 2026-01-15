@@ -3,6 +3,7 @@ package cz.reservation.controller;
 import cz.reservation.dto.WeatherNotesDto;
 import cz.reservation.service.serviceinterface.WeatherNotesService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,30 +22,34 @@ public class WeatherNotesController {
 
     @PostMapping
     public ResponseEntity<WeatherNotesDto> createWeatherNote(@RequestBody @Valid WeatherNotesDto weatherNotesDto) {
-        return weatherNotesService.createWeatherNote(weatherNotesDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(weatherNotesService.createWeatherNote(weatherNotesDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WeatherNotesDto> getWeatherNote(@PathVariable Long id) {
+    public WeatherNotesDto getWeatherNote(@PathVariable Long id) {
         return weatherNotesService.getWeatherNote(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<WeatherNotesDto>> getAllWeatherNotes() {
+    public List<WeatherNotesDto> getAllWeatherNotes() {
         return weatherNotesService.getAllWeatherNotes();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editWeatherNote(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editWeatherNote(
             @RequestBody @Valid WeatherNotesDto weatherNotesDto,
             @PathVariable Long id) {
 
-        return weatherNotesService.editWeatherNote(weatherNotesDto, id);
+        weatherNotesService.editWeatherNote(weatherNotesDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteWeatherNote(@PathVariable Long id) {
-        return weatherNotesService.deleteWeatherNote(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteWeatherNote(@PathVariable Long id) {
+        weatherNotesService.deleteWeatherNote(id);
     }
 
 }

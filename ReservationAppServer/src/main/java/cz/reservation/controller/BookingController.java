@@ -3,53 +3,52 @@ package cz.reservation.controller;
 import cz.reservation.dto.BookingDto;
 import cz.reservation.service.serviceinterface.BookingService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/booking")
+@RequiredArgsConstructor
 public class BookingController {
 
     private final BookingService bookingService;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
-
     @PostMapping
-    public ResponseEntity<BookingDto> createBooking(@RequestBody @Valid BookingDto bookingDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookingDto createBooking(@RequestBody @Valid BookingDto bookingDto) {
         return bookingService.createBooking(bookingDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDto> getBooking(@PathVariable Long id) {
+    public BookingDto getBooking(@PathVariable Long id) {
         return bookingService.getBooking(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<BookingDto>> getAllBookings() {
+    public List<BookingDto> getAllBookings() {
         return bookingService.getAllBookings();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editBooking(
-            @PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
-        return bookingService.editBooking(bookingDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editBooking(@PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
+        bookingService.editBooking(bookingDto, id);
     }
 
     @Secured("ADMIN")
     @PutMapping("/admin/{id}")
-    public ResponseEntity<Map<String, String>> editBookingAsAdmin(
-            @PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
-        return bookingService.editBookingAsAdmin(bookingDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editBookingAsAdmin(@PathVariable Long id, @RequestBody @Valid BookingDto bookingDto) {
+        bookingService.editBookingAsAdmin(bookingDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteBooking(@PathVariable Long id) {
-        return bookingService.deleteBooking(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBooking(@PathVariable Long id) {
+        bookingService.deleteBooking(id);
     }
 }
