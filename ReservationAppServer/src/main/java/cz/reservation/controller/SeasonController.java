@@ -4,11 +4,11 @@ import cz.reservation.dto.SeasonDto;
 import cz.reservation.service.serviceinterface.SeasonService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/season")
@@ -23,11 +23,13 @@ public class SeasonController {
 
     @PostMapping
     public ResponseEntity<SeasonDto> createSeason(@RequestBody @Valid SeasonDto seasonDto) {
-        return seasonService.createSeason(seasonDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(seasonService.createSeason(seasonDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SeasonDto> getSeason(@PathVariable Long id) {
+    public SeasonDto getSeason(@PathVariable Long id) {
         return seasonService.getSeason(id);
     }
 
@@ -37,14 +39,16 @@ public class SeasonController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editSeason(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editSeason(
             @RequestBody @Valid SeasonDto seasonDto,
             @PathVariable Long id) {
-        return seasonService.editSeason(seasonDto, id);
+        seasonService.editSeason(seasonDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteSeason(@PathVariable Long id) {
-        return seasonService.deleteSeason(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSeason(@PathVariable Long id) {
+        seasonService.deleteSeason(id);
     }
 }

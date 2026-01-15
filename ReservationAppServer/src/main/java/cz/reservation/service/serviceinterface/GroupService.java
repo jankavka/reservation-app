@@ -1,20 +1,18 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.GroupDto;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 public interface GroupService {
 
-    ResponseEntity<GroupDto> createGroup(GroupDto groupDto);
+    GroupDto createGroup(GroupDto groupDto);
 
-    ResponseEntity<GroupDto> getGroup(Long id);
+    GroupDto getGroup(Long id);
 
-    ResponseEntity<List<GroupDto>> getAllGroups();
+    List<GroupDto> getAllGroups();
 
-    ResponseEntity<Map<String, String>> editGroup(GroupDto groupDto, Long id);
+    void editGroup(GroupDto groupDto, Long id);
 
-    ResponseEntity<Map<String, String>> deleteGroup(Long id);
+    void deleteGroup(Long id);
 }

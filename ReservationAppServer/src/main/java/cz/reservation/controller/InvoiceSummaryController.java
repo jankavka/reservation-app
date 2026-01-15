@@ -3,54 +3,50 @@ package cz.reservation.controller;
 import cz.reservation.dto.InvoiceSummaryDto;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invoice-summary")
+@RequiredArgsConstructor
 public class InvoiceSummaryController {
 
-    InvoiceSummaryService invoiceSummaryService;
-
-    public InvoiceSummaryController(InvoiceSummaryService invoiceSummaryService) {
-        this.invoiceSummaryService = invoiceSummaryService;
-    }
+    private final InvoiceSummaryService invoiceSummaryService;
 
     @PostMapping
-    public ResponseEntity<InvoiceSummaryDto> createInvoiceSummary(
-            @RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceSummaryDto createInvoiceSummary(@RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto) {
         return invoiceSummaryService.createSummary(invoiceSummaryDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InvoiceSummaryDto> getSummary(@PathVariable Long id) {
+    public InvoiceSummaryDto getSummary(@PathVariable Long id) {
         return invoiceSummaryService.getSummary(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editSummary(
-            @RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto,
-            @PathVariable Long id) {
-
-        return invoiceSummaryService.editSummary(invoiceSummaryDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editSummary(@RequestBody @Valid InvoiceSummaryDto invoiceSummaryDto, @PathVariable Long id) {
+        invoiceSummaryService.editSummary(invoiceSummaryDto, id);
     }
 
     @GetMapping
-    public ResponseEntity<List<InvoiceSummaryDto>> getAllSummaries() {
+    public List<InvoiceSummaryDto> getAllSummaries() {
         return invoiceSummaryService.getAllSummaries();
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<InvoiceSummaryDto>> getAllSummariesByUser(@PathVariable Long userId) {
+    public List<InvoiceSummaryDto> getAllSummariesByUser(@PathVariable Long userId) {
         return invoiceSummaryService.getAllSummariesByUser(userId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteSummary(@PathVariable Long id) {
-        return invoiceSummaryService.deleteSummary(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSummary(@PathVariable Long id) {
+        invoiceSummaryService.deleteSummary(id);
     }
 
 }

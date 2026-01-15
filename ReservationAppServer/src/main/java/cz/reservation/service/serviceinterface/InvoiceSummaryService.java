@@ -1,22 +1,20 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.InvoiceSummaryDto;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 public interface InvoiceSummaryService {
 
-    ResponseEntity<InvoiceSummaryDto> createSummary(InvoiceSummaryDto invoiceSummaryDto) ;
+    InvoiceSummaryDto createSummary(InvoiceSummaryDto invoiceSummaryDto);
 
-    ResponseEntity<InvoiceSummaryDto> getSummary(Long id);
+    InvoiceSummaryDto getSummary(Long id);
 
-    ResponseEntity<Map<String, String>> editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id);
+    void editSummary(InvoiceSummaryDto invoiceSummaryDto, Long id);
 
-    ResponseEntity<List<InvoiceSummaryDto>> getAllSummaries();
+    List<InvoiceSummaryDto> getAllSummaries();
 
-    ResponseEntity<List<InvoiceSummaryDto>> getAllSummariesByUser(Long userId);
+    List<InvoiceSummaryDto> getAllSummariesByUser(Long userId);
 
-    ResponseEntity<Map<String, String>> deleteSummary(Long id);
+    void deleteSummary(Long id);
 }

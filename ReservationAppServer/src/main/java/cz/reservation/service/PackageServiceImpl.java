@@ -67,7 +67,7 @@ public class PackageServiceImpl implements PackageService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editPackage(PackageDto packageDto, Long id) {
+    public void editPackage(PackageDto packageDto, Long id) {
         var entityToUpdate = packageRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
@@ -77,19 +77,14 @@ public class PackageServiceImpl implements PackageService {
         setSlotsToPackage(entityToUpdate, selectedPricingRule);
 
         packageMapper.updateEntity(entityToUpdate, packageDto);
-        return ResponseEntity
-                .ok()
-                .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
+
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deletePackage(Long id) {
+    public void deletePackage(Long id) {
         if (packageRepository.existsById(id)) {
             packageRepository.deleteById(id);
-            return ResponseEntity
-                    .ok()
-                    .body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         } else {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }

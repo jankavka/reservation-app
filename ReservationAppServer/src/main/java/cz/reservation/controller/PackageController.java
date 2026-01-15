@@ -1,15 +1,13 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.PackageDto;
-import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/package")
@@ -19,21 +17,21 @@ public class PackageController {
     private final PackageService packageService;
 
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public PackageDto createPackage(@Valid @RequestBody PackageDto packageDto) {
         return packageService.createPackage(packageDto);
-
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> editPackage(
-            @Valid @RequestBody PackageDto packageDto,
-            @PathVariable Long id) {
-        return packageService.editPackage(packageDto, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editPackage(@Valid @RequestBody PackageDto packageDto, @PathVariable Long id) {
+        packageService.editPackage(packageDto, id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deletePackage(@PathVariable Long id) {
-        return packageService.deletePackage(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePackage(@PathVariable Long id) {
+        packageService.deletePackage(id);
     }
 
     @GetMapping("/{id}")

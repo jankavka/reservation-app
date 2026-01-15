@@ -1,13 +1,8 @@
 package cz.reservation.dto;
 
-import cz.reservation.constant.Role;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 public record RegistrationRequestDto(
 
@@ -26,11 +21,6 @@ public record RegistrationRequestDto(
         String telephoneNumber,
 
         @NotNull
-        String fullName,
-
-        @NotEmpty(message = "Roles must not be empty")
-        Set<Role> roles,
-
-        LocalDateTime createdAt
+        String fullName
 ) {
 }

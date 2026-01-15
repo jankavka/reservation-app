@@ -1,6 +1,5 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.CoachDto;
 import cz.reservation.dto.mapper.CoachMapper;
@@ -11,17 +10,12 @@ import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.NonUniqueObjectException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static cz.reservation.service.message.MessageHandling.*;
+import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 
 
 @Service
@@ -40,83 +34,55 @@ public class CoachServiceImpl implements CoachService {
 
     @Override
     @Transactional
-    public ResponseEntity<CoachDto> createCoach(CoachDto coachDto) throws NonUniqueObjectException {
-
+    public CoachDto createCoach(CoachDto coachDto) {
         var entityToSave = coachMapper.toEntity(coachDto);
         setForeignKeys(entityToSave, coachDto);
         entityToSave.getUser().getRoles().add(Role.COACH);
 
         var savedEntity = coachRepository.save(entityToSave);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(coachMapper.toDto(savedEntity));
-
+        return coachMapper.toDto(savedEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<CoachDto> getCoach(Long id) {
-        return ResponseEntity.ok(coachMapper.toDto(coachRepository
+    public CoachDto getCoach(Long id) {
+        return coachMapper.toDto(coachRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
-
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<CoachDto>> getAllCoaches() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(coachRepository
-                        .findAll()
-                        .stream()
-                        .map(coachMapper::toDto)
-                        .toList());
+    public List<CoachDto> getAllCoaches() {
+        return coachRepository
+                .findAll()
+                .stream()
+                .map(coachMapper::toDto)
+                .toList();
     }
 
-    /**
-     * Method deletes coach from database while related user and group persists. Coach entity
-     * is set to null in every related group.
-     *
-     * @param id of coach entity which will be deleted
-     * @return ResponseEntity with status code 200
-     */
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteCoach(Long id) {
-        if (coachRepository.existsById(id)) {
-
-            //reference of entity which will be deleted
-            var entityToDelete = coachRepository.getReferenceById(id);
-            //related user
-            var relatedUser = entityToDelete.getUser();
-            //removes role from related eser
-            relatedUser.getRoles().remove(Role.COACH);
-            //removes coach from related groups
-            groupRepository.findByCoachId(id).forEach(groupEntity -> groupEntity.setCoach(null));
-            //deletes coach itself
-            coachRepository.deleteById(id);
-
-
-            // Message to return
-            var responseMessage = new HashMap<String, String>();
-            responseMessage.put("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED));
-
-            return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
-        } else {
+    public void deleteCoach(Long id) {
+        if (!coachRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
+
+        var entityToDelete = coachRepository.getReferenceById(id);
+        var relatedUser = entityToDelete.getUser();
+        relatedUser.getRoles().remove(Role.COACH);
+        groupRepository.findByCoachId(id).forEach(groupEntity -> groupEntity.setCoach(null));
+        coachRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editCoach(CoachDto coachDto, Long id) {
+    public void editCoach(CoachDto coachDto, Long id) {
         var entityToUpdate = coachRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
         coachMapper.updateEntity(entityToUpdate, coachDto);
         setForeignKeys(entityToUpdate, coachDto);
-        return ResponseEntity.ok().body(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
     }
 
     private void setForeignKeys(CoachEntity target, CoachDto source) {

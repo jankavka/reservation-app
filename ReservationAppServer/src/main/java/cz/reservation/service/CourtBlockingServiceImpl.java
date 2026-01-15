@@ -34,32 +34,22 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional
-    public ResponseEntity<CourtBlockingDto> createBlocking(CourtBlockingDto courtBlockingDto) {
-        timeRangeValidation(courtBlockingDto);
-        var savedEntity = createAndSaveBlocking(courtBlockingDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(courtBlockingMapper.toDto(savedEntity));
-
-
-    }
-
-    @Override
-    public CourtBlockingDto createBlockingAndReturnDto(CourtBlockingDto courtBlockingDto) {
+    public CourtBlockingDto createBlocking(CourtBlockingDto courtBlockingDto) {
         timeRangeValidation(courtBlockingDto);
         var savedEntity = createAndSaveBlocking(courtBlockingDto);
         return courtBlockingMapper.toDto(savedEntity);
+
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<CourtBlockingDto> getBlocking(Long id) {
-
-        return ResponseEntity
-                .ok(courtBlockingMapper
-                        .toDto(courtBlockingRepository
-                                .findById(id)
-                                .orElseThrow(() -> new EntityNotFoundException(
-                                        entityNotFoundExceptionMessage(SERVICE_NAME, id)))));
+    public CourtBlockingDto getBlocking(Long id) {
+        return courtBlockingMapper
+                .toDto(courtBlockingRepository
+                        .findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                entityNotFoundExceptionMessage(SERVICE_NAME, id))));
 
     }
 
@@ -74,13 +64,12 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<List<CourtBlockingDto>> getAllBlockings() {
-        return ResponseEntity
-                .ok(courtBlockingRepository
-                        .findAll()
-                        .stream()
-                        .map(courtBlockingMapper::toDto)
-                        .toList());
+    public List<CourtBlockingDto> getAllBlockings() {
+        return courtBlockingRepository
+                .findAll()
+                .stream()
+                .map(courtBlockingMapper::toDto)
+                .toList();
     }
 
     @Override
@@ -90,24 +79,22 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> editBlocking(CourtBlockingDto courtBlockingDto, Long id) {
+    public void editBlocking(CourtBlockingDto courtBlockingDto, Long id) {
         if (!courtBlockingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             var entityToUpdate = courtBlockingRepository.getReferenceById(id);
             courtBlockingMapper.updateEntity(entityToUpdate, courtBlockingDto);
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.UPDATED)));
         }
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Map<String, String>> deleteBlocking(Long id) {
+    public void deleteBlocking(Long id) {
         if (!courtRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             courtBlockingRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", successMessage(SERVICE_NAME, id, EventStatus.DELETED)));
         }
     }
 

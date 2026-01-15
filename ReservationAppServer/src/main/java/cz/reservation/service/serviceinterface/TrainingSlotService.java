@@ -2,26 +2,24 @@ package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.TrainingSlotDto;
 import cz.reservation.entity.TrainingSlotEntity;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 public interface TrainingSlotService {
 
-    ResponseEntity<TrainingSlotDto> createTrainingSlot(TrainingSlotDto trainingSlotDto);
+    TrainingSlotDto createTrainingSlot(TrainingSlotDto trainingSlotDto);
 
-    ResponseEntity<TrainingSlotDto> getTrainingSlot(Long id);
+    TrainingSlotDto getTrainingSlot(Long id);
 
     TrainingSlotEntity getTrainingSlotEntity(Long id);
 
-    ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlots();
+    List<TrainingSlotDto> getAllTrainingSlots();
 
-    ResponseEntity<List<TrainingSlotDto>> getAllTrainingSlotsByGroupId(Long groupId);
+    List<TrainingSlotDto> getAllTrainingSlotsByGroupId(Long groupId);
 
-    ResponseEntity<Map<String, String>> editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id);
+    void editTrainingSlot(TrainingSlotDto trainingSlotDto, Long id);
 
-    ResponseEntity<Map<String, String>> deleteTrainingSlot(Long id);
+    void deleteTrainingSlot(Long id);
 
     Integer getUsedCapacityOfRelatedTrainingSlot(Long id);
 }
