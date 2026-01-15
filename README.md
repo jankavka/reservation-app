@@ -1,3 +1,3 @@
 # reservation-app
 
-backend: ReservationAppServer/README.md
+backend: [ReservationAppServer](https://github.com/jankavka/reservation-app/blob/main/ReservationAppServer/README.md)
