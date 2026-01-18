@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @Slf4j
 public class UserCreatedListener {
@@ -20,8 +18,8 @@ public class UserCreatedListener {
         this.notificationSender = notificationSender;
     }
 
-    //@EventListener
-    public void handleCreatedUser(CreatedUserDto createdUserDto) throws IOException {
+    @EventListener
+    public void handleCreatedUser(CreatedUserDto createdUserDto) {
         var userId = createdUserDto.createdEntity.getId();
         var userEmail = createdUserDto.createdEntity.getEmail();
         var userName = createdUserDto.createdEntity.getFullName();

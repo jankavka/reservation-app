@@ -22,7 +22,7 @@ public class NoSlotsInPackageListener {
     }
 
 
-    //@EventListener
+    @EventListener
     public void handleEvent(NoSlotsInPackageDto noSlotsInPackage) {
         var relatedPlayer = noSlotsInPackage.getPackageEntity().getPlayer();
         var playerName = relatedPlayer.getFullName();
