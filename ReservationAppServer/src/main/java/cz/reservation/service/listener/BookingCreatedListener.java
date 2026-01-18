@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -22,8 +21,8 @@ public class BookingCreatedListener {
     }
 
 
-    //@EventListener
-    public void handleCreatedBooking(CreatedBookingDto createdBookingDto) throws IOException {
+    @EventListener
+    public void handleCreatedBooking(CreatedBookingDto createdBookingDto) {
 
 
         var currentBooking = createdBookingDto.getBookingEntity();
