@@ -1,11 +1,14 @@
 package cz.reservation.service;
 
+import cz.reservation.constant.PricingType;
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.dto.mapper.PlayerMapper;
 import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.filter.PlayerFilter;
 import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.entity.repository.specification.PlayerSpecification;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -73,14 +76,16 @@ public class PlayerServiceImpl implements PlayerService {
     public PlayerDto createPlayer(PlayerDto playerDTO) {
         var entityToSave = playerMapper.toEntity(playerDTO);
         setForeignKeys(entityToSave, playerDTO);
+        setPricingTypeIfEmpty(entityToSave, playerDTO);
         var savedEntity = playerRepository.save(entityToSave);
         return playerMapper.toDto(savedEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PlayerDto> getAllPlayers() {
-        var playerEntities = playerRepository.findAll();
+    public List<PlayerDto> getAllPlayers(PlayerFilter playerFilter) {
+        var spec = new PlayerSpecification(playerFilter);
+        var playerEntities = playerRepository.findAll(spec);
         if (playerEntities.isEmpty()) {
             throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         }
@@ -138,6 +143,13 @@ public class PlayerServiceImpl implements PlayerService {
                     .findById(source.packagee().id())
                     .orElseThrow(() -> new EntityNotFoundException(
                             entityNotFoundExceptionMessage("package", source.packagee().id()))));
+        }
+    }
+
+    //Sets pricing type to PER_SLOT if its null
+    private void setPricingTypeIfEmpty(PlayerEntity target, PlayerDto source) {
+        if (source.pricingType() == null) {
+            target.setPricingType(PricingType.PER_SLOT);
         }
     }
 }

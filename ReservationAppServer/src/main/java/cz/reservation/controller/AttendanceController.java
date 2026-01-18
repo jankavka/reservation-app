@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.AttendanceDto;
+import cz.reservation.entity.filter.AttendanceFilter;
 import cz.reservation.service.serviceinterface.AttendanceService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,8 @@ public class AttendanceController {
     }
 
     @GetMapping
-    public List<AttendanceDto> getAllAttendances() {
-        return attendanceService.getAllAttendances();
+    public List<AttendanceDto> getAllAttendances(AttendanceFilter attendanceFilter) {
+        return attendanceService.getAllAttendances(attendanceFilter);
     }
 
     @PutMapping("/{id}")

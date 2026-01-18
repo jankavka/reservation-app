@@ -2,6 +2,7 @@ package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.entity.CourtBlockingEntity;
+import cz.reservation.entity.filter.CourtBlockingFilter;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface CourtBlockingService {
 
     CourtBlockingEntity getBlockingEntity(Long id);
 
-    List<CourtBlockingDto> getAllBlockings();
+    List<CourtBlockingDto> getAllBlockings(CourtBlockingFilter courtBlockingFilter);
 
     List<CourtBlockingEntity> getAllBlockingsEntities();
 

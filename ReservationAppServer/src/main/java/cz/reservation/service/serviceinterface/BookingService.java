@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.BookingDto;
+import cz.reservation.entity.filter.BookingFilter;
 
 import java.time.Month;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface BookingService {
 
     void editBookingAsAdmin(BookingDto bookingDto, Long id);
 
-    List<BookingDto> getAllBookings();
+    List<BookingDto> getAllBookings(BookingFilter bookingFilter);
 
     void deleteBooking(Long id);
 

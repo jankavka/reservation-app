@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -28,4 +30,7 @@ public class AttendanceEntity {
 
     @Column
     private String note;
+
+    @Column
+    private LocalDateTime createdAt;
 }

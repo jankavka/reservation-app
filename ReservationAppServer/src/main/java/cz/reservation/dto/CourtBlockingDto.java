@@ -1,5 +1,6 @@
 package cz.reservation.dto;
 
+import io.hypersistence.utils.hibernate.type.range.Range;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,6 +20,8 @@ public record CourtBlockingDto(
         LocalDateTime blockedTo,
 
         @NotBlank(message = "Reason must not be blank")
-        String reason
+        String reason,
+
+        Range<LocalDateTime> range
 ) {
 }

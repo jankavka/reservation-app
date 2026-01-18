@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.BookingDto;
+import cz.reservation.entity.filter.BookingFilter;
 import cz.reservation.service.serviceinterface.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getAllBookings() {
-        return bookingService.getAllBookings();
+    public List<BookingDto> getAllBookings(BookingFilter bookingFilter) {
+        return bookingService.getAllBookings(bookingFilter);
     }
 
     @PutMapping("/{id}")

@@ -1,10 +1,12 @@
 package cz.reservation.entity;
 
+import io.hypersistence.utils.hibernate.type.range.Range;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 
 import java.time.LocalDateTime;
@@ -36,4 +38,7 @@ public class CourtBlockingEntity {
 
     @OneToOne(mappedBy = "courtBlocking", cascade = CascadeType.ALL)
     private TrainingSlotEntity trainingSlot;
+
+    @Column(columnDefinition = "tsrange")
+    private Range<LocalDateTime> range;
 }

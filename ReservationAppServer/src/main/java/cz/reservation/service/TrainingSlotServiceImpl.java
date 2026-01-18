@@ -1,6 +1,5 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.TrainingSlotDto;
@@ -17,14 +16,11 @@ import cz.reservation.service.serviceinterface.TrainingSlotService;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -222,7 +218,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
         var currentSlotEndAtMillis = trainingSlotDto.endAt().toEpochSecond(ZoneOffset.UTC);
         var courtId = trainingSlotDto.court().id();
 
-        var areBlockingsEmpty = allBlockings
+        var areBlockingsWithCollisionEmpty = allBlockings
                 .stream()
                 //removes current blocking from the list, if not present returns true
                 .filter(blocking -> {
@@ -245,7 +241,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 .toList()
                 .isEmpty();
 
-        if (!areBlockingsEmpty) {
+        if (!areBlockingsWithCollisionEmpty) {
             throw new TrainingSlotsInCollisionException(
                     "Current Training slot is in collision with court blockings");
         }
@@ -310,7 +306,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                         null),
                 trainingSlotDto.startAt(),
                 trainingSlotDto.endAt(),
-                SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")");
+                SERVICE_NAME + " of group " + groupName + " (id = " + groupId + ")", null);
     }
 
 
@@ -327,7 +323,8 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                 currentSlot.court(),
                 currentSlot.startAt(),
                 currentSlot.endAt(),
-                relatedCourtBlocking.getReason());
+                relatedCourtBlocking.getReason(),
+                relatedCourtBlocking.getRange());
 
         //Editing related court blocking
         courtBlockingService.editBlocking(editedRelatedCourtBlockingDto, relatedCourtBlocking.getId());

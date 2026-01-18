@@ -20,7 +20,7 @@ public class UserCreatedListener {
         this.notificationSender = notificationSender;
     }
 
-    @EventListener
+    //@EventListener
     public void handleCreatedUser(CreatedUserDto createdUserDto) throws IOException {
         var userId = createdUserDto.createdEntity.getId();
         var userEmail = createdUserDto.createdEntity.getEmail();

@@ -2,6 +2,7 @@ package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.PlayerDto;
 import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.filter.PlayerFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ public interface PlayerService {
 
     PlayerDto createPlayer(PlayerDto playerDTO);
 
-    List<PlayerDto> getAllPlayers();
+    List<PlayerDto> getAllPlayers(PlayerFilter playerFilter);
 
     void editPlayer(PlayerDto playerDto, Long id);
 

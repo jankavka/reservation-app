@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.PlayerDto;
+import cz.reservation.entity.filter.PlayerFilter;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @GetMapping
-    public List<PlayerDto> getAllPlayers() {
-        return playerService.getAllPlayers();
+    public List<PlayerDto> getAllPlayers(PlayerFilter playerFilter) {
+        return playerService.getAllPlayers(playerFilter);
     }
 
     @GetMapping("/{id}")
@@ -34,7 +35,7 @@ public class PlayerController {
         return playerService.getPlayersByParentId(id);
     }
 
-    @Secured("ADMIN")
+    //@Secured("ADMIN")
     @PostMapping
     public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerDto playerDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(playerService.createPlayer(playerDto));

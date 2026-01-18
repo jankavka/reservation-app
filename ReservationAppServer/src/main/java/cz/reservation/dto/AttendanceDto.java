@@ -2,6 +2,8 @@ package cz.reservation.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
 public record AttendanceDto(
         Long id,
 
@@ -10,7 +12,9 @@ public record AttendanceDto(
 
         Boolean present,
 
-        String note
+        String note,
+
+        LocalDateTime createdAt
 ) {
 
 }

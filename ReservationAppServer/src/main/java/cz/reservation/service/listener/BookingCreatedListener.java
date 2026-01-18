@@ -22,7 +22,7 @@ public class BookingCreatedListener {
     }
 
 
-    @EventListener
+    //@EventListener
     public void handleCreatedBooking(CreatedBookingDto createdBookingDto) throws IOException {
 
 

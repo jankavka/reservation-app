@@ -1,22 +1,23 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
+
 import cz.reservation.dto.CourtBlockingDto;
 import cz.reservation.dto.mapper.CourtBlockingMapper;
 import cz.reservation.entity.CourtBlockingEntity;
+import cz.reservation.entity.filter.CourtBlockingFilter;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
+import cz.reservation.entity.repository.specification.CourtBlockingSpecification;
 import cz.reservation.service.exception.UnsupportedTimeRangeException;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
+import io.hypersistence.utils.hibernate.type.range.Range;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -64,10 +65,23 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourtBlockingDto> getAllBlockings() {
+    public List<CourtBlockingDto> getAllBlockings(CourtBlockingFilter courtBlockingFilter) {
+        var spec = new CourtBlockingSpecification(courtBlockingFilter);
+
         return courtBlockingRepository
-                .findAll()
+                .findAll(spec)
                 .stream()
+                //Check for blocks bigger than one hour
+                .filter(courtBlockingEntity -> {
+                    if (courtBlockingFilter.moreThanHour() != null && courtBlockingFilter.moreThanHour()) {
+                        return !courtBlockingEntity
+                                .getBlockedFrom()
+                                .plusHours(1)
+                                .plusMinutes(1)
+                                .isAfter(courtBlockingEntity.getBlockedTo());
+                    }
+                    return true;
+                })
                 .map(courtBlockingMapper::toDto)
                 .toList();
     }
@@ -101,12 +115,20 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     private CourtBlockingEntity createAndSaveBlocking(CourtBlockingDto courtBlockingDto) {
         var entityToSave = courtBlockingMapper.toEntity(courtBlockingDto);
         var courtId = courtBlockingDto.court().id();
+        entityToSave.setRange(makeRange(courtBlockingDto.blockedFrom(), courtBlockingDto.blockedTo()));
+
 
         //Check for existing court
         entityToSave.setCourt(courtRepository.findById(courtId).orElseThrow(
                 () -> new EntityNotFoundException(entityNotFoundExceptionMessage("court", courtId))));
         return courtBlockingRepository.save(entityToSave);
 
+    }
+
+    private Range<LocalDateTime> makeRange(LocalDateTime from, LocalDateTime to) {
+        return Range.
+                localDateTimeRange("(" + from +
+                        "," + to + ")");
     }
 
     /**
@@ -124,10 +146,6 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
                         courtBlockingDto.blockedTo().getMinute() == 30))) {
 
             throw new UnsupportedTimeRangeException("Unsupported time range. Minutes can be only 30 or 00");
-        }
-        if (!courtBlockingDto.blockedFrom().isBefore(courtBlockingDto.blockedTo())) {
-            throw new IllegalArgumentException("Date `from` has to be before date `to`");
-
         }
 
 

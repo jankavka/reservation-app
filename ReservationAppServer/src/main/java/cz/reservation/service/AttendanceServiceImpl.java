@@ -7,8 +7,10 @@ import cz.reservation.dto.NoSlotsInPackageDto;
 import cz.reservation.dto.mapper.AttendanceMapper;
 import cz.reservation.entity.AttendanceEntity;
 import cz.reservation.entity.BookingEntity;
+import cz.reservation.entity.filter.AttendanceFilter;
 import cz.reservation.entity.repository.AttendanceRepository;
 import cz.reservation.entity.repository.BookingRepository;
+import cz.reservation.entity.repository.specification.AttendanceSpecification;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.AttendanceService;
 import cz.reservation.service.serviceinterface.PackageService;
@@ -74,8 +76,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AttendanceDto> getAllAttendances() {
-        var allAttendances = attendanceRepository.findAll();
+    public List<AttendanceDto> getAllAttendances(AttendanceFilter attendanceFilter) {
+        var spec = new AttendanceSpecification(attendanceFilter);
+        var allAttendances = attendanceRepository.findAll(spec);
         if (allAttendances.isEmpty()) {
             throw new EmptyListException(emptyListMessage(SERVICE_NAME));
         } else {

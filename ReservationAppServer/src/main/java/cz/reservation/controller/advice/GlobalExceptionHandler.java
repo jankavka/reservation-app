@@ -26,7 +26,8 @@ public class GlobalExceptionHandler {
             EnrollmentAlreadyCanceledException.class,
             MissingPricingTypeException.class,
             HttpMessageNotReadableException.class,
-            SQLException.class
+            SQLException.class,
+            EnrollmentNoActiveException.class
     })
     public ResponseEntity<Map<String, String>> handleBadRequest(Exception e) {
         return ResponseEntity

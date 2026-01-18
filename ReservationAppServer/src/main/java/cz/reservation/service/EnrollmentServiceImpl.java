@@ -37,7 +37,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     public EnrollmentDto createEnrollment(EnrollmentDto enrollmentDto) {
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
-        var relatedGroup = entityToSave.getGroup();
+        var relatedGroup = groupRepository.findById(enrollmentDto.group().id()).orElseThrow();
 
         setForeignKeys(entityToSave, enrollmentDto);
         entityToSave.setCreatedAt(LocalDateTime.now());

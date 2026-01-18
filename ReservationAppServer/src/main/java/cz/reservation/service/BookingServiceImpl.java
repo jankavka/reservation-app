@@ -1,14 +1,17 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.BookingStatus;
-import cz.reservation.constant.EventStatus;
+import cz.reservation.constant.EnrollmentState;
 import cz.reservation.dto.BookingDto;
 import cz.reservation.dto.CreatedBookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.BookingEntity;
 import cz.reservation.entity.TrainingSlotEntity;
+import cz.reservation.entity.filter.BookingFilter;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.PlayerRepository;
+import cz.reservation.entity.repository.specification.BookingSpecification;
+import cz.reservation.service.exception.EnrollmentNoActiveException;
 import cz.reservation.service.exception.LateBookingCancelingException;
 import cz.reservation.service.exception.TrainingAlreadyStartedException;
 import cz.reservation.service.serviceinterface.BookingService;
@@ -16,8 +19,6 @@ import cz.reservation.service.serviceinterface.TrainingSlotService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
 
 import static cz.reservation.service.message.MessageHandling.*;
 
@@ -55,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
         var entityToSave = bookingMapper.toEntity(bookingDto);
         var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
 
+        playerHasEnrollmentToCurrentGroupCheck(bookingDto);
 
         entityToSave.setBookedAt(LocalDateTime.now());
 
@@ -131,9 +132,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> getAllBookings() {
+    public List<BookingDto> getAllBookings(BookingFilter bookingFilter) {
+        var spec = new BookingSpecification(bookingFilter);
         return bookingRepository
-                .findAll()
+                .findAll(spec)
                 .stream()
                 .map(bookingMapper::toDto)
                 .toList();
@@ -180,6 +182,27 @@ public class BookingServiceImpl implements BookingService {
         if (relatedTrainingSlot.getStartAt().isBefore(LocalDateTime.now())) {
             throw new TrainingAlreadyStartedException("Training slot which already started can't be reserved");
         }
+    }
+
+    private void playerHasEnrollmentToCurrentGroupCheck(BookingDto bookingDto) {
+        var currentSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
+        var currentPlayer = playerRepository.findById(bookingDto.player().id()).orElseThrow(
+                () -> new EntityNotFoundException(
+                        entityNotFoundExceptionMessage("player", bookingDto.player().id())
+                ));
+        var currentGroup = currentSlot.getGroup();
+        var validEnrollments = currentGroup.getEnrollments()
+                .stream()
+                .filter(entity -> entity.getPlayer().getId().equals(currentPlayer.getId()) &&
+                        entity.getState().equals(EnrollmentState.ACTIVE))
+                .toList();
+
+        if (validEnrollments.isEmpty()) {
+            throw new EnrollmentNoActiveException(
+                    "Player with id: " + currentPlayer.getId() + " has no active enrollment in this group");
+        }
+
+
     }
 
 
