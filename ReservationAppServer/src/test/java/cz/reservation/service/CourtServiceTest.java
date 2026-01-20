@@ -6,8 +6,10 @@ import cz.reservation.dto.VenueDto;
 import cz.reservation.dto.mapper.CourtMapper;
 import cz.reservation.entity.CourtEntity;
 import cz.reservation.entity.VenueEntity;
+import cz.reservation.entity.filter.CourtFilter;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
+import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -130,7 +132,9 @@ class CourtServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldReturnAllCourts() {
+        var courtFilter = new CourtFilter(null, null, null, null, null);
         var court1dto = new CourtDto(
                 1L,
                 "N",
@@ -162,14 +166,14 @@ class CourtServiceTest {
                 null,
                 null);
 
-        when(courtRepository.findAll()).thenReturn(List.of(court1Entity, court2Entity));
+        when(courtRepository.findAll(any(Specification.class))).thenReturn(List.of(court1Entity, court2Entity));
         when(courtMapper.toDto(court1Entity)).thenReturn(court1dto);
         when(courtMapper.toDto(court2Entity)).thenReturn(court2dto);
 
-        var result = courtService.getAllCourts();
+        var result = courtService.getAllCourts(courtFilter);
 
         assertEquals(List.of(court1dto, court2dto), result);
-        verify(courtRepository).findAll();
+        verify(courtRepository).findAll(any(Specification.class));
     }
 
     @Test

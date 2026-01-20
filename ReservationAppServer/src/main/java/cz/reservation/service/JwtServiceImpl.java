@@ -1,5 +1,6 @@
 package cz.reservation.service;
 
+import cz.reservation.service.exception.UnknownAlgorithmException;
 import cz.reservation.service.serviceinterface.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -10,7 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +24,22 @@ import java.util.function.Function;
 @Component
 public class JwtServiceImpl implements JwtService {
 
-    @Value("${security.jwt.secret}")
-    private String secret;
+
+    private final String secret;
 
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
+
+
+    public JwtServiceImpl() {
+        try {
+            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA1");
+            SecretKey secretKey = keyGen.generateKey();
+            secret = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+        } catch (NoSuchAlgorithmException e) {
+            throw new UnknownAlgorithmException(e.getMessage());
+        }
+    }
 
 
     @Override
@@ -32,8 +48,7 @@ public class JwtServiceImpl implements JwtService {
         return createToken(claims, email);
     }
 
-    @Override
-    public String createToken(Map<String, Object> claims, String email) {
+    private String createToken(Map<String, Object> claims, String email) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
@@ -43,7 +58,6 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    @Override
     public Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -59,14 +73,13 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    @Override
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    @Override
-    public Claims extractAllClaims(String token) {
+
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build()
@@ -74,8 +87,8 @@ public class JwtServiceImpl implements JwtService {
                 .getBody();
     }
 
-    @Override
-    public Boolean isTokenExpired(String token) {
+
+    private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
