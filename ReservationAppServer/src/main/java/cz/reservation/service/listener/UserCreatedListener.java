@@ -13,12 +13,11 @@ public class UserCreatedListener {
 
     private final NotificationSender notificationSender;
 
-
-    UserCreatedListener(NotificationSender notificationSender) {
+    public UserCreatedListener(NotificationSender notificationSender) {
         this.notificationSender = notificationSender;
     }
 
-    @EventListener
+    //@EventListener
     public void handleCreatedUser(CreatedUserDto createdUserDto) {
         var userId = createdUserDto.createdEntity.getId();
         var userEmail = createdUserDto.createdEntity.getEmail();

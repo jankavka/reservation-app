@@ -86,4 +86,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
     }
+
+    @ExceptionHandler(UnknownAlgorithmException.class)
+    public ResponseEntity<Map<String, String>> handleUnknownAlgorithm(UnknownAlgorithmException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
 }
