@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {GroupMapper.class, CourtMapper.class})
 public interface TrainingSlotMapper {
 
     @Mapping(source = "courtBlocking.id", target = "courtBlockingId")

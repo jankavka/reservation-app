@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.PackageDto;
+import cz.reservation.entity.filter.PackageFilter;
 import cz.reservation.service.serviceinterface.PackageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +41,8 @@ public class PackageController {
     }
 
     @GetMapping("/all")
-    public List<PackageDto> showAllPackages() {
-        return packageService.getAllPackages();
+    public List<PackageDto> showAllPackages(PackageFilter packageFilter) {
+        return packageService.getAllPackages(packageFilter);
     }
 
 

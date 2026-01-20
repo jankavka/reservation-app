@@ -10,6 +10,4 @@ public interface TrainingSlotRepository extends
         JpaRepository<TrainingSlotEntity, Long>, JpaSpecificationExecutor<TrainingSlotEntity> {
 
     List<TrainingSlotEntity> findByGroupId(Long groupId);
-
-
 }

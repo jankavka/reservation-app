@@ -43,8 +43,8 @@ public class PlayerSpecification implements Specification<PlayerEntity> {
         }
 
         if (playerFilter.parentId() != null) {
-            Join<UserEntity, PlayerEntity> parentJoin = root.join(UserEntity_.ID);
-            predicates.add(criteriaBuilder.equal(parentJoin, playerFilter.parentId()));
+            Join<UserEntity, PlayerEntity> parentJoin = root.join(PlayerEntity_.PARENT);
+            predicates.add(criteriaBuilder.equal(parentJoin.get(UserEntity_.ID), playerFilter.parentId()));
         }
 
         if (playerFilter.pricingType() != null) {

@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.EnrollmentDto;
+import cz.reservation.entity.filter.EnrollmentFilter;
 import cz.reservation.service.serviceinterface.EnrollmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,8 @@ public class EnrollmentController {
     }
 
     @GetMapping
-    public List<EnrollmentDto> getAllEnrollments() {
-        return enrollmentService.getAllEnrollments();
+    public List<EnrollmentDto> getAllEnrollments(EnrollmentFilter enrollmentFilter) {
+        return enrollmentService.getAllEnrollments(enrollmentFilter);
     }
 
     @PutMapping("/{id}")

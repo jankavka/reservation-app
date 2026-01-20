@@ -22,8 +22,8 @@ public class CourtBlockingSpecification implements Specification<CourtBlockingEn
         List<Predicate> predicates = new ArrayList<>();
 
         if (courtBlockingFilter.courtId() != null) {
-            Join<CourtEntity, CourtBlockingEntity> joinCourt = root.join(CourtEntity_.ID);
-            predicates.add(criteriaBuilder.equal(joinCourt, courtBlockingFilter.courtId()));
+            Join<CourtEntity, CourtBlockingEntity> joinCourt = root.join(CourtBlockingEntity_.COURT);
+            predicates.add(criteriaBuilder.equal(joinCourt.get(CourtEntity_.ID), courtBlockingFilter.courtId()));
 
         }
 

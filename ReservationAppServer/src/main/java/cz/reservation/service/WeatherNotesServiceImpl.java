@@ -9,13 +9,10 @@ import cz.reservation.entity.repository.WeatherNotesRepository;
 import cz.reservation.service.serviceinterface.WeatherNotesService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 import static cz.reservation.service.message.MessageHandling.*;
 

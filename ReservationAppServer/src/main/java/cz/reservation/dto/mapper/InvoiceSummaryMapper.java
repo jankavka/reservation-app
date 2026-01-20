@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring", uses = {PlayerMapper.class})
 public interface InvoiceSummaryMapper {
 
     InvoiceSummaryDto toDto(InvoiceSummaryEntity invoiceSummaryEntity);

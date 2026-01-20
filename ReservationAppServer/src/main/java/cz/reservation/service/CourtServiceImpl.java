@@ -3,8 +3,10 @@ package cz.reservation.service;
 import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtMapper;
 import cz.reservation.entity.CourtEntity;
+import cz.reservation.entity.filter.CourtFilter;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
+import cz.reservation.entity.repository.specification.CourtSpecification;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +46,9 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourtDto> getAllCourts() {
-        return courtRepository.findAll().stream()
+    public List<CourtDto> getAllCourts(CourtFilter courtFilter) {
+        var spec = new CourtSpecification(courtFilter);
+        return courtRepository.findAll(spec).stream()
                 .map(courtMapper::toDto)
                 .toList();
     }

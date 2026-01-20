@@ -24,5 +24,4 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long>, J
     @Modifying
     @Query("DELETE FROM BookingEntity b WHERE b.bookedAt < :cutoffDate")
     void deleteByBookedAtBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
-
 }

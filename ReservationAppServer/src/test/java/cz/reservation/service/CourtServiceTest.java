@@ -82,7 +82,7 @@ class CourtServiceTest {
                 venueDto);
 
         when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
-        when(venueRepository.findById(venue.getId())).thenReturn(Optional.of(venue));
+        when(venueRepository.findById(venueDto.id())).thenReturn(Optional.of(venue));
         when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
         when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
 
@@ -90,7 +90,6 @@ class CourtServiceTest {
 
         assertEquals(returnedCourtDto, result);
         verify(courtRepository).save(courtEntityToSave);
-        verify(venueRepository).findById(venue.getId());
     }
 
     @Test
@@ -225,13 +224,12 @@ class CourtServiceTest {
                 venue);
 
         when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
-        when(venueRepository.findById(id)).thenReturn(Optional.of(venue));
+        when(venueRepository.findById(venueDto.id())).thenReturn(Optional.of(venue));
 
         assertDoesNotThrow(() -> courtService.editCourt(dtoToSave, id));
 
         verify(courtRepository).findById(id);
         verify(courtMapper).updateEntity(courtEntity, dtoToSave);
-        verify(venueRepository).findById(id);
     }
 
     @Test

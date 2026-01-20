@@ -15,7 +15,5 @@ public interface PlayerMapper {
     PlayerEntity toEntity(PlayerDto playerDTO);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "packagee", ignore = true)
     void updateEntity(@MappingTarget PlayerEntity target, PlayerDto source);
  }
