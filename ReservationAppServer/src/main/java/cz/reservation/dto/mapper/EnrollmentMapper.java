@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {PlayerMapper.class, GroupMapper.class})
 public interface EnrollmentMapper {
 
     EnrollmentDto toDto(EnrollmentEntity entity);

@@ -3,9 +3,11 @@ package cz.reservation.service;
 import cz.reservation.dto.GroupDto;
 import cz.reservation.dto.mapper.GroupMapper;
 import cz.reservation.entity.GroupEntity;
+import cz.reservation.entity.filter.GroupFilter;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.SeasonRepository;
+import cz.reservation.entity.repository.specification.GroupSpecification;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +51,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GroupDto> getAllGroups() {
-        return groupRepository.findAll().stream()
+    public List<GroupDto> getAllGroups(GroupFilter groupFilter) {
+        var spec = new GroupSpecification(groupFilter);
+        return groupRepository.findAll(spec).stream()
                 .map(groupMapper::toDto)
                 .toList();
     }

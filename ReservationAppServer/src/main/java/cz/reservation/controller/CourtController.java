@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.CourtDto;
+import cz.reservation.entity.filter.CourtFilter;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,8 @@ public class CourtController {
     }
 
     @GetMapping
-    public List<CourtDto> showAllCourts() {
-        return courtService.getAllCourts();
+    public List<CourtDto> showAllCourts(CourtFilter courtFilter) {
+        return courtService.getAllCourts(courtFilter);
     }
 
     @DeleteMapping("/{id}")

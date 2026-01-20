@@ -313,12 +313,11 @@ class CoachServiceTest {
                 null);
 
         when(coachRepository.findById(id)).thenReturn(Optional.of(coachEntityToUpdate));
-        when(userRepository.findById(id)).thenReturn(Optional.of(relatedUserEntity));
+        when(userRepository.findById(relatedUserDto.id())).thenReturn(Optional.of(relatedUserEntity));
 
         assertDoesNotThrow(() -> coachService.editCoach(coachDtoToSave, id));
 
         verify(coachRepository).findById(id);
         verify(coachMapper).updateEntity(coachEntityToUpdate, coachDtoToSave);
-        verify(userRepository).findById(id);
     }
 }

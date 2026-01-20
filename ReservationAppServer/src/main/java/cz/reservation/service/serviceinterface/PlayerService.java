@@ -11,8 +11,6 @@ public interface PlayerService {
 
     Map<String, Object> getPlayer(Long id);
 
-    PlayerDto getPlayerDto(Long id);
-
     PlayerEntity getPlayerEntity(Long id);
 
     PlayerDto createPlayer(PlayerDto playerDTO);

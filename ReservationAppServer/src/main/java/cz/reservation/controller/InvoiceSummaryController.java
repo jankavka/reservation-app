@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.InvoiceSummaryDto;
+import cz.reservation.entity.filter.InvoiceSummaryFilter;
 import cz.reservation.service.serviceinterface.InvoiceSummaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,8 @@ public class InvoiceSummaryController {
     }
 
     @GetMapping
-    public List<InvoiceSummaryDto> getAllSummaries() {
-        return invoiceSummaryService.getAllSummaries();
+    public List<InvoiceSummaryDto> getAllSummaries(InvoiceSummaryFilter invoiceSummaryFilter) {
+        return invoiceSummaryService.getAllSummaries(invoiceSummaryFilter);
     }
 
     @GetMapping("/user/{userId}")

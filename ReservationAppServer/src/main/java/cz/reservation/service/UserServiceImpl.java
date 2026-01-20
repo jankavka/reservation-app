@@ -3,12 +3,15 @@ package cz.reservation.service;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.UserDto;
 import cz.reservation.dto.mapper.UserMapper;
+import cz.reservation.entity.filter.UserFilter;
+import cz.reservation.entity.repository.specification.UserSpecification;
 import cz.reservation.entity.userdetails.CustomUserDetails;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,8 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDto> getAllUsers() {
-        var userEntities = userRepository.findAll();
+    public List<UserDto> getAllUsers(UserFilter userFilter) {
+        var spec = new UserSpecification(userFilter);
+        var userEntities = userRepository.findAll(spec);
         if (userEntities.isEmpty()) {
             log.warn("There are no users in database");
             return List.of();

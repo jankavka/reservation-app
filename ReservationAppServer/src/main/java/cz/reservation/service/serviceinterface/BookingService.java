@@ -20,7 +20,5 @@ public interface BookingService {
 
     void deleteBooking(Long id);
 
-    Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId);
-
     List<BookingDto> getBookingsByPlayerIdAndMonth(Long playerId, Month month, int year);
 }

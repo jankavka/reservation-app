@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.GroupDto;
+import cz.reservation.entity.filter.GroupFilter;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,8 @@ public class GroupController {
     }
 
     @GetMapping
-    public List<GroupDto> getAllGroups() {
-        return groupService.getAllGroups();
+    public List<GroupDto> getAllGroups(GroupFilter groupFilter) {
+        return groupService.getAllGroups(groupFilter);
     }
 
     @PutMapping("/{id}")

@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.UserDto;
+import cz.reservation.entity.filter.UserFilter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -10,7 +11,7 @@ public interface UserService extends UserDetailsService {
 
     UserDto getUser(Long id);
 
-    List<UserDto> getAllUsers();
+    List<UserDto> getAllUsers(UserFilter userFilter);
 
     User getCurrentUser();
 

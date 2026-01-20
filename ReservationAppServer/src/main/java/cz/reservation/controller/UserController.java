@@ -1,6 +1,7 @@
 package cz.reservation.controller;
 
 import cz.reservation.dto.UserDto;
+import cz.reservation.entity.filter.UserFilter;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,8 +34,8 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserDto> getAllUsers(UserFilter userFilter) {
+        return userService.getAllUsers(userFilter);
     }
 
 

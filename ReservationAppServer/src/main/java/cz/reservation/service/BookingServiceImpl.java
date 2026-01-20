@@ -152,8 +152,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    @Override
-    public Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId) {
+    private Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId) {
         return trainingSlotService.getUsedCapacityOfRelatedTrainingSlot(trainingSlotId);
     }
 

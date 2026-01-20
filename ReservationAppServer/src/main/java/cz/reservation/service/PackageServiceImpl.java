@@ -1,20 +1,20 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
 import cz.reservation.constant.PricingType;
 import cz.reservation.dto.PackageDto;
 import cz.reservation.dto.mapper.PackageMapper;
 import cz.reservation.entity.PackageEntity;
 import cz.reservation.entity.PricingRuleEntity;
+import cz.reservation.entity.filter.PackageFilter;
 import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
+import cz.reservation.entity.repository.specification.PackageSpecification;
 import cz.reservation.service.exception.InvoiceStorageException;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.serviceinterface.PackageService;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,9 +105,10 @@ public class PackageServiceImpl implements PackageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PackageDto> getAllPackages() {
+    public List<PackageDto> getAllPackages(PackageFilter packageFilter) {
+        var spec = new PackageSpecification(packageFilter);
         return packageRepository
-                .findAll()
+                .findAll(spec)
                 .stream()
                 .map(packageMapper::toDto).toList();
     }

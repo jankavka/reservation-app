@@ -55,15 +55,6 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public PlayerDto getPlayerDto(Long id) {
-        return playerMapper.
-                toDto(playerRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
-    }
-
-    @Override
     public PlayerEntity getPlayerEntity(Long id) {
         return playerRepository
                 .findById(id)
