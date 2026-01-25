@@ -6,6 +6,7 @@ import cz.reservation.dto.BookingDto;
 import cz.reservation.dto.CreatedBookingDto;
 import cz.reservation.dto.mapper.BookingMapper;
 import cz.reservation.entity.BookingEntity;
+import cz.reservation.entity.PlayerEntity;
 import cz.reservation.entity.TrainingSlotEntity;
 import cz.reservation.entity.filter.BookingFilter;
 import cz.reservation.entity.repository.BookingRepository;
@@ -46,20 +47,21 @@ public class BookingServiceImpl implements BookingService {
 
     private static final String SERVICE_NAME = "booking";
 
-    private static final String MESSAGE = "message";
-
     @Override
     @Transactional
     public BookingDto createBooking(BookingDto bookingDto) {
 
         var entityToSave = bookingMapper.toEntity(bookingDto);
         var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
+        var currentPlayer = playerRepository.findById(bookingDto.player().id())
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                        "player", bookingDto.player().id())));
 
-        playerHasEnrollmentToCurrentGroupCheck(bookingDto);
+        playerHasEnrollmentToCurrentGroupCheck(relatedTrainingSlot, currentPlayer);
 
         entityToSave.setBookedAt(LocalDateTime.now());
 
-        setForeignKeys(entityToSave, bookingDto);
+        setForeignKeys(entityToSave, relatedTrainingSlot, currentPlayer);
 
         checkRelatedTrainingSlotIsBookable(relatedTrainingSlot);
 
@@ -88,46 +90,40 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public void editBooking(BookingDto bookingDto, Long id) {
-        if (!bookingRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToUpdate = bookingRepository.getReferenceById(id);
-            var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
+        var entityToUpdate = bookingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
 
-            if (bookingDto.bookingStatus().equals(BookingStatus.NO_SHOW) ||
-                    bookingDto.bookingStatus().equals(BookingStatus.CONFIRMED)) {
-                throw new IllegalArgumentException(
-                        "Current user doesn't have rights to set booking status as NO_SHOW, or CONFIRMED");
-            }
+        if (!bookingDto.bookingStatus().equals(entityToUpdate.getBookingStatus())) {
+            throw new IllegalArgumentException(
+                    "Current user doesn't have rights to set booking status as NO_SHOW, or CONFIRMED");
+        }
 
-            //Check if incoming bookingDto is set to CANCELED and the beginning of related training slot starts at more
-            //than 24 hours before now. If remaining time start of training slot is less than 24 hours, than client can
-            //not change the status and full price will be charged
-            if (bookingDto.bookingStatus().equals(BookingStatus.CANCELED) &&
-                    LocalDateTime.now().isBefore(relatedTrainingSlot.getStartAt().minusHours(24))) {
-
-                bookingMapper.updateEntity(entityToUpdate, bookingDto);
-            } else {
-                throw new LateBookingCancelingException(
-                        "Can not cancel reservation less than 24 hours before training slot");
-            }
-
+        //Check if incoming bookingDto is set to CANCELED and the beginning of related training slot starts at more
+        //than 24 hours before now. If remaining time start of training slot is less than 24 hours, than client can
+        //not change the status and full price will be charged
+        if (bookingDto.bookingStatus().equals(BookingStatus.CANCELED) &&
+                LocalDateTime.now().isAfter(relatedTrainingSlot.getStartAt().minusHours(24))) {
+            throw new LateBookingCancelingException(
+                    "Can not cancel reservation less than 24 hours before training slot");
 
         }
+        bookingMapper.updateEntity(entityToUpdate, bookingDto);
     }
 
     @Override
     @Transactional
     public void editBookingAsAdmin(BookingDto bookingDto, Long id) {
+        var entityToUpdate = bookingRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
+        var currentPlayer = playerRepository.findById(bookingDto.player().id())
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                        "player", bookingDto.player().id())));
+        bookingMapper.updateEntity(entityToUpdate, bookingDto);
+        setForeignKeys(entityToUpdate, relatedTrainingSlot, currentPlayer);
 
-        if (bookingRepository.existsById(id)) {
-            var entityToUpdate = bookingRepository.getReferenceById(id);
-            bookingMapper.updateEntity(entityToUpdate, bookingDto);
-            setForeignKeys(entityToUpdate, bookingDto);
-        } else {
-
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        }
     }
 
     @Override
@@ -144,12 +140,20 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public void deleteBooking(Long id) {
-        if (!bookingRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            bookingRepository.getReferenceById(id).setBookingStatus(BookingStatus.CANCELED);
+        var bookingEntity = bookingRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
 
+        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId());
+
+        if (LocalDateTime.now().isAfter(relatedTrainingSlot.getStartAt().minusHours(24))) {
+            throw new LateBookingCancelingException(
+                    "Can not cancel reservation less than 24 hours before training slot");
         }
+
+        bookingEntity.setBookingStatus(BookingStatus.CANCELED);
+
+
     }
 
     private Integer usedCapacityOfRelatedTrainingSlot(Long trainingSlotId) {
@@ -158,11 +162,10 @@ public class BookingServiceImpl implements BookingService {
 
     private void setForeignKeys(
             BookingEntity entityToSave,
-            BookingDto bookingDto) {
+            TrainingSlotEntity relatedTrainingSlot,
+            PlayerEntity currentPlayer) {
 
-        var relatedTrainingSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
-
-        entityToSave.setPlayer(playerRepository.getReferenceById(bookingDto.player().id()));
+        entityToSave.setPlayer(currentPlayer);
         entityToSave.setTrainingSlot(relatedTrainingSlot);
     }
 
@@ -183,12 +186,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void playerHasEnrollmentToCurrentGroupCheck(BookingDto bookingDto) {
-        var currentSlot = trainingSlotService.getTrainingSlotEntity(bookingDto.trainingSlot().id());
-        var currentPlayer = playerRepository.findById(bookingDto.player().id()).orElseThrow(
-                () -> new EntityNotFoundException(
-                        entityNotFoundExceptionMessage("player", bookingDto.player().id())
-                ));
+    private void playerHasEnrollmentToCurrentGroupCheck(TrainingSlotEntity currentSlot, PlayerEntity currentPlayer) {
         var currentGroup = currentSlot.getGroup();
         var validEnrollments = currentGroup.getEnrollments()
                 .stream()
