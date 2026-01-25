@@ -1,7 +1,6 @@
 package cz.reservation.service;
 
 import cz.reservation.constant.BookingStatus;
-import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.AttendanceDto;
 import cz.reservation.dto.NoSlotsInPackageDto;
 import cz.reservation.dto.mapper.AttendanceMapper;

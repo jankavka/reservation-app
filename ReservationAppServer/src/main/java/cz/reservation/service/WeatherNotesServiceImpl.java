@@ -1,6 +1,5 @@
 package cz.reservation.service;
 
-import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.WeatherNotesDto;
 import cz.reservation.dto.mapper.WeatherNotesMapper;
 import cz.reservation.entity.WeatherNotesEntity;
