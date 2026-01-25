@@ -40,23 +40,25 @@ import static org.mockito.Mockito.*;
 class BookingServiceTest {
 
     @Mock
-    private BookingMapper bookingMapper;
+    BookingMapper bookingMapper;
 
     @Mock
-    private BookingRepository bookingRepository;
+    BookingRepository bookingRepository;
 
     @Mock
-    private PlayerRepository playerRepository;
+    PlayerRepository playerRepository;
 
     @Mock
-    private TrainingSlotService trainingSlotService;
+    TrainingSlotService trainingSlotService;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     BookingServiceImpl bookingService;
 
+    LocalDateTime futureDate = LocalDateTime.now().plusMonths(1);
+    LocalDateTime pastDate = LocalDateTime.now().minusHours(2);
 
     @Test
     void shouldCreateAndReturnBookingDto() {
@@ -175,8 +177,10 @@ class BookingServiceTest {
         }
 
         when(bookingMapper.toEntity(bookingDtoToSave)).thenReturn(bookingEntityToSave);
-        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id())).thenReturn(relatedTrainingSlotEntity);
-        when(playerRepository.findById(relatedPlayerDto.id())).thenReturn(Optional.of(relatedPlayerEntity));
+        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id()))
+                .thenReturn(relatedTrainingSlotEntity);
+        when(playerRepository.findById(relatedPlayerDto.id()))
+                .thenReturn(Optional.of(relatedPlayerEntity));
         when(bookingRepository.save(bookingEntityToSave)).thenReturn(savedEntity);
         when(bookingMapper.toDto(savedEntity)).thenReturn(savedDto);
 
@@ -191,7 +195,6 @@ class BookingServiceTest {
         verifyNoMoreInteractions(trainingSlotService);
         verifyNoMoreInteractions(playerRepository);
     }
-
 
     @Test
     void shouldThrowEntityNotFindException() {
@@ -296,13 +299,13 @@ class BookingServiceTest {
             e.setState(EnrollmentState.ACTIVE);
         }
 
-
         when(bookingMapper.toEntity(bookingDtoToSave)).thenReturn(bookingEntityToSave);
         when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id()))
                 .thenReturn(relatedTrainingSlotEntity);
 
         var exception = assertThrows(
-                EntityNotFoundException.class, () -> bookingService.createBooking(bookingDtoToSave));
+                EntityNotFoundException.class,
+                () -> bookingService.createBooking(bookingDtoToSave));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         verifyNoMoreInteractions(bookingMapper);
@@ -413,16 +416,18 @@ class BookingServiceTest {
         }
 
         when(bookingMapper.toEntity(bookingDtoToSave)).thenReturn(bookingEntityToSave);
-        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id())).thenReturn(relatedTrainingSlotEntity);
-        when(playerRepository.findById(relatedPlayerDto.id())).thenReturn(Optional.of(relatedPlayerEntity));
+        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id()))
+                .thenReturn(relatedTrainingSlotEntity);
+        when(playerRepository.findById(relatedPlayerDto.id()))
+                .thenReturn(Optional.of(relatedPlayerEntity));
 
-
-        var exception = assertThrows(EnrollmentNoActiveException.class, () -> bookingService.createBooking(bookingDtoToSave));
+        var exception = assertThrows(
+                EnrollmentNoActiveException.class,
+                () -> bookingService.createBooking(bookingDtoToSave));
         assertInstanceOf(EnrollmentNoActiveException.class, exception);
 
         verifyNoMoreInteractions(playerRepository);
         verifyNoInteractions(bookingRepository);
-
     }
 
     @Test
@@ -529,24 +534,37 @@ class BookingServiceTest {
         }
 
         when(bookingMapper.toEntity(bookingDtoToSave)).thenReturn(bookingEntityToSave);
-        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id())).thenReturn(relatedTrainingSlotEntity);
-        when(playerRepository.findById(relatedPlayerDto.id())).thenReturn(Optional.of(relatedPlayerEntity));
+        when(trainingSlotService.getTrainingSlotEntity(relatedTrainingSlotDto.id()))
+                .thenReturn(relatedTrainingSlotEntity);
+        when(playerRepository.findById(relatedPlayerDto.id()))
+                .thenReturn(Optional.of(relatedPlayerEntity));
 
-        var exception = assertThrows(TrainingAlreadyStartedException.class, () -> bookingService.createBooking(bookingDtoToSave));
+        var exception = assertThrows(
+                TrainingAlreadyStartedException.class,
+                () -> bookingService.createBooking(bookingDtoToSave));
         assertInstanceOf(TrainingAlreadyStartedException.class, exception);
 
         verifyNoInteractions(bookingRepository);
         verifyNoMoreInteractions(playerRepository);
         verifyNoMoreInteractions(trainingSlotService);
-
-
     }
 
     @Test
     void shouldReturnBookingDto() {
         var id = 1L;
-        var bookingDto = new BookingDto(1L, null, null, null, null);
-        var bookingEntity = new BookingEntity(1L, null, null, null, null, null);
+        var bookingDto = new BookingDto(
+                1L,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity = new BookingEntity(
+                1L,
+                null,
+                null,
+                null,
+                null,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntity));
         when(bookingMapper.toDto(bookingEntity)).thenReturn(bookingDto);
@@ -562,23 +580,58 @@ class BookingServiceTest {
     void shouldThrowEntityNotFoundException_InCaseBookingMissing() {
         var id = 99L;
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> bookingService.getBooking(id));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.getBooking(id));
         assertInstanceOf(EntityNotFoundException.class, exception);
     }
-
 
     @Test
     void shouldEditBookingSuccessfully() {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(26);
         var endDate = startDate.plusHours(2);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, null, null, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingDtoToEdit = new BookingDto(1L, relatedTrainingSlotDto, null, BookingStatus.CONFIRMED, null);
-        var bookingEntityToUpdate = new BookingEntity(1L, relatedTrainingSlotEntity, null, null, BookingStatus.CONFIRMED, null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingDtoToEdit = new BookingDto(
+                1L,
+                relatedTrainingSlotDto,
+                null,
+                BookingStatus.CONFIRMED,
+                null);
+        var bookingEntityToUpdate = new BookingEntity(
+                1L,
+                relatedTrainingSlotEntity,
+                null,
+                null,
+                BookingStatus.CONFIRMED,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
-        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id())).thenReturn(relatedTrainingSlotEntity);
+        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id()))
+                .thenReturn(relatedTrainingSlotEntity);
 
         assertDoesNotThrow(() -> bookingService.editBooking(bookingDtoToEdit, id));
 
@@ -586,15 +639,21 @@ class BookingServiceTest {
         verify(trainingSlotService).getTrainingSlotEntity(id);
         verifyNoMoreInteractions(bookingRepository);
         verifyNoMoreInteractions(trainingSlotService);
-
     }
 
     @Test
     void shouldThrowEntityNotFoundException_inCaseNoBookingFound() {
         var id = 99L;
-        var bookingDto = new BookingDto(1L, null, null, null, null);
+        var bookingDto = new BookingDto(
+                1L,
+                null,
+                null,
+                null,
+                null);
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> bookingService.editBooking(bookingDto, id));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.editBooking(bookingDto, id));
         assertInstanceOf(EntityNotFoundException.class, exception);
     }
 
@@ -603,21 +662,55 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(23);
         var endDate = startDate.plusHours(2);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, null, null, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingDtoToEdit = new BookingDto(1L, relatedTrainingSlotDto, null, BookingStatus.CANCELED, null);
-        var bookingEntityToUpdate = new BookingEntity(1L, relatedTrainingSlotEntity, null, null, BookingStatus.CANCELED, null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingDtoToEdit = new BookingDto(
+                1L,
+                relatedTrainingSlotDto,
+                null,
+                BookingStatus.CANCELED,
+                null);
+        var bookingEntityToUpdate = new BookingEntity(
+                1L,
+                relatedTrainingSlotEntity,
+                null,
+                null,
+                BookingStatus.CANCELED,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
-        when(trainingSlotService.getTrainingSlotEntity(bookingEntityToUpdate.getTrainingSlot().getId())).thenReturn(relatedTrainingSlotEntity);
+        when(trainingSlotService.getTrainingSlotEntity(bookingEntityToUpdate.getTrainingSlot().getId()))
+                .thenReturn(relatedTrainingSlotEntity);
 
-
-        assertThrows(LateBookingCancelingException.class, () -> bookingService.editBooking(bookingDtoToEdit, id));
+        assertThrows(
+                LateBookingCancelingException.class,
+                () -> bookingService.editBooking(bookingDtoToEdit, id));
         verify(bookingRepository).findById(id);
         verify(trainingSlotService).getTrainingSlotEntity(bookingEntityToUpdate.getTrainingSlot().getId());
         verifyNoInteractions(playerRepository);
         verifyNoInteractions(bookingMapper);
-
     }
 
     @Test
@@ -625,16 +718,70 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(23);
         var endDate = startDate.plusHours(2);
-        var relatedPlayerDto = new PlayerDto(1L, "N", null, Handedness.RIGHT, null, null, null, null);
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, null, null, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingDtoToEdit = new BookingDto(1L, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CANCELED, null);
-        var bookingEntityToUpdate = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.CANCELED, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingDtoToEdit = new BookingDto(
+                1L,
+                relatedTrainingSlotDto,
+                relatedPlayerDto,
+                BookingStatus.CANCELED,
+                null);
+        var bookingEntityToUpdate = new BookingEntity(
+                1L,
+                relatedTrainingSlotEntity,
+                relatedPlayerEntity,
+                null,
+                BookingStatus.CANCELED,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
-        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id())).thenReturn(relatedTrainingSlotEntity);
-        when(playerRepository.findById(bookingDtoToEdit.player().id())).thenReturn(Optional.of(relatedPlayerEntity));
+        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id()))
+                .thenReturn(relatedTrainingSlotEntity);
+        when(playerRepository.findById(bookingDtoToEdit.player().id()))
+                .thenReturn(Optional.of(relatedPlayerEntity));
 
         assertDoesNotThrow(() -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
 
@@ -648,10 +795,16 @@ class BookingServiceTest {
     @Test
     void shouldThrowEntityNotFoundException_whileFindingBookingAsAdmin() {
         var id = 1L;
-        var bookingDtoToEdit = new BookingDto(null, null, null, BookingStatus.CANCELED, null);
+        var bookingDtoToEdit = new BookingDto(
+                null,
+                null,
+                null,
+                BookingStatus.CANCELED,
+                null);
 
         var exception = assertThrows(
-                EntityNotFoundException.class, () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
+                EntityNotFoundException.class,
+                () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         assertEquals(entityNotFoundExceptionMessage("booking", id), exception.getMessage());
@@ -660,7 +813,6 @@ class BookingServiceTest {
         verifyNoInteractions(trainingSlotService);
         verifyNoInteractions(playerRepository);
         verifyNoInteractions(bookingMapper);
-
     }
 
     @Test
@@ -668,25 +820,80 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(23);
         var endDate = startDate.plusHours(2);
-        var relatedPlayerDto = new PlayerDto(1L, "N", null, Handedness.RIGHT, null, null, null, null);
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, null, null, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingDtoToEdit = new BookingDto(1L, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CANCELED, null);
-        var bookingEntityToUpdate = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.CANCELED, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingDtoToEdit = new BookingDto(
+                1L,
+                relatedTrainingSlotDto,
+                relatedPlayerDto,
+                BookingStatus.CANCELED,
+                null);
+        var bookingEntityToUpdate = new BookingEntity(
+                1L,
+                relatedTrainingSlotEntity,
+                relatedPlayerEntity,
+                null,
+                BookingStatus.CANCELED,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
-        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id())).thenThrow(new EntityNotFoundException(entityNotFoundExceptionMessage("training slot", bookingDtoToEdit.trainingSlot().id())));
+        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id()))
+                .thenThrow(new EntityNotFoundException(
+                        entityNotFoundExceptionMessage("training slot", bookingDtoToEdit.trainingSlot().id())));
 
         var exception = assertThrows(
-                EntityNotFoundException.class, () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
+                EntityNotFoundException.class,
+                () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals(entityNotFoundExceptionMessage(
-                "training slot", bookingDtoToEdit.trainingSlot().id()), exception.getMessage());
+        assertEquals(
+                entityNotFoundExceptionMessage("training slot", bookingDtoToEdit.trainingSlot().id()),
+                exception.getMessage());
 
         verify(bookingRepository).findById(id);
-
         verifyNoInteractions(playerRepository);
         verifyNoInteractions(bookingMapper);
     }
@@ -696,21 +903,77 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(23);
         var endDate = startDate.plusHours(2);
-        var relatedPlayerDto = new PlayerDto(1L, "N", null, Handedness.RIGHT, null, null, null, null);
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, null, null, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingDtoToEdit = new BookingDto(1L, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CANCELED, null);
-        var bookingEntityToUpdate = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.CANCELED, null);
-
+        var relatedPlayerDto = new PlayerDto(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L,
+                "N",
+                null,
+                Handedness.RIGHT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingDtoToEdit = new BookingDto(
+                1L,
+                relatedTrainingSlotDto,
+                relatedPlayerDto,
+                BookingStatus.CANCELED,
+                null);
+        var bookingEntityToUpdate = new BookingEntity(
+                1L,
+                relatedTrainingSlotEntity,
+                relatedPlayerEntity,
+                null,
+                BookingStatus.CANCELED,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
-        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id())).thenReturn(relatedTrainingSlotEntity);
+        when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id()))
+                .thenReturn(relatedTrainingSlotEntity);
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.editBookingAsAdmin(bookingDtoToEdit, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals(entityNotFoundExceptionMessage("player", bookingDtoToEdit.player().id()), exception.getMessage());
+        assertEquals(
+                entityNotFoundExceptionMessage("player", bookingDtoToEdit.player().id()),
+                exception.getMessage());
 
         verify(bookingRepository).findById(id);
         verify(trainingSlotService).getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id());
@@ -720,15 +983,47 @@ class BookingServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void shouldReturnListOfAllBookings() {
-        var bookingDto1 = new BookingDto(1L, null, null, null, null);
-        var bookingDto2 = new BookingDto(2L, null, null, null, null);
-        var bookingDto3 = new BookingDto(3L, null, null, null, null);
-        var bookingEntity1 = new BookingEntity(1L, null, null, null, null, null);
-        var bookingEntity2 = new BookingEntity(2L, null, null, null, null, null);
-        var bookingEntity3 = new BookingEntity(3L, null, null, null, null, null);
+        var bookingDto1 = new BookingDto(
+                1L,
+                null,
+                null,
+                null,
+                null);
+        var bookingDto2 = new BookingDto(
+                2L,
+                null,
+                null,
+                null,
+                null);
+        var bookingDto3 = new BookingDto(
+                3L,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity1 = new BookingEntity(
+                1L,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity2 = new BookingEntity(
+                2L,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity3 = new BookingEntity(
+                3L,
+                null,
+                null,
+                null,
+                null,
+                null);
         List<BookingEntity> entities = List.of(bookingEntity1, bookingEntity2, bookingEntity3);
         List<BookingDto> bookingDtos = List.of(bookingDto1, bookingDto2, bookingDto3);
-
 
         when(bookingRepository.findAll(any(Specification.class))).thenReturn(entities);
         when(bookingMapper.toDto(bookingEntity1)).thenReturn(bookingDto1);
@@ -757,7 +1052,6 @@ class BookingServiceTest {
 
         verify(bookingRepository).findAll(any(Specification.class));
         verifyNoMoreInteractions(bookingRepository);
-
     }
 
     @Test
@@ -765,33 +1059,49 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(24).plusMinutes(1);
         var endDate = startDate.plusHours(2);
-        var trainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingEntity = new BookingEntity(1L, trainingSlotEntity, null, null, null, null);
-
+        var trainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity = new BookingEntity(
+                1L,
+                trainingSlotEntity,
+                null,
+                null,
+                null,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntity));
-        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId())).thenReturn(trainingSlotEntity);
+        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId()))
+                .thenReturn(trainingSlotEntity);
 
         assertDoesNotThrow(() -> bookingService.deleteBooking(id));
 
         verify(bookingRepository).findById(id);
         verify(trainingSlotService).getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId());
         verifyNoMoreInteractions(bookingRepository);
-
-
     }
-
 
     @Test
     void shouldThrowEntityNotFoundExceptionDuringDeletion_inCaseNoBooking() {
-        var exception = assertThrows(EntityNotFoundException.class, () -> bookingService.deleteBooking(99L));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.deleteBooking(99L));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         assertEquals(entityNotFoundExceptionMessage("booking", 99L), exception.getMessage());
 
         verify(bookingRepository).findById(99L);
         verifyNoInteractions(trainingSlotService);
-
     }
 
     @Test
@@ -799,21 +1109,41 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(24).plusMinutes(1);
         var endDate = startDate.plusHours(2);
-        var trainingSlotEntity = new TrainingSlotEntity(99L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingEntity = new BookingEntity(1L, trainingSlotEntity, null, null, null, null);
-
+        var trainingSlotEntity = new TrainingSlotEntity(
+                99L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity = new BookingEntity(
+                1L,
+                trainingSlotEntity,
+                null,
+                null,
+                null,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntity));
-        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId())).thenThrow(new EntityNotFoundException(entityNotFoundExceptionMessage("training slot", 99L)));
+        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId()))
+                .thenThrow(new EntityNotFoundException(
+                        entityNotFoundExceptionMessage("training slot", 99L)));
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> bookingService.deleteBooking(1L));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.deleteBooking(1L));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         assertEquals(entityNotFoundExceptionMessage("training slot", 99L), exception.getMessage());
 
         verify(bookingRepository).findById(1L);
         verify(trainingSlotService).getTrainingSlotEntity(99L);
-
     }
 
     @Test
@@ -821,21 +1151,42 @@ class BookingServiceTest {
         var id = 1L;
         var startDate = LocalDateTime.now().plusHours(23);
         var endDate = startDate.plusHours(1);
-        var trainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, null, null, null, null, null, null);
-        var bookingEntity = new BookingEntity(1L, trainingSlotEntity, null, null, null, null);
+        var trainingSlotEntity = new TrainingSlotEntity(
+                1L,
+                null,
+                null,
+                null,
+                startDate,
+                endDate,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity = new BookingEntity(
+                1L,
+                trainingSlotEntity,
+                null,
+                null,
+                null,
+                null);
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntity));
-        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId())).thenReturn(trainingSlotEntity);
+        when(trainingSlotService.getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId()))
+                .thenReturn(trainingSlotEntity);
 
-        var exception = assertThrows(LateBookingCancelingException.class, () -> bookingService.deleteBooking(id));
+        var exception = assertThrows(
+                LateBookingCancelingException.class,
+                () -> bookingService.deleteBooking(id));
 
         assertInstanceOf(LateBookingCancelingException.class, exception);
-
-        assertEquals("Can not cancel reservation less than 24 hours before training slot", exception.getMessage());
+        assertEquals(
+                "Can not cancel reservation less than 24 hours before training slot",
+                exception.getMessage());
 
         verify(bookingRepository).findById(id);
         verify(trainingSlotService).getTrainingSlotEntity(bookingEntity.getTrainingSlot().getId());
-
     }
 
     @Test
@@ -847,16 +1198,49 @@ class BookingServiceTest {
         var startDate = yearMonth.atDay(1).atStartOfDay();
         var endDate = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
 
-        var bookingDto1 = new BookingDto(1L, null, null, null, null);
-        var bookingDto2 = new BookingDto(2L, null, null, null, null);
-        var bookingDto3 = new BookingDto(3L, null, null, null, null);
-        var bookingEntity1 = new BookingEntity(1L, null, null, null, null, null);
-        var bookingEntity2 = new BookingEntity(2L, null, null, null, null, null);
-        var bookingEntity3 = new BookingEntity(3L, null, null, null, null, null);
+        var bookingDto1 = new BookingDto(
+                1L,
+                null,
+                null,
+                null,
+                null);
+        var bookingDto2 = new BookingDto(
+                2L,
+                null,
+                null,
+                null,
+                null);
+        var bookingDto3 = new BookingDto(
+                3L,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity1 = new BookingEntity(
+                1L,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity2 = new BookingEntity(
+                2L,
+                null,
+                null,
+                null,
+                null,
+                null);
+        var bookingEntity3 = new BookingEntity(
+                3L,
+                null,
+                null,
+                null,
+                null,
+                null);
         List<BookingDto> bookingDtos = List.of(bookingDto1, bookingDto2, bookingDto3);
 
-        when(bookingRepository.findByPlayerIdAndTrainingSlotStartAtBetween(playerId, startDate, endDate)).thenReturn(
-                List.of(bookingEntity1, bookingEntity2, bookingEntity3));
+        when(bookingRepository.findByPlayerIdAndTrainingSlotStartAtBetween(playerId, startDate, endDate))
+                .thenReturn(List.of(bookingEntity1, bookingEntity2, bookingEntity3));
         when(bookingMapper.toDto(bookingEntity1)).thenReturn(bookingDto1);
         when(bookingMapper.toDto(bookingEntity2)).thenReturn(bookingDto2);
         when(bookingMapper.toDto(bookingEntity3)).thenReturn(bookingDto3);
@@ -879,7 +1263,8 @@ class BookingServiceTest {
         var emptyListOfEntities = new ArrayList<BookingEntity>();
         var emptyListOfDtos = new ArrayList<BookingDto>();
 
-        when(bookingRepository.findByPlayerIdAndTrainingSlotStartAtBetween(playerId, startDate, endDate)).thenReturn(emptyListOfEntities);
+        when(bookingRepository.findByPlayerIdAndTrainingSlotStartAtBetween(playerId, startDate, endDate))
+                .thenReturn(emptyListOfEntities);
 
         var result = bookingService.getBookingsByPlayerIdAndMonth(playerId, month, year);
 
@@ -887,8 +1272,5 @@ class BookingServiceTest {
 
         verifyNoInteractions(bookingMapper);
         verifyNoMoreInteractions(bookingRepository);
-
     }
-
-
 }
