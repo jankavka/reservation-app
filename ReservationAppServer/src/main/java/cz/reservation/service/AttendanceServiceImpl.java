@@ -48,7 +48,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                         entityNotFoundExceptionMessage("Booking", attendanceDto.booking().id())));
 
         //Sets FK
-        setForeignKeys(entityToSave, attendanceDto);
+        entityToSave.setBooking(relatedBooking);
 
         //Checking if player was present, otherwise if his absence was excused properly
         presenceChecking(attendanceDto, relatedBooking);
@@ -92,14 +92,13 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Transactional
     public void editAttendance(AttendanceDto attendanceDto, Long id) {
 
-        if (!attendanceRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToUpdate = attendanceRepository.getReferenceById(id);
-            attendanceMapper.updateEntity(entityToUpdate, attendanceDto);
-            setForeignKeys(entityToUpdate, attendanceDto);
+        var entityToUpdate = attendanceRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        attendanceMapper.updateEntity(entityToUpdate, attendanceDto);
+        setForeignKeys(entityToUpdate, attendanceDto);
 
-        }
+
     }
 
     @Override
@@ -120,18 +119,22 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private void actualizePackageIfExists(AttendanceDto attendanceDto) {
-        var hoursUsed = attendanceDto.booking().trainingSlot().endAt().getHour() -
-                attendanceDto.booking().trainingSlot().startAt().getHour();
 
         var relatedPlayer = attendanceDto.booking().player();
 
-        var relatedPackage = packageService.getPackageByPlayerId(relatedPlayer.id()).orElseThrow(
-                () -> new EntityNotFoundException("Package not found"));
+        if (relatedPlayer.packagee() != null) {
+            var hoursUsed = attendanceDto.booking().trainingSlot().endAt().getHour() -
+                    attendanceDto.booking().trainingSlot().startAt().getHour();
 
-        relatedPackage.setAvailableSlots(relatedPackage.getAvailableSlots() - hoursUsed);
 
-        if (relatedPackage.getAvailableSlots() <= 0) {
-            publisher.publishEvent(new NoSlotsInPackageDto(this, relatedPackage));
+            var relatedPackage = packageService.getPackageByPlayerId(relatedPlayer.id()).orElseThrow(
+                    () -> new EntityNotFoundException("Package not found"));
+
+            relatedPackage.setAvailableSlots(relatedPackage.getAvailableSlots() - hoursUsed);
+
+            if (relatedPackage.getAvailableSlots() <= 0) {
+                publisher.publishEvent(new NoSlotsInPackageDto(this, relatedPackage));
+            }
         }
 
     }

@@ -20,4 +20,5 @@ public interface PackageService {
     Optional<PackageEntity> getPackageByPlayerId(Long id);
 
     List<PackageDto> getAllPackages(PackageFilter packageFilter);
+
 }
