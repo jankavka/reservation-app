@@ -1,4 +1,4 @@
-package cz.reservation.service.email;
+package cz.reservation.service.notification;
 
 import com.notificationapi.NotificationApi;
 import com.notificationapi.model.EmailOptions;

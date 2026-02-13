@@ -57,6 +57,7 @@ class BookingServiceTest {
     @InjectMocks
     BookingServiceImpl bookingService;
 
+
     LocalDateTime futureDate = LocalDateTime.now().plusMonths(1);
     LocalDateTime pastDate = LocalDateTime.now().minusHours(2);
 
@@ -183,6 +184,7 @@ class BookingServiceTest {
                 .thenReturn(Optional.of(relatedPlayerEntity));
         when(bookingRepository.save(bookingEntityToSave)).thenReturn(savedEntity);
         when(bookingMapper.toDto(savedEntity)).thenReturn(savedDto);
+
 
         var result = bookingService.createBooking(bookingDtoToSave);
 
