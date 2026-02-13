@@ -52,14 +52,14 @@ class CoachServiceTest {
         roles.add(Role.ADMIN);
         var relatedUserDto = new UserDto(
                 1L,
-                "example@email.com",
+                "example@notification.com",
                 "12345609097",
                 "N",
                 roles,
                 date);
         var relatedUserEntity = new UserEntity(
                 1L,
-                "example@email.com",
+                "example@notification.com",
                 "12345609097",
                 "123456",
                 "N",
@@ -108,7 +108,7 @@ class CoachServiceTest {
         var id = 1L;
         var relatedUserEntity = new UserEntity(
                 1L,
-                "example@email.com",
+                "example@notification.com",
                 "12345609097",
                 "123456",
                 "N",
@@ -118,7 +118,7 @@ class CoachServiceTest {
                 null);
         var relatedUserDto = new UserDto(
                 1L,
-                "example@email.com",
+                "example@notification.com",
                 "12345609097",
                 "N",
                 roles,

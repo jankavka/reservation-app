@@ -2,7 +2,7 @@ package cz.reservation.service.listener;
 
 import com.notificationapi.model.User;
 import cz.reservation.dto.CreatedBookingDto;
-import cz.reservation.service.email.NotificationSender;
+import cz.reservation.service.notification.NotificationSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

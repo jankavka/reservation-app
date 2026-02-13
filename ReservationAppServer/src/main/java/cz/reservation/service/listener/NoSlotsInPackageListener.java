@@ -3,7 +3,7 @@ package cz.reservation.service.listener;
 import com.notificationapi.model.User;
 import cz.reservation.dto.NoSlotsInPackageDto;
 import cz.reservation.dto.UserDto;
-import cz.reservation.service.email.NotificationSender;
+import cz.reservation.service.notification.NotificationSender;
 import cz.reservation.service.serviceinterface.UserService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
