@@ -134,7 +134,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
             try {
                 target.setPath(invoiceEngine.createInvoice(target));
             } catch (IOException e) {
-                throw new InvoiceStorageException("An problem occurred during creating pdf invoice");
+                throw new InvoiceStorageException("An problem occurred during creating pdf invoice" + e.getMessage());
             }
         }
     }

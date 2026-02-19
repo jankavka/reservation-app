@@ -48,14 +48,14 @@ import java.util.UUID;
 public class InvoiceEngineImpl implements InvoiceEngine {
 
 
-    private final String path;
+    private final String qrCodePath;
     private final CompanyInfoService companyInfoService;
 
     private static final String DATE_PATTERN = "dd.MM.yyyy";
 
 
-    public InvoiceEngineImpl(@Value("${qrcode.path}") String path, CompanyInfoService companyInfoService) {
-        this.path = path;
+    public InvoiceEngineImpl(@Value("${qrcode.path}") String qrCodePath, CompanyInfoService companyInfoService) {
+        this.qrCodePath = qrCodePath;
         this.companyInfoService = companyInfoService;
     }
 
@@ -199,11 +199,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
                     monthString,
                     invoiceNumber,
                     currency,
-                    path,
+                    qrCodePath,
                     identifier.toString(),
                     companyInfo.bankAccountInternationalFormat());
 
-            addQrCode(document, path, identifier.toString());
+            addQrCode(document, qrCodePath, identifier.toString());
 
         } catch (Exception e) {
             logErrorMessage(e.getMessage());
@@ -218,8 +218,8 @@ public class InvoiceEngineImpl implements InvoiceEngine {
      * pricing type set to "PricingType.PACKAGE"
      *
      * @param entity Object which contains data for invoice creation
-     * @return The exact path to the file in String format
-     * @throws FileNotFoundException When there is no found right existing path for saving
+     * @return The exact qrCodePath to the file in String format
+     * @throws FileNotFoundException When there is no found right existing qrCodePath for saving
      *                               *                               the invoice
      */
     @Override
@@ -352,11 +352,11 @@ public class InvoiceEngineImpl implements InvoiceEngine {
                     null,
                     invoiceNumber,
                     currency,
-                    path,
+                    qrCodePath,
                     identifier.toString(),
                     companyInfo.bankAccountInternationalFormat());
 
-            addQrCode(document, path, identifier.toString());
+            addQrCode(document, qrCodePath, identifier.toString());
 
         } catch (Exception e) {
             logErrorMessage(e.getMessage());
