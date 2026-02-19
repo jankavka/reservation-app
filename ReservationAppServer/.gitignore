@@ -43,6 +43,10 @@ pdf/**
 qrcodes/**
 files/**
 
+!pdf
+!qrcodes
+!files
+
 ### CLAUDE ###
 CLAUDE.md
 .claude/**
