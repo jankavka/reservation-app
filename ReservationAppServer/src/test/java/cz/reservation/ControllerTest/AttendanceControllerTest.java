@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -217,6 +218,19 @@ class AttendanceControllerTest {
 
         verify(service, times(0)).deleteAttendance(1L);
 
+    }
+
+    @Test
+    void shouldThrowException_WileAttendanceNotFound() throws Exception {
+
+        doThrow(new EntityNotFoundException(entityNotFoundExceptionMessage("attendance", 99L)))
+                .when(service).deleteAttendance(99L);
+
+        assertThrows(EntityNotFoundException.class, () -> service.deleteAttendance(99L));
+
+        mockMvc.perform(delete("/api/attendance/99"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
 

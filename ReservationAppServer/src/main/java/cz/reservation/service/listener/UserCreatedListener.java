@@ -4,6 +4,7 @@ import com.notificationapi.model.User;
 import cz.reservation.dto.CreatedUserDto;
 import cz.reservation.service.notification.NotificationSender;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,7 @@ public class UserCreatedListener {
         this.notificationSender = notificationSender;
     }
 
-    //@EventListener
+    @EventListener
     public void handleCreatedUser(CreatedUserDto createdUserDto) {
         var userId = createdUserDto.createdEntity.getId();
         var userEmail = createdUserDto.createdEntity.getEmail();

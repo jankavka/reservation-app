@@ -109,4 +109,11 @@ public class GlobalExceptionHandler {
                 .body(Map.of(MESSAGE_KEY, "No content found with request on " + str));
     }
 
+    @ExceptionHandler(CustomJsonException.class)
+    public ResponseEntity<Map<String, String>> handleJsonException(CustomJsonException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
+
 }
