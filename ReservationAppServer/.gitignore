@@ -39,9 +39,13 @@ build/
 
 **/application.yaml
 
-/pdf/**
-/qrcodes/**
-/files/**
+pdf/**
+qrcodes/**
+files/**
+
+!files/.gitkeep
+!pdf/.gitkeep
+!qrcodes/.gitkeep
 
 
 ### CLAUDE ###
