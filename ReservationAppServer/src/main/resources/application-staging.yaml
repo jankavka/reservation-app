@@ -1,0 +1,41 @@
+spring:
+  jpa:
+    #database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: true
+  datasource:
+    platform: postgres
+    #url: jdbc:postgresql://localhost:5432/reservation
+    url: jdbc:postgresql://db:5432/reservation
+
+    username: ${{ secrets.DB_USERNAME }}
+    password: ${{ secrets.DB_PASSWORD}}
+
+    driverClassName: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    drop-first: false
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: public
+
+security:
+  jwt:
+    expiration-time: 3600000
+
+notification-api:
+  client-id: ${{ secrets.NOTIFICATION_CLIENT_ID }}
+  client-secret: ${{ secrets.NOTIFICATION_CLIENT_SECRET }}
+
+file:
+  directory: "/Users/mpmp/it_projects/ReservationApp/ReservationAppServer/pdf"
+
+qrcode:
+  #path: "/Users/mpmp/it_projects/ReservationApp/ReservationAppServer/qrcodes"
+  path: "/app/qrcodes"
+
+company-info:
+  path: "files/company_info.json"
+
