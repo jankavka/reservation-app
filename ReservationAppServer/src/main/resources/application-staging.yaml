@@ -8,8 +8,8 @@ spring:
     platform: postgres
     url: jdbc:postgresql://db:5432/reservation
 
-    username: ${{ secrets.DB_USERNAME }}
-    password: ${{ secrets.DB_PASSWORD}}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
     driverClassName: org.postgresql.Driver
 
@@ -24,8 +24,8 @@ security:
     expiration-time: 3600000
 
 notification-api:
-  client-id: ${{ secrets.NOTIFICATION_CLIENT_ID }}
-  client-secret: ${{ secrets.NOTIFICATION_CLIENT_SECRET }}
+  client-id: ${NOTIFICATION_CLIENT_ID}
+  client-secret: ${NOTIFICATION_CLIENT_SECRET}
 
 file:
   directory: "/app/pdf"

@@ -54,7 +54,7 @@ cd ReservationAppServer
 CREATE DATABASE reservation;
 ```
 
-3. Update configuration in `src/main/resources/application.yaml`:
+3. The default active profile is `dev` (set in `application.yaml`). Update credentials in `src/main/resources/application-dev.yaml` if your local PostgreSQL differs from the defaults:
 ```yaml
 spring:
   datasource:
@@ -69,6 +69,61 @@ mvn spring-boot:run
 ```
 
 The server will be available at `http://localhost:8080`.
+
+## Configuration Profiles
+
+The application uses Spring profiles for environment-specific configuration. The active profile is set in `src/main/resources/application.yaml`:
+
+```yaml
+spring:
+  profiles.active: dev
+```
+
+| Profile | File | Purpose |
+|---------|------|---------|
+| `dev` | `application-dev.yaml` | Local development with hardcoded credentials |
+| `staging` | `application-staging.yaml` | CI/CD staging environment using GitHub Actions secrets |
+
+### Switching profiles
+
+Override the active profile at runtime:
+```bash
+# Via Maven
+mvn spring-boot:run -Dspring-boot.run.profiles=staging
+
+# Via environment variable
+SPRING_PROFILES_ACTIVE=staging mvn spring-boot:run
+
+# Via Docker / docker-compose
+environment:
+  SPRING_PROFILES_ACTIVE: staging
+```
+
+### Staging profile and GitHub Actions secrets
+
+`application-staging.yaml` uses Spring Boot placeholder syntax for sensitive values:
+
+```yaml
+spring:
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+notification-api:
+  client-id: ${NOTIFICATION_CLIENT_ID}
+  client-secret: ${NOTIFICATION_CLIENT_SECRET}
+```
+
+Spring Boot resolves these from environment variables at runtime. In a GitHub Actions workflow, inject them from repository secrets:
+
+```yaml
+- name: Deploy
+  env:
+    SPRING_PROFILES_ACTIVE: staging
+    DB_USERNAME: ${{ secrets.DB_USERNAME }}
+    DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    NOTIFICATION_CLIENT_ID: ${{ secrets.NOTIFICATION_CLIENT_ID }}
+    NOTIFICATION_CLIENT_SECRET: ${{ secrets.NOTIFICATION_CLIENT_SECRET }}
+```
 
 ## Main Features
 
