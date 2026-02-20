@@ -4,26 +4,44 @@ Backend server for a sports court reservation system. Enables management of trai
 
 ## Technologies
 
-- **Java 17**
+- **Java 17** (compile target) / **Java 21** (Docker runtime)
 - **Spring Boot 3.5.7** (Web, Data JPA, Security, Validation)
-- **PostgreSQL** - database
-- **Liquibase** - database migrations
+- **PostgreSQL 14** - database
+- **Liquibase 4.31** - database migrations
 - **JWT (jjwt 0.11.5)** - authentication
 - **MapStruct 1.6.3** - DTO/Entity mapping
 - **Lombok** - boilerplate reduction
-- **Hibernate JPA Modelgen** - type-safe JPA criteria queries
-- **Hypersistence Utils** - advanced Hibernate types
+- **Hibernate JPA Modelgen 6.6** - type-safe JPA criteria queries
+- **Hypersistence Utils** - advanced Hibernate types (JSONB support)
 - **iText 9.4** - PDF generation
 - **ZXing 3.5.4** - QR code generation
 - **NotificationAPI** - SMS and email notifications
+- **Docker** - containerization
 
 ## Requirements
 
 - Java 17+
 - Maven 3.6+
-- PostgreSQL 12+
+- PostgreSQL 14+ (or Docker)
 
 ## Installation and Setup
+
+### Option 1: Docker (Recommended)
+
+```bash
+# Start backend + PostgreSQL
+docker-compose up -d
+
+# View logs
+docker-compose logs -f backend
+
+# Stop containers
+docker-compose down
+```
+
+The server will be available at `http://localhost:8080`.
+
+### Option 2: Manual Setup
 
 1. Clone the repository:
 ```bash
@@ -74,29 +92,37 @@ The server will be available at `http://localhost:8080`.
 
 ```
 src/main/java/cz/reservation/
-├── configuration/     # Configuration (security, app)
+├── configuration/     # Configuration (security, app, static resources)
 ├── constant/          # Enums and constants
-├── controller/        # REST API endpoints
-│   └── advice/        # Exception handlers
+│   └── converter/     # JPA attribute converters
+├── controller/        # REST API endpoints (19 controllers)
+│   └── advice/        # Global exception handler
 ├── dto/               # Data Transfer Objects
-│   └── mapper/        # MapStruct mappers
-├── entity/            # JPA entities
-│   ├── filter/        # Query filter objects
+│   └── mapper/        # MapStruct mappers (16 mappers)
+├── entity/            # JPA entities (16 entities)
+│   ├── filter/        # Query filter objects (12 filters)
 │   ├── repository/    # Spring Data repositories
-│   │   └── specification/  # JPA Specifications
+│   │   └── specification/  # JPA Specifications (11 specs)
 │   └── userdetails/   # Spring Security user details
 ├── filter/            # JWT authentication filter
 └── service/           # Business logic
-    ├── listener/      # Event listeners
-    └── serviceinterface/  # Service interfaces
+    ├── exception/     # Custom exceptions
+    ├── invoice/       # Invoice generation engine
+    ├── listener/      # Event listeners (3 listeners)
+    ├── message/       # Message handling
+    ├── pricing/       # Pricing strategy pattern
+    │   ├── pricinginterface/  # PricingEngine interface
+    │   └── resolver/  # Strategy resolver
+    └── serviceinterface/  # Service interfaces (19 interfaces)
 ```
 
 ## API Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
+| `/` | Home/health check |
 | `/auth` | Authentication (register, login) |
-| `/api/user` | User management |
+| `/user` | User management |
 | `/api/booking` | Booking management |
 | `/api/player` | Player management |
 | `/api/coach` | Coach management |
@@ -106,8 +132,8 @@ src/main/java/cz/reservation/
 | `/api/attendance` | Attendance tracking |
 | `/api/venue` | Venue management |
 | `/api/court` | Court management |
-| `/api/court-blocking` | Court blocking |
-| `/api/pricing-rule` | Pricing rules |
+| `/api/court-block` | Court blocking |
+| `/api/pricing-rules` | Pricing rules |
 | `/api/package` | Packages |
 | `/api/invoice-summary` | Invoice summaries |
 | `/api/season` | Season management |
@@ -123,6 +149,34 @@ Authorization: Bearer <token>
 ```
 
 Obtain a token by logging in at `/auth/login`.
+
+**Roles:** ADMIN, USER, COACH
+
+## Build Commands
+
+```bash
+# Compile
+mvn clean compile
+
+# Run tests
+mvn test
+
+# Run single test class
+mvn test -Dtest=BookingServiceTest
+
+# Package JAR
+mvn package
+
+# Build Docker image
+docker build -t reservationapp .
+```
+
+## Docker Volumes
+
+When using Docker, the following directories are mounted:
+- `./files` → `/app/files` - general files
+- `./qrcodes` → `/app/qrcodes` - QR code images
+- `./pdf` → `/app/pdf` - generated PDF invoices
 
 ## License
 
