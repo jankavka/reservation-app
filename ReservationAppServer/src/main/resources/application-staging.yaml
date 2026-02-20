@@ -1,13 +1,11 @@
 spring:
   jpa:
-    #database: POSTGRESQL
     show-sql: true
     hibernate:
       ddl-auto: create-drop
     open-in-view: true
   datasource:
     platform: postgres
-    #url: jdbc:postgresql://localhost:5432/reservation
     url: jdbc:postgresql://db:5432/reservation
 
     username: ${{ secrets.DB_USERNAME }}
@@ -30,10 +28,9 @@ notification-api:
   client-secret: ${{ secrets.NOTIFICATION_CLIENT_SECRET }}
 
 file:
-  directory: "/Users/mpmp/it_projects/ReservationApp/ReservationAppServer/pdf"
+  directory: "/app/pdf"
 
 qrcode:
-  #path: "/Users/mpmp/it_projects/ReservationApp/ReservationAppServer/qrcodes"
   path: "/app/qrcodes"
 
 company-info:
