@@ -31,8 +31,7 @@ file:
   directory: "/app/pdf"
 
 qrcode:
-  path: "/app/qrcodes"
+  path: "/app/qr-codes"
 
 company-info:
   path: "files/company_info.json"
-

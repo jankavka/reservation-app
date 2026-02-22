@@ -40,12 +40,12 @@ build/
 **/application-dev.yaml
 
 pdf/**
-qrcodes/**
+qr-codes/**
 files/**
 
 !files/.gitkeep
 !pdf/.gitkeep
-!qrcodes/.gitkeep
+!qr-codes/.gitkeep
 
 
 ### CLAUDE ###

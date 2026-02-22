@@ -50,14 +50,24 @@ class AttendanceServiceTest {
 
     @Test
     void shouldCreateAndReturnAttendanceDto() {
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedPlayerDto = new PlayerDto(1L, null, null, null, null, null, null, null);
-        var bookingDto = new BookingDto(null, null, relatedPlayerDto, null, null);
-        var bookingEntity = new BookingEntity(1L, null, relatedPlayerEntity, null, null, null);
-        var attendanceDto = new AttendanceDto(null, bookingDto, Boolean.TRUE, null, null);
-        var attendanceEntityToSave = new AttendanceEntity(null, bookingEntity, Boolean.TRUE, null, null);
-        var savedAttendanceEntity = new AttendanceEntity(1L, bookingEntity, Boolean.TRUE, null, null);
-        var savedAttendanceDto = new AttendanceDto(1L, bookingDto, Boolean.TRUE, null, null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L, "N", null, Handedness.RIGHT, null,
+                null, null, null, null, null, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L, null, null, null,
+                null, null, null, null);
+        var bookingDto = new BookingDto(
+                null, null, relatedPlayerDto, null, null);
+        var bookingEntity = new BookingEntity(
+                1L, null, relatedPlayerEntity, null, null, null);
+        var attendanceDto = new AttendanceDto(
+                null, bookingDto, Boolean.TRUE, null, null);
+        var attendanceEntityToSave = new AttendanceEntity(
+                null, bookingEntity, Boolean.TRUE, null, null);
+        var savedAttendanceEntity = new AttendanceEntity(
+                1L, bookingEntity, Boolean.TRUE, null, null);
+        var savedAttendanceDto = new AttendanceDto(
+                1L, bookingDto, Boolean.TRUE, null, null);
 
 
         when(attendanceMapper.toEntity(attendanceDto)).thenReturn(attendanceEntityToSave);
@@ -81,17 +91,21 @@ class AttendanceServiceTest {
     @Test
     void shouldThrowEntityNotFoundException_inCaseNoBooking() {
         var bookingDto = new BookingDto(null, null, null, null, null);
-        var bookingEntity = new BookingEntity(1L, null, null, null, null, null);
+        var bookingEntity = new BookingEntity(
+                1L, null, null, null, null, null);
         var attendanceDto = new AttendanceDto(null, bookingDto, Boolean.TRUE, null, null);
         var attendanceEntity = new AttendanceEntity(null, bookingEntity, Boolean.TRUE, null, null);
 
 
         when(attendanceMapper.toEntity(attendanceDto)).thenReturn(attendanceEntity);
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> attendanceService.createAttendance(attendanceDto));
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> attendanceService.createAttendance(attendanceDto));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals(entityNotFoundExceptionMessage("booking", attendanceDto.booking().id()), exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage(
+                "booking", attendanceDto.booking().id()), exception.getMessage());
 
         verify(attendanceMapper).toEntity(attendanceDto);
         verify(bookingRepository).findById(attendanceDto.booking().id());
@@ -108,16 +122,33 @@ class AttendanceServiceTest {
         var startDate = LocalDateTime.of(2026, Month.AUGUST, 10, 16, 0);
         var endDate = LocalDateTime.of(2026, Month.AUGUST, 10, 18, 0);
 
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var packageDtoAssistant = new PackageDto(1L, null, "P", 10, null, null, null, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null, null);
-        var relatedPlayerDto = new PlayerDto(1L, null, null, null, null, null, null, packageDtoAssistant);
-        var packageEntity = new PackageEntity(1L, relatedPlayerEntity, "P", 10, null, null, null, null);
-        var bookingDto = new BookingDto(null, relatedTrainingSlotDto, relatedPlayerDto, null, null);
-        var bookingEntity = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, null, null);
-        var attendanceDto = new AttendanceDto(null, bookingDto, Boolean.TRUE, null, null);
-        var attendanceEntityToSave = new AttendanceEntity(null, bookingEntity, Boolean.TRUE, null, null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L, "N", null, Handedness.RIGHT, null,
+                null, null, null, null, null, null);
+        var packageDtoAssistant = new PackageDto(
+                1L, null, "P", 10, null,
+                null, null, null, null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L, null, null, startDate, endDate, 4,
+                SlotStatus.OPEN, null, null, null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L, null, null, null, startDate, endDate,
+                4, SlotStatus.OPEN, null, null, null, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L, null, null, null,
+                null, null, null, packageDtoAssistant);
+        var packageEntity = new PackageEntity(
+                1L, relatedPlayerEntity, "P", 10,
+                null, null, null, null);
+        var bookingDto = new BookingDto(
+                null, relatedTrainingSlotDto, relatedPlayerDto, null, null);
+        var bookingEntity = new BookingEntity(
+                1L, relatedTrainingSlotEntity, relatedPlayerEntity,
+                null, null, null);
+        var attendanceDto = new AttendanceDto(
+                null, bookingDto, Boolean.TRUE, null, null);
+        var attendanceEntityToSave = new AttendanceEntity(
+                null, bookingEntity, Boolean.TRUE, null, null);
 
         relatedPlayerEntity.setPackagee(packageEntity);
 
@@ -144,18 +175,37 @@ class AttendanceServiceTest {
 
         var startDate = LocalDateTime.of(2026, Month.AUGUST, 10, 16, 0);
         var endDate = LocalDateTime.of(2026, Month.AUGUST, 10, 18, 0);
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedPlayerDto = new PlayerDto(1L, null, null, null, null, null, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null, null);
-        var bookingDto = new BookingDto(null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CONFIRMED, null);
-        var bookingEntity = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.CONFIRMED, null);
-        var newBookingEntity = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.NO_SHOW, null);
-        var newBookingDto = new BookingDto(null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.NO_SHOW, null);
-        var attendanceDto = new AttendanceDto(null, bookingDto, Boolean.FALSE, null, null);
-        var attendanceEntityToSave = new AttendanceEntity(null, newBookingEntity, Boolean.FALSE, null, null);
-        var savedAttendanceEntity = new AttendanceEntity(1L, newBookingEntity, Boolean.FALSE, null, null);
-        var savedAttendanceDto = new AttendanceDto(1L, newBookingDto, Boolean.FALSE, null, null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L, "N", null, Handedness.RIGHT, null,
+                null, null, null, null, null, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L, null, null, null,
+                null, null, null, null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L, null, null, startDate, endDate, 4, SlotStatus.OPEN,
+                null, null, null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L, null, null, null, startDate, endDate,
+                4, SlotStatus.OPEN, null, null, null, null);
+        var bookingDto = new BookingDto(
+                null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CONFIRMED, null);
+        var bookingEntity = new BookingEntity(
+                1L, relatedTrainingSlotEntity, relatedPlayerEntity,
+                null, BookingStatus.CONFIRMED, null);
+        var newBookingEntity = new BookingEntity(
+                1L, relatedTrainingSlotEntity, relatedPlayerEntity,
+                null, BookingStatus.NO_SHOW, null);
+        var newBookingDto = new BookingDto(
+                null, relatedTrainingSlotDto, relatedPlayerDto,
+                BookingStatus.NO_SHOW, null);
+        var attendanceDto = new AttendanceDto(
+                null, bookingDto, Boolean.FALSE, null, null);
+        var attendanceEntityToSave = new AttendanceEntity(
+                null, newBookingEntity, Boolean.FALSE, null, null);
+        var savedAttendanceEntity = new AttendanceEntity(
+                1L, newBookingEntity, Boolean.FALSE, null, null);
+        var savedAttendanceDto = new AttendanceDto(
+                1L, newBookingDto, Boolean.FALSE, null, null);
 
         when(attendanceMapper.toEntity(attendanceDto)).thenReturn(attendanceEntityToSave);
         when(bookingRepository.findById(attendanceDto.booking().id())).thenReturn(Optional.of(bookingEntity));
@@ -174,20 +224,40 @@ class AttendanceServiceTest {
         var endDate = LocalDateTime.of(2026, Month.AUGUST, 10, 18, 0);
         var validFrom = LocalDate.of(2026, Month.JANUARY, 1);
         var validTo = LocalDate.of(2026, Month.DECEMBER, 31);
-        var relatedPlayerEntity = new PlayerEntity(1L, "N", null, Handedness.RIGHT, null, null, null, null, null, null, null);
-        var relatedPlayerDto = new PlayerDto(1L, null, null, null, null, null, null, null);
+        var relatedPlayerEntity = new PlayerEntity(
+                1L, "N", null, Handedness.RIGHT, null,
+                null, null, null, null, null, null);
+        var relatedPlayerDto = new PlayerDto(
+                1L, null, null, null,
+                null, null, null, null);
 
-        var relatedPackageEntity = new PackageEntity(1L, relatedPlayerEntity, "M", 5, validFrom, validTo, null, null);
-        var relatedTrainingSlotDto = new TrainingSlotDto(1L, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null);
-        var relatedTrainingSlotEntity = new TrainingSlotEntity(1L, null, null, null, startDate, endDate, 4, SlotStatus.OPEN, null, null, null, null);
-        var bookingDto = new BookingDto(null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CONFIRMED, null);
-        var bookingEntity = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.CONFIRMED, null);
-        var newBookingEntity = new BookingEntity(1L, relatedTrainingSlotEntity, relatedPlayerEntity, null, BookingStatus.NO_SHOW, null);
-        var newBookingDto = new BookingDto(null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.NO_SHOW, null);
-        var attendanceDto = new AttendanceDto(null, bookingDto, Boolean.FALSE, null, null);
-        var attendanceEntityToSave = new AttendanceEntity(null, newBookingEntity, Boolean.FALSE, null, null);
-        var savedAttendanceEntity = new AttendanceEntity(1L, newBookingEntity, Boolean.FALSE, null, null);
-        var savedAttendanceDto = new AttendanceDto(1L, newBookingDto, Boolean.FALSE, null, null);
+        var relatedPackageEntity = new PackageEntity(
+                1L, relatedPlayerEntity, "M", 5,
+                validFrom, validTo, null, null);
+        var relatedTrainingSlotDto = new TrainingSlotDto(
+                1L, null, null, startDate, endDate,
+                4, SlotStatus.OPEN, null, null, null);
+        var relatedTrainingSlotEntity = new TrainingSlotEntity(
+                1L, null, null, null, startDate, endDate,
+                4, SlotStatus.OPEN, null, null, null, null);
+        var bookingDto = new BookingDto(
+                null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.CONFIRMED, null);
+        var bookingEntity = new BookingEntity(
+                1L, relatedTrainingSlotEntity, relatedPlayerEntity,
+                null, BookingStatus.CONFIRMED, null);
+        var newBookingEntity = new BookingEntity(
+                1L, relatedTrainingSlotEntity, relatedPlayerEntity,
+                null, BookingStatus.NO_SHOW, null);
+        var newBookingDto = new BookingDto(
+                null, relatedTrainingSlotDto, relatedPlayerDto, BookingStatus.NO_SHOW, null);
+        var attendanceDto = new AttendanceDto(
+                null, bookingDto, Boolean.FALSE, null, null);
+        var attendanceEntityToSave = new AttendanceEntity(
+                null, newBookingEntity, Boolean.FALSE, null, null);
+        var savedAttendanceEntity = new AttendanceEntity(
+                1L, newBookingEntity, Boolean.FALSE, null, null);
+        var savedAttendanceDto = new AttendanceDto(
+                1L, newBookingDto, Boolean.FALSE, null, null);
         relatedPlayerEntity.setPackagee(relatedPackageEntity);
 
         when(attendanceMapper.toEntity(attendanceDto)).thenReturn(attendanceEntityToSave);
@@ -288,9 +358,11 @@ class AttendanceServiceTest {
     @Test
     void shouldNotThrowExceptionDuringEditing() {
         var id = 1L;
-        var bookingEntity = new BookingEntity(1L, null, null, null, BookingStatus.CONFIRMED, null);
+        var bookingEntity = new BookingEntity(
+                1L, null,
+                null, null, BookingStatus.CONFIRMED, null);
         var bookingDto = new BookingDto(1L, null, null, BookingStatus.CONFIRMED, null);
-        var attendanceDto = new AttendanceDto(1L, bookingDto , Boolean.TRUE, "A", null);
+        var attendanceDto = new AttendanceDto(1L, bookingDto, Boolean.TRUE, "A", null);
         var attendanceEntity = new AttendanceEntity(1L, bookingEntity, Boolean.TRUE, "A", null);
 
 
@@ -300,52 +372,55 @@ class AttendanceServiceTest {
         assertDoesNotThrow(() -> attendanceService.editAttendance(attendanceDto, id));
         verify(attendanceRepository).findById(id);
         verify(bookingRepository).findById(attendanceDto.booking().id());
-        verify(attendanceMapper).updateEntity(attendanceEntity,attendanceDto);
+        verify(attendanceMapper).updateEntity(attendanceEntity, attendanceDto);
 
 
     }
 
     @Test
-    void shouldThrowEntityNotFoundException_whenAttendanceNotFound(){
+    void shouldThrowEntityNotFoundException_whenAttendanceNotFound() {
         var id = 99L;
         var attendanceDto = any(AttendanceDto.class);
 
-        var exception = assertThrows(EntityNotFoundException.class, () -> attendanceService.editAttendance(attendanceDto,id));
+        var exception = assertThrows(EntityNotFoundException.class, () -> attendanceService.editAttendance(attendanceDto, id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
-        assertEquals(entityNotFoundExceptionMessage("attendance",id), exception.getMessage());
+        assertEquals(entityNotFoundExceptionMessage("attendance", id), exception.getMessage());
 
         verify(attendanceRepository).findById(id);
         verifyNoInteractions(attendanceMapper);
         verifyNoMoreInteractions(attendanceRepository);
 
 
-
     }
 
     @Test
-    void shouldThrowEntityNotFoundException_whenBookingNotFound(){
+    void shouldThrowEntityNotFoundException_whenBookingNotFound() {
         var id = 1L;
-        var bookingEntity = new BookingEntity(1L, null, null, null, BookingStatus.CONFIRMED, null);
+        var bookingEntity = new BookingEntity(
+                1L, null, null, null, BookingStatus.CONFIRMED, null);
         var bookingDto = new BookingDto(1L, null, null, BookingStatus.CONFIRMED, null);
-        var attendanceDto = new AttendanceDto(1L, bookingDto , Boolean.TRUE, "A", null);
+        var attendanceDto = new AttendanceDto(1L, bookingDto, Boolean.TRUE, "A", null);
         var attendanceEntity = new AttendanceEntity(1L, bookingEntity, Boolean.TRUE, "A", null);
 
         when(attendanceRepository.findById(id)).thenReturn(Optional.of(attendanceEntity));
 
-        var exception = assertThrows(EntityNotFoundException.class,() -> attendanceService.editAttendance(attendanceDto,id));
-        assertEquals(entityNotFoundExceptionMessage("booking", attendanceDto.booking().id()), exception.getMessage());
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> attendanceService.editAttendance(attendanceDto, id));
+        assertEquals(entityNotFoundExceptionMessage(
+                "booking", attendanceDto.booking().id()), exception.getMessage());
 
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         verify(attendanceRepository).findById(id);
         verify(bookingRepository).findById(attendanceDto.booking().id());
-        verify(attendanceMapper).updateEntity(attendanceEntity,attendanceDto);
+        verify(attendanceMapper).updateEntity(attendanceEntity, attendanceDto);
 
     }
 
     @Test
-    void shouldNotThrowExceptionDuringDeletion(){
+    void shouldNotThrowExceptionDuringDeletion() {
         var id = 1L;
 
         when(attendanceRepository.existsById(id)).thenReturn(true);
@@ -357,7 +432,7 @@ class AttendanceServiceTest {
     }
 
     @Test
-    void shouldThrowEntityNotFoundException_WhenAttendanceNotFound(){
+    void shouldThrowEntityNotFoundException_WhenAttendanceNotFound() {
         var id = 99L;
 
         when(attendanceRepository.existsById(id)).thenReturn(false);
