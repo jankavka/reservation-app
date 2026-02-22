@@ -29,7 +29,6 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
 
         try {
             objectMapper.writeValue(file, companyInfoDto);
-
             return companyInfoDto;
         } catch (IOException e) {
             throw new CustomJsonException("An error occurred during updating company info. " + e.getMessage());

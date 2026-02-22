@@ -884,7 +884,8 @@ class BookingServiceTest {
         when(bookingRepository.findById(id)).thenReturn(Optional.of(bookingEntityToUpdate));
         when(trainingSlotService.getTrainingSlotEntity(bookingDtoToEdit.trainingSlot().id()))
                 .thenThrow(new EntityNotFoundException(
-                        entityNotFoundExceptionMessage("training slot", bookingDtoToEdit.trainingSlot().id())));
+                        entityNotFoundExceptionMessage(
+                                "training slot", bookingDtoToEdit.trainingSlot().id())));
 
         var exception = assertThrows(
                 EntityNotFoundException.class,

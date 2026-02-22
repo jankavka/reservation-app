@@ -194,6 +194,7 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
             document.add(items);
 
+            //creating qr code and adding into invoice
             createQRCode(
                     price,
                     monthString,
@@ -463,10 +464,14 @@ public class InvoiceEngineImpl implements InvoiceEngine {
 
         BitMatrix matrix = new MultiFormatWriter().encode(spd, BarcodeFormat.QR_CODE, 300, 300);
 
-        MatrixToImageWriter.writeToPath(
-                matrix,
-                "jpg",
-                Paths.get(path + "/qrcode-" + identifier + ".jpg"));
+        try {
+            MatrixToImageWriter.writeToPath(
+                    matrix,
+                    "jpg",
+                    Paths.get(path + "/qrcode-" + identifier + ".jpg"));
+        } catch(IOException e){
+            log.error("Problem with saving qr code. {}", e.getMessage());
+        }
     }
 
     /**
