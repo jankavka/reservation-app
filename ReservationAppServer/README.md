@@ -230,7 +230,7 @@ docker build -t reservationapp .
 
 When using Docker, the following directories are mounted:
 - `./files` → `/app/files` - general files
-- `./qrcodes` → `/app/qrcodes` - QR code images
+- `./qr-codes` → `/app/qr-codes` - QR code images
 - `./pdf` → `/app/pdf` - generated PDF invoices
 
 ## License
