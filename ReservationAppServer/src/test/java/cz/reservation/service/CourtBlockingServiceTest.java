@@ -6,6 +6,7 @@ import cz.reservation.dto.CourtDto;
 import cz.reservation.dto.mapper.CourtBlockingMapper;
 import cz.reservation.entity.CourtBlockingEntity;
 import cz.reservation.entity.CourtEntity;
+import cz.reservation.entity.filter.CourtBlockingFilter;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.service.exception.UnsupportedTimeRangeException;
@@ -15,9 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
@@ -144,10 +148,10 @@ class CourtBlockingServiceTest {
     }
 
     @Test
-    void shouldThrowEntityNotFoundException_whileNoSuchBlocking(){
+    void shouldThrowEntityNotFoundException_whileNoSuchBlocking() {
         var id = 99L;
 
-        var exception = assertThrows(EntityNotFoundException.class,() -> service.getBlocking(id));
+        var exception = assertThrows(EntityNotFoundException.class, () -> service.getBlocking(id));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
 
@@ -156,5 +160,86 @@ class CourtBlockingServiceTest {
         verify(courtBlockingRepository).findById(id);
         verifyNoMoreInteractions(courtBlockingRepository);
         verifyNoInteractions(courtBlockingMapper);
+    }
+
+    @Test
+    void shouldGetBLockingEntity() {
+        var dateFrom = LocalDateTime.of(2026, Month.AUGUST, 12, 12, 0);
+        var dateTo = dateFrom.plusHours(2);
+        var id = 1L;
+        var courtBlockingEntity = new CourtBlockingEntity(
+                id, null, dateFrom, dateTo, null, null, null);
+        var courtBlockingDto = new CourtBlockingDto(
+                id, null, dateFrom, dateTo, null, null);
+
+        when(courtBlockingRepository.existsById(id)).thenReturn(true);
+        when(courtBlockingRepository.getReferenceById(id)).thenReturn(courtBlockingEntity);
+
+
+        var result = service.getBlockingEntity(id);
+
+        assertEquals(courtBlockingDto.id(), result.getId());
+        assertEquals(courtBlockingDto.blockedFrom(), result.getBlockedFrom());
+        assertEquals(courtBlockingDto.blockedTo(), result.getBlockedTo());
+
+        verify(courtBlockingRepository, times(1)).getReferenceById(id);
+        verify(courtBlockingRepository, times(1)).existsById(id);
+    }
+
+    @Test
+    void shouldThrowEntityNotFoundException_whileNoSuchBLockingEntity() {
+        var id = 99L;
+
+        var exception = assertThrows(EntityNotFoundException.class, () -> service.getBlockingEntity(id));
+
+        assertInstanceOf(EntityNotFoundException.class, exception);
+        assertEquals(entityNotFoundExceptionMessage("blocking", id), exception.getMessage());
+
+        verify(courtBlockingRepository, times(1)).existsById(id);
+        verifyNoMoreInteractions(courtBlockingRepository);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldGetAllBlockings() {
+        var courtBlockingDto1 = new CourtBlockingDto(
+                1L, null, null, null, null, null);
+        var courtBlockingDto2 = new CourtBlockingDto(
+                2L, null, null, null, null, null);
+        var courtBlockingDto3 = new CourtBlockingDto(
+                3L, null, null, null, null, null);
+
+        List<CourtBlockingDto> allDtos = new ArrayList<>();
+        allDtos.add(courtBlockingDto1);
+        allDtos.add(courtBlockingDto2);
+        allDtos.add(courtBlockingDto3);
+
+        var courtBlockingEntity1 = new CourtBlockingEntity(
+                1L, null, null, null, null, null, null);
+        var courtBlockingEntity2 = new CourtBlockingEntity(
+                2L, null, null, null, null, null, null);
+        var courtBlockingEntity3 = new CourtBlockingEntity(
+                3L, null, null, null, null, null, null);
+
+        List<CourtBlockingEntity> allEntities = new ArrayList<>();
+
+        allEntities.add(courtBlockingEntity1);
+        allEntities.add(courtBlockingEntity2);
+        allEntities.add(courtBlockingEntity3);
+
+        when(courtBlockingMapper.toDto(courtBlockingEntity1)).thenReturn(courtBlockingDto1);
+        when(courtBlockingMapper.toDto(courtBlockingEntity2)).thenReturn(courtBlockingDto2);
+        when(courtBlockingMapper.toDto(courtBlockingEntity3)).thenReturn(courtBlockingDto3);
+        when(courtBlockingRepository.findAll(any(Specification.class))).thenReturn(allEntities);
+
+        var result = service.getAllBlockings(any(CourtBlockingFilter.class));
+
+        assertEquals(allDtos.get(0).id(), result.get(0).id());
+        assertEquals(allDtos.get(1).id(), result.get(1).id());
+
+        verify(courtBlockingRepository, times(1)).findAll(any(Specification.class));
+        verify(courtBlockingMapper, times(3)).toDto(any(CourtBlockingEntity.class));
+        verifyNoMoreInteractions(courtBlockingMapper);
+
     }
 }

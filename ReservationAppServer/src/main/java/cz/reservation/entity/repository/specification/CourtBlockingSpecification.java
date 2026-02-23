@@ -7,13 +7,16 @@ import cz.reservation.entity.CourtEntity_;
 import cz.reservation.entity.filter.CourtBlockingFilter;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class CourtBlockingSpecification implements Specification<CourtBlockingEntity> {
+public class
+CourtBlockingSpecification implements Specification<CourtBlockingEntity> {
 
     private final transient CourtBlockingFilter courtBlockingFilter;
 
@@ -32,6 +35,14 @@ public class CourtBlockingSpecification implements Specification<CourtBlockingEn
                     .like(root.get(CourtBlockingEntity_.REASON), "%" + courtBlockingFilter.reason() + "%"));
         }
 
+        if (Boolean.TRUE.equals(courtBlockingFilter.moreThanHour())) {
+            var hcb = (HibernateCriteriaBuilder) criteriaBuilder;
+            var threshold = hcb.addDuration(
+                    root.get(CourtBlockingEntity_.blockedFrom),
+                    Duration.ofMinutes(61)
+            );
+            predicates.add(hcb.greaterThan(root.get(CourtBlockingEntity_.blockedTo), threshold));
+        }
 
         return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
     }
