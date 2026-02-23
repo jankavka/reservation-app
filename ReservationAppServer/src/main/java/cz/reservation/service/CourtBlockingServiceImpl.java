@@ -40,7 +40,6 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
         var savedEntity = createAndSaveBlocking(courtBlockingDto);
         return courtBlockingMapper.toDto(savedEntity);
 
-
     }
 
     @Override
@@ -71,17 +70,6 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
         return courtBlockingRepository
                 .findAll(spec)
                 .stream()
-                //Check for blocks bigger than one hour
-                .filter(courtBlockingEntity -> {
-                    if (courtBlockingFilter.moreThanHour() != null && courtBlockingFilter.moreThanHour()) {
-                        return !courtBlockingEntity
-                                .getBlockedFrom()
-                                .plusHours(1)
-                                .plusMinutes(1)
-                                .isAfter(courtBlockingEntity.getBlockedTo());
-                    }
-                    return true;
-                })
                 .map(courtBlockingMapper::toDto)
                 .toList();
     }
