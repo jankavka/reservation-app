@@ -82,12 +82,13 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public void editBlocking(CourtBlockingDto courtBlockingDto, Long id) {
-        if (!courtBlockingRepository.existsById(id)) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
-        } else {
-            var entityToUpdate = courtBlockingRepository.getReferenceById(id);
-            courtBlockingMapper.updateEntity(entityToUpdate, courtBlockingDto);
-        }
+        var entityToUpdate = courtBlockingRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+        courtBlockingMapper.updateEntity(entityToUpdate, courtBlockingDto);
+
+
     }
 
     @Override
