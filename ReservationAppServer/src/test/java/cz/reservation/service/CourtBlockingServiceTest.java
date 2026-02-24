@@ -10,6 +10,7 @@ import cz.reservation.entity.filter.CourtBlockingFilter;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.service.exception.UnsupportedTimeRangeException;
+import io.hypersistence.utils.hibernate.type.range.Range;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -242,4 +243,77 @@ class CourtBlockingServiceTest {
         verifyNoMoreInteractions(courtBlockingMapper);
 
     }
+
+    @Test
+    void shouldReturnEmptyList() {
+        List<CourtBlockingDto> emptyListOfDtos = new ArrayList<>();
+
+        var result = service.getAllBlockings(any(CourtBlockingFilter.class));
+
+        assertEquals(emptyListOfDtos, result);
+    }
+
+    @Test
+    void shouldGetAllBlockingEntities() {
+        var courtBlockingEntity1 = new CourtBlockingEntity(
+                1L, null, null, null, null, null, null);
+        var courtBlockingEntity2 = new CourtBlockingEntity(
+                2L, null, null, null, null, null, null);
+        var courtBlockingEntity3 = new CourtBlockingEntity(
+                3L, null, null, null, null, null, null);
+
+        List<CourtBlockingEntity> allEntities = new ArrayList<>();
+        allEntities.add(courtBlockingEntity1);
+        allEntities.add(courtBlockingEntity2);
+        allEntities.add(courtBlockingEntity3);
+
+        when(courtBlockingRepository.findAll()).thenReturn(allEntities);
+
+        var result = service.getAllBlockingsEntities();
+
+        assertEquals(3, result.size());
+        assertEquals(courtBlockingEntity1.getId(), result.get(0).getId());
+        assertEquals(courtBlockingEntity2.getId(), result.get(1).getId());
+        assertEquals(courtBlockingEntity3.getId(), result.get(2).getId());
+
+        verify(courtBlockingRepository, times(1)).findAll();
+        verifyNoInteractions(courtBlockingMapper);
+    }
+
+    @Test
+    void shouldReturnEmptyListOfEntities() {
+        when(courtBlockingRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var result = service.getAllBlockingsEntities();
+
+        assertTrue(result.isEmpty());
+
+        verify(courtBlockingRepository, times(1)).findAll();
+        verifyNoInteractions(courtBlockingMapper);
+    }
+
+    @Test
+    void shouldEditBlockingAndReturnDto() {
+        var dateFrom = LocalDateTime.of(2026, Month.AUGUST, 12, 12, 0);
+        var dateTo = dateFrom.plusHours(2);
+        var range = Range.localDateTimeRange("(" + dateFrom + "," + dateTo + ")");
+        var blockingDto = new CourtBlockingDto(
+                1L, null, dateFrom, dateTo, "changed reason", range);
+        var entityToUpdate = new CourtBlockingEntity(
+                1L, null, dateFrom, dateTo, "original reason", null, null);
+
+        when(courtBlockingRepository.findById(1L)).thenReturn(Optional.of(entityToUpdate));
+        doNothing().when(courtBlockingMapper).updateEntity(entityToUpdate, blockingDto);
+
+        assertDoesNotThrow(() -> service.editBlocking(blockingDto, 1L));
+
+        verify(courtBlockingRepository).findById(1L);
+        verify(courtBlockingMapper).updateEntity(entityToUpdate, blockingDto);
+        verifyNoMoreInteractions(courtBlockingRepository);
+        verifyNoMoreInteractions(courtBlockingMapper);
+
+
+    }
+
+
 }
