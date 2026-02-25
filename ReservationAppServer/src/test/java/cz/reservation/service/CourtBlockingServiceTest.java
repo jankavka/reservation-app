@@ -315,5 +315,32 @@ class CourtBlockingServiceTest {
 
     }
 
+    @Test
+    void shouldThrowEntityNotFoundException_whileEditing() {
+        var blockingDto = new CourtBlockingDto(
+                99L, null, null, null, "changed reason", null);
+
+        var exception = assertThrows(EntityNotFoundException.class, () -> service.editBlocking(blockingDto, 99L));
+
+        assertInstanceOf(EntityNotFoundException.class, exception);
+
+        verify(courtBlockingRepository).findById(99L);
+        verifyNoInteractions(courtBlockingMapper);
+        verifyNoMoreInteractions(courtBlockingRepository);
+    }
+
+    @Test
+    void shouldNotThrowWhileDeleting() {
+        var id = 1L;
+
+        when(courtBlockingRepository.existsById(id)).thenReturn(true);
+        doNothing().when(courtBlockingRepository).deleteById(id);
+
+        assertDoesNotThrow(() -> service.deleteBlocking(id));
+
+        verify(courtBlockingRepository, times(1)).existsById(id);
+        verify(courtBlockingRepository, times(1)).deleteById(id);
+    }
+
 
 }

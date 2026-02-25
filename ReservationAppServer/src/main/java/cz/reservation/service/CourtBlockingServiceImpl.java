@@ -94,7 +94,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     @Override
     @Transactional
     public void deleteBlocking(Long id) {
-        if (!courtRepository.existsById(id)) {
+        if (!courtBlockingRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         } else {
             courtBlockingRepository.deleteById(id);
