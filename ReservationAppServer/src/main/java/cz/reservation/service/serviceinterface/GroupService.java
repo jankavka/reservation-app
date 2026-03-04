@@ -1,6 +1,7 @@
 package cz.reservation.service.serviceinterface;
 
 import cz.reservation.dto.GroupDto;
+import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.filter.GroupFilter;
 
 import java.util.List;
@@ -10,6 +11,8 @@ public interface GroupService {
     GroupDto createGroup(GroupDto groupDto);
 
     GroupDto getGroup(Long id);
+
+    GroupEntity getGroupEntity(Long id);
 
     List<GroupDto> getAllGroups(GroupFilter groupFilter);
 

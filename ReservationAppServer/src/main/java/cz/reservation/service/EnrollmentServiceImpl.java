@@ -13,6 +13,8 @@ import cz.reservation.entity.repository.specification.EnrollmentSpecification;
 import cz.reservation.service.exception.EnrollmentAlreadyCanceledException;
 import cz.reservation.service.exception.MissingPricingTypeException;
 import cz.reservation.service.serviceinterface.EnrollmentService;
+import cz.reservation.service.serviceinterface.GroupService;
+import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
     private final EnrollmentMapper enrollmentMapper;
-    private final GroupRepository groupRepository;
-    private final PlayerRepository playerRepository;
+    private final PlayerService playerService;
+    private final GroupService groupService;
 
     private static final String SERVICE_NAME = "enrollment";
 
@@ -39,7 +41,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     public EnrollmentDto createEnrollment(EnrollmentDto enrollmentDto) {
         var entityToSave = enrollmentMapper.toEntity(enrollmentDto);
-        var relatedGroup = groupRepository.findById(enrollmentDto.group().id()).orElseThrow();
+        var relatedGroup = groupService.getGroupEntity(enrollmentDto.group().id());
 
         setForeignKeys(entityToSave, enrollmentDto);
         entityToSave.setCreatedAt(LocalDateTime.now());
@@ -98,18 +100,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     private void setForeignKeys(EnrollmentEntity target, EnrollmentDto source) {
-        var player = playerRepository.findById(source.player().id()).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("Player", source.player().id())));
-
+        var player = playerService.getPlayerEntity(source.player().id());
         if (player.getPricingType() == null) {
             throw new MissingPricingTypeException("There is no pricing type for player id "
                     + player.getId() + ". You have to pick it first or buy a package");
         }
-        target.setPlayer(playerRepository.getReferenceById(source.player().id()));
+        target.setPlayer(player);
 
-        var group = groupRepository.findById(source.group().id()).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessage("Group", source.group().id())));
-        target.setGroup(groupRepository.getReferenceById(group.getId()));
+        var group = groupService.getGroupEntity(source.group().id());
+        target.setGroup(group);
     }
 
     private void setEnrollmentActive(List<EnrollmentEntity> allEnrollments) {
