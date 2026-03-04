@@ -50,6 +50,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public GroupEntity getGroupEntity(Long id) {
+        return groupRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<GroupDto> getAllGroups(GroupFilter groupFilter) {
         var spec = new GroupSpecification(groupFilter);
