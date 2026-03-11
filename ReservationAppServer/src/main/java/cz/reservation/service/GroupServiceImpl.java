@@ -8,6 +8,7 @@ import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.SeasonRepository;
 import cz.reservation.entity.repository.specification.GroupSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.GroupService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public GroupDto getGroup(Long id) {
         var entity = groupRepository
                 .findById(id)
@@ -57,7 +58,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<GroupDto> getAllGroups(GroupFilter groupFilter) {
         var spec = new GroupSpecification(groupFilter);
         return groupRepository.findAll(spec).stream()

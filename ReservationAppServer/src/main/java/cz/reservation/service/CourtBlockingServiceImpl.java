@@ -8,6 +8,7 @@ import cz.reservation.entity.filter.CourtBlockingFilter;
 import cz.reservation.entity.repository.CourtBlockingRepository;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.specification.CourtBlockingSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.UnsupportedTimeRangeException;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
 import io.hypersistence.utils.hibernate.type.range.Range;
@@ -43,7 +44,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public CourtBlockingDto getBlocking(Long id) {
         return courtBlockingMapper
                 .toDto(courtBlockingRepository
@@ -63,7 +64,7 @@ public class CourtBlockingServiceImpl implements CourtBlockingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<CourtBlockingDto> getAllBlockings(CourtBlockingFilter courtBlockingFilter) {
         var spec = new CourtBlockingSpecification(courtBlockingFilter);
 

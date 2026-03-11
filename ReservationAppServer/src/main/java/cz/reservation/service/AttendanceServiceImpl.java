@@ -10,6 +10,7 @@ import cz.reservation.entity.filter.AttendanceFilter;
 import cz.reservation.entity.repository.AttendanceRepository;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.specification.AttendanceSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.AttendanceService;
 import cz.reservation.service.serviceinterface.PackageService;
@@ -63,7 +64,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     }
 
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     @Override
     public AttendanceDto getAttendance(Long id) {
         return attendanceMapper.toDto(attendanceRepository
@@ -74,7 +75,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<AttendanceDto> getAllAttendances(AttendanceFilter attendanceFilter) {
         var spec = new AttendanceSpecification(attendanceFilter);
         var allAttendances = attendanceRepository.findAll(spec);

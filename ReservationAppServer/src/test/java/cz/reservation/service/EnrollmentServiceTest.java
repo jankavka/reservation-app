@@ -9,7 +9,9 @@ import cz.reservation.dto.mapper.EnrollmentMapper;
 import cz.reservation.entity.EnrollmentEntity;
 import cz.reservation.entity.GroupEntity;
 import cz.reservation.entity.PlayerEntity;
+import cz.reservation.entity.filter.EnrollmentFilter;
 import cz.reservation.entity.repository.EnrollmentRepository;
+import cz.reservation.entity.repository.specification.EnrollmentSpecification;
 import cz.reservation.service.exception.MissingPricingTypeException;
 import cz.reservation.service.serviceinterface.GroupService;
 import cz.reservation.service.serviceinterface.PlayerService;
@@ -21,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
@@ -234,6 +237,40 @@ class EnrollmentServiceTest {
 
         verify(enrollmentRepository, times(1)).findById(id);
         verifyNoInteractions(enrollmentMapper);
+    }
+
+    @Test
+    void shouldReturnAllEnrollments(){
+        var enrollmentEntity1 = new EnrollmentEntity(1L,null,null,null,null);
+        var enrollmentEntity2 = new EnrollmentEntity(2L,null,null,null,null);
+        var enrollmentEntity3 = new EnrollmentEntity(3L,null,null,null,null);
+        var enrollmentDto1 = new EnrollmentDto(1L, null,null,null,null);
+        var enrollmentDto2 = new EnrollmentDto(2L, null,null,null,null);
+        var enrollmentDto3 = new EnrollmentDto(3L, null,null,null,null);
+
+        var enrollmentEntities = new ArrayList<EnrollmentEntity>();
+
+        enrollmentEntities.add(enrollmentEntity1);
+        enrollmentEntities.add(enrollmentEntity2);
+        enrollmentEntities.add(enrollmentEntity3);
+
+        var enrollmanetDtos = new ArrayList<EnrollmentDto>();
+
+        enrollmanetDtos.add(enrollmentDto1);
+        enrollmanetDtos.add(enrollmentDto2);
+        enrollmanetDtos.add(enrollmentDto3);
+
+        var filter= new EnrollmentFilter(null, null,null,null,null);
+
+        when(enrollmentMapper.toDto(enrollmentEntity1)).thenReturn(enrollmentDto1);
+        when(enrollmentMapper.toDto(enrollmentEntity2)).thenReturn(enrollmentDto2);
+        when(enrollmentMapper.toDto(enrollmentEntity3)).thenReturn(enrollmentDto3);
+        when(enrollmentRepository.findAll(any(EnrollmentSpecification.class))).thenReturn(enrollmentEntities);
+
+        var result = service.getAllEnrollments(filter);
+
+        assertEquals(enrollmentDto2.id(), result.get(1).id());
+
     }
 
 

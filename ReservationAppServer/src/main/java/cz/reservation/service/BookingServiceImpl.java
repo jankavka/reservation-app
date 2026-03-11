@@ -12,6 +12,7 @@ import cz.reservation.entity.filter.BookingFilter;
 import cz.reservation.entity.repository.BookingRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.specification.BookingSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EnrollmentNoActiveException;
 import cz.reservation.service.exception.LateBookingCancelingException;
 import cz.reservation.service.exception.TrainingAlreadyStartedException;
@@ -76,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public BookingDto getBooking(Long id) {
 
         return bookingMapper.toDto(bookingRepository
@@ -127,7 +128,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<BookingDto> getAllBookings(BookingFilter bookingFilter) {
         var spec = new BookingSpecification(bookingFilter);
         return bookingRepository

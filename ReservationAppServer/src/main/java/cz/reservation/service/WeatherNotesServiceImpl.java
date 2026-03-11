@@ -5,6 +5,7 @@ import cz.reservation.dto.mapper.WeatherNotesMapper;
 import cz.reservation.entity.WeatherNotesEntity;
 import cz.reservation.entity.repository.TrainingSlotRepository;
 import cz.reservation.entity.repository.WeatherNotesRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.WeatherNotesService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public WeatherNotesDto getWeatherNote(Long id) {
 
         return weatherNotesMapper.toDto(weatherNotesRepository
@@ -50,7 +51,7 @@ public class WeatherNotesServiceImpl implements WeatherNotesService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<WeatherNotesDto> getAllWeatherNotes() {
         return weatherNotesRepository
                 .findAll()
