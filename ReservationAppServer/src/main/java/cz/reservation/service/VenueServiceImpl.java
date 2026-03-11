@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.dto.VenueDto;
 import cz.reservation.dto.mapper.VenueMapper;
 import cz.reservation.entity.repository.VenueRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.VenueService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public VenueDto getVenue(Long id) {
         return venueMapper.toDto(venueRepository
                 .findById(id)
@@ -50,7 +51,7 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<VenueDto> getAllVenues() {
         return venueRepository
                 .findAll()

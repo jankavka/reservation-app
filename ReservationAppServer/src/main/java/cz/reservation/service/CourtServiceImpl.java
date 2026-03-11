@@ -7,6 +7,7 @@ import cz.reservation.entity.filter.CourtFilter;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.entity.repository.specification.CourtSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class CourtServiceImpl implements CourtService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public CourtDto getCourt(Long id) {
         return courtMapper.toDto(courtRepository
                 .findById(id)
@@ -45,7 +46,7 @@ public class CourtServiceImpl implements CourtService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<CourtDto> getAllCourts(CourtFilter courtFilter) {
         var spec = new CourtSpecification(courtFilter);
         return courtRepository.findAll(spec).stream()

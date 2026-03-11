@@ -7,6 +7,7 @@ import cz.reservation.entity.CoachEntity;
 import cz.reservation.entity.repository.CoachRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.CoachService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public CoachDto getCoach(Long id) {
         return coachMapper.toDto(coachRepository
                 .findById(id)
@@ -52,7 +53,7 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<CoachDto> getAllCoaches() {
         return coachRepository
                 .findAll()

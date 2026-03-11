@@ -10,6 +10,7 @@ import cz.reservation.entity.repository.EnrollmentRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.specification.EnrollmentSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EnrollmentAlreadyCanceledException;
 import cz.reservation.service.exception.MissingPricingTypeException;
 import cz.reservation.service.serviceinterface.EnrollmentService;
@@ -52,7 +53,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public EnrollmentDto getEnrollment(Long id) {
         return enrollmentMapper.toDto(enrollmentRepository
                 .findById(id)
@@ -60,7 +61,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<EnrollmentDto> getAllEnrollments(EnrollmentFilter enrollmentFilter) {
         var spec = new EnrollmentSpecification(enrollmentFilter);
         return enrollmentRepository

@@ -4,6 +4,7 @@ import cz.reservation.constant.EventStatus;
 import cz.reservation.dto.SeasonDto;
 import cz.reservation.dto.mapper.SeasonMapper;
 import cz.reservation.entity.repository.SeasonRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.SeasonService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,13 +36,13 @@ public class SeasonServiceImpl implements SeasonService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<SeasonDto> getAllSeasons() {
         return seasonRepository.findAll().stream().map(seasonMapper::toDto).toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public SeasonDto getSeason(Long id) {
 
         return seasonMapper.toDto(seasonRepository

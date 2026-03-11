@@ -7,6 +7,7 @@ import cz.reservation.entity.InvoiceSummaryEntity;
 import cz.reservation.entity.filter.InvoiceSummaryFilter;
 import cz.reservation.entity.repository.InvoiceSummaryRepository;
 import cz.reservation.entity.repository.specification.InvoiceSummarySpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.InvoiceStorageException;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.pricing.resolver.PricingStrategyResolver;
@@ -72,7 +73,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<InvoiceSummaryDto> getAllSummaries(InvoiceSummaryFilter invoiceSummaryFilter) {
         var spec = new InvoiceSummarySpecification(invoiceSummaryFilter);
         return invoiceSummaryRepository
@@ -83,7 +84,7 @@ public class InvoiceSummaryServiceImpl implements InvoiceSummaryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<InvoiceSummaryDto> getAllSummariesByUser(Long userId) {
         return invoiceSummaryRepository
                 .findByPlayerId(userId)

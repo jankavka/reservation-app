@@ -9,6 +9,7 @@ import cz.reservation.entity.filter.PackageFilter;
 import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.specification.PackageSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.InvoiceStorageException;
 import cz.reservation.service.invoice.InvoiceEngine;
 import cz.reservation.service.serviceinterface.PackageService;
@@ -90,7 +91,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public PackageDto getPackage(Long id) {
         return packageMapper.toDto(packageRepository
                 .findById(id)
@@ -103,7 +104,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<PackageDto> getAllPackages(PackageFilter packageFilter) {
         var spec = new PackageSpecification(packageFilter);
         return packageRepository

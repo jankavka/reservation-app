@@ -9,6 +9,7 @@ import cz.reservation.entity.repository.PackageRepository;
 import cz.reservation.entity.repository.PlayerRepository;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.entity.repository.specification.PlayerSpecification;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PlayerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,7 +44,7 @@ public class PlayerServiceImpl implements PlayerService {
     private static final String MESSAGE = "message";
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public Map<String, Object> getPlayer(Long id) {
         var playerDto = playerMapper.toDto(playerRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(
@@ -73,7 +74,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<PlayerDto> getAllPlayers(PlayerFilter playerFilter) {
         var spec = new PlayerSpecification(playerFilter);
         var playerEntities = playerRepository.findAll(spec);
@@ -104,7 +105,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<PlayerDto> getPlayersByParentId(Long id) {
         return playerRepository.findByParentId(id)
                 .stream()

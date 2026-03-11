@@ -9,6 +9,7 @@ import cz.reservation.entity.TrainingSlotEntity;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.GroupRepository;
 import cz.reservation.entity.repository.TrainingSlotRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.exception.TrainingSlotsInCollisionException;
 import cz.reservation.service.serviceinterface.CourtBlockingService;
@@ -82,7 +83,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public TrainingSlotDto getTrainingSlot(Long id) {
         if (!trainingSlotRepository.existsById(id)) {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
@@ -104,7 +105,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<TrainingSlotDto> getAllTrainingSlots() {
         var allTrainingSlots = trainingSlotRepository.findAll();
         if (allTrainingSlots.isEmpty()) {
@@ -118,7 +119,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<TrainingSlotDto> getAllTrainingSlotsByGroupId(Long groupId) {
         var allTrainingSlotsByGroupId = trainingSlotRepository.findByGroupId(groupId);
         if (allTrainingSlotsByGroupId.isEmpty()) {
@@ -138,7 +139,6 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      *
      * @param trainingSlotDto Object with updated attributes
      * @param id              PK of training slot in database
-     * @return Response entity with success message
      */
     @Override
     @Transactional
@@ -188,7 +188,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
      * @return Integer representation of used capacity in current training slot
      */
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public Integer getUsedCapacityOfRelatedTrainingSlot(Long id) {
         var currentSlot = trainingSlotRepository
                 .findById(id)

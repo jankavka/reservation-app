@@ -7,6 +7,7 @@ import cz.reservation.entity.filter.UserFilter;
 import cz.reservation.entity.repository.specification.UserSpecification;
 import cz.reservation.entity.userdetails.CustomUserDetails;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id))));
     }
 
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     @Override
     public List<UserDto> getAllUsers(UserFilter userFilter) {
         var spec = new UserSpecification(userFilter);
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     @Override
     public User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var userEntity = userRepository.findByEmail(username);

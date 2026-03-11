@@ -5,6 +5,7 @@ import cz.reservation.dto.PricingRuleDto;
 import cz.reservation.dto.mapper.PricingRuleMapper;
 import cz.reservation.entity.PricingRuleEntity;
 import cz.reservation.entity.repository.PricingRulesRepository;
+import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.EmptyListException;
 import cz.reservation.service.serviceinterface.PricingRuleService;
 import jakarta.persistence.EntityNotFoundException;
@@ -58,7 +59,7 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<PricingRuleDto> getAllPricingRules() {
         var allEntities = pricingRulesRepository.findAll();
         if (allEntities.isEmpty()) {
@@ -70,7 +71,7 @@ public class PricingRuleServiceImpl implements PricingRuleService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @ReadOnlyTransaction
     public List<PricingRuleDto> getAllRulesWithMonthlyType() {
         var rulesWithMonthlyType = pricingRulesRepository
                 .getAllPricingRulesByPricingType(PricingType.MONTHLY.getCode())
