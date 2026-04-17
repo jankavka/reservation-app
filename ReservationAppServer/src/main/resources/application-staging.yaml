@@ -7,31 +7,23 @@ spring:
   datasource:
     platform: postgres
     url: jdbc:postgresql://db:5432/reservation
-
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
     driverClassName: org.postgresql.Driver
-
   liquibase:
     enabled: true
     drop-first: false
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
     default-schema: public
-
 security:
   jwt:
     expiration-time: 3600000
-
 notification-api:
   client-id: ${NOTIFICATION_CLIENT_ID}
   client-secret: ${NOTIFICATION_CLIENT_SECRET}
-
 file:
   directory: "/app/pdf"
-
 qrcode:
   path: "/app/qr-codes"
-
 company-info:
   path: "files/company_info.json"

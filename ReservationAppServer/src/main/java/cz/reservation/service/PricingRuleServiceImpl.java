@@ -80,7 +80,8 @@ public class PricingRuleServiceImpl implements PricingRuleService {
                 .toList();
 
         if (rulesWithMonthlyType.isEmpty()) {
-            throw new EmptyListException(emptyListMessage("There are no pricing rules with MONTHLY pricing type"));
+            throw new EmptyListException(emptyListMessage(
+                    "There are no pricing rules with MONTHLY pricing type"));
         }
         return rulesWithMonthlyType;
     }

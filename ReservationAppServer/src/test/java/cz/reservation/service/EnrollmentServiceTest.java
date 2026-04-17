@@ -254,11 +254,11 @@ class EnrollmentServiceTest {
         enrollmentEntities.add(enrollmentEntity2);
         enrollmentEntities.add(enrollmentEntity3);
 
-        var enrollmanetDtos = new ArrayList<EnrollmentDto>();
+        var enrollmentDtos = new ArrayList<EnrollmentDto>();
 
-        enrollmanetDtos.add(enrollmentDto1);
-        enrollmanetDtos.add(enrollmentDto2);
-        enrollmanetDtos.add(enrollmentDto3);
+        enrollmentDtos.add(enrollmentDto1);
+        enrollmentDtos.add(enrollmentDto2);
+        enrollmentDtos.add(enrollmentDto3);
 
         var filter= new EnrollmentFilter(null, null,null,null,null);
 
@@ -269,7 +269,25 @@ class EnrollmentServiceTest {
 
         var result = service.getAllEnrollments(filter);
 
-        assertEquals(enrollmentDto2.id(), result.get(1).id());
+        assertEquals(enrollmentDtos.get(1).id(), result.get(1).id());
+
+    }
+
+    @Test
+    void shouldReturnEmptyList(){
+        var emptyEnrollmentEntityList = new ArrayList<EnrollmentEntity>();
+        var emptyEnrollmentDtoList = new ArrayList<EnrollmentDto>();
+        var filter = new EnrollmentFilter(null,null,null,null,null);
+        when(enrollmentRepository.findAll(any(EnrollmentSpecification.class))).thenReturn(emptyEnrollmentEntityList);
+
+        var result = service.getAllEnrollments(filter);
+
+        assertEquals(emptyEnrollmentDtoList, result);
+
+        verify(enrollmentRepository, times(1)).findAll(any(EnrollmentSpecification.class));
+        verifyNoInteractions(enrollmentMapper);
+        verifyNoMoreInteractions(enrollmentRepository);
+
 
     }
 
