@@ -1,0 +1,2378 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /api/weather-notes/{id}:
+    get:
+      tags:
+        - weather-notes-controller
+      operationId: getWeatherNote
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherNotesDto"
+    put:
+      tags:
+        - weather-notes-controller
+      operationId: editWeatherNote
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeatherNotesDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - weather-notes-controller
+      operationId: deleteWeatherNote
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/venue/{id}:
+    get:
+      tags:
+        - venue-controller
+      operationId: getVenue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VenueDto"
+    put:
+      tags:
+        - venue-controller
+      operationId: editVenue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VenueDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - venue-controller
+      operationId: deleteVenue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/training-slot/{id}:
+    get:
+      tags:
+        - training-slot-controller
+      operationId: getTrainingSlot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TrainingSlotDto"
+    put:
+      tags:
+        - training-slot-controller
+      operationId: editTrainingSlot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingSlotDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - training-slot-controller
+      operationId: deleteTrainingSlot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/season/{id}:
+    get:
+      tags:
+        - season-controller
+      operationId: getSeason
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SeasonDto"
+    put:
+      tags:
+        - season-controller
+      operationId: editSeason
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeasonDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - season-controller
+      operationId: deleteSeason
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/pricing-rules/{id}:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getRule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PricingRuleDto"
+    put:
+      tags:
+        - pricing-rule-controller
+      operationId: updateRule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingRuleDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - pricing-rule-controller
+      operationId: deleteRule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/player/{id}:
+    get:
+      tags:
+        - player-controller
+      operationId: getPlayer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
+    put:
+      tags:
+        - player-controller
+      operationId: editPlayer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - player-controller
+      operationId: deletePlayer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/package/{id}:
+    get:
+      tags:
+        - package-controller
+      operationId: showPackage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PackageDto"
+    put:
+      tags:
+        - package-controller
+      operationId: editPackage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - package-controller
+      operationId: deletePackage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/invoice-summary/{id}:
+    get:
+      tags:
+        - invoice-summary-controller
+      operationId: getSummary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InvoiceSummaryDto"
+    put:
+      tags:
+        - invoice-summary-controller
+      operationId: editSummary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceSummaryDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - invoice-summary-controller
+      operationId: deleteSummary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/group/{id}:
+    get:
+      tags:
+        - group-controller
+      operationId: getGroup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GroupDto"
+    put:
+      tags:
+        - group-controller
+      operationId: editGroup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - group-controller
+      operationId: deleteGroup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/enrollment/{id}:
+    get:
+      tags:
+        - enrollment-controller
+      operationId: getEnrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EnrollmentDto"
+    put:
+      tags:
+        - enrollment-controller
+      operationId: editEnrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - enrollment-controller
+      operationId: deleteEnrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/court/{id}:
+    get:
+      tags:
+        - court-controller
+      operationId: showCourt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourtDto"
+    put:
+      tags:
+        - court-controller
+      operationId: editCourt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourtDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - court-controller
+      operationId: deleteCourt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/court-block/{id}:
+    get:
+      tags:
+        - court-blocking-controller
+      operationId: getBlocking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourtBlockingDto"
+    put:
+      tags:
+        - court-blocking-controller
+      operationId: editBlocking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourtBlockingDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - court-blocking-controller
+      operationId: deleteBlocking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/coach/{id}:
+    get:
+      tags:
+        - coach-controller
+      operationId: getCoach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CoachDto"
+    put:
+      tags:
+        - coach-controller
+      operationId: editCoach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoachDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - coach-controller
+      operationId: deleteCoach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/booking/{id}:
+    get:
+      tags:
+        - booking-controller
+      operationId: getBooking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BookingDto"
+    put:
+      tags:
+        - booking-controller
+      operationId: editBooking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - booking-controller
+      operationId: deleteBooking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/booking/admin/{id}:
+    put:
+      tags:
+        - booking-controller
+      operationId: editBookingAsAdmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /api/attendance/{id}:
+    get:
+      tags:
+        - attendance-controller
+      operationId: getAttendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AttendanceDto"
+    put:
+      tags:
+        - attendance-controller
+      operationId: editAttendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - attendance-controller
+      operationId: deleteAttendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /auth/generateToken:
+    post:
+      tags:
+        - auth-controller
+      operationId: authenticateAndGetToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequestDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponseDto"
+  /auth/addNewUser:
+    post:
+      tags:
+        - auth-controller
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /api/weather-notes:
+    get:
+      tags:
+        - weather-notes-controller
+      operationId: getAllWeatherNotes
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeatherNotesDto"
+    post:
+      tags:
+        - weather-notes-controller
+      operationId: createWeatherNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeatherNotesDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WeatherNotesDto"
+  /api/venue:
+    get:
+      tags:
+        - venue-controller
+      operationId: getAllVenues
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VenueDto"
+    post:
+      tags:
+        - venue-controller
+      operationId: createVenue
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VenueDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VenueDto"
+  /api/training-slot:
+    get:
+      tags:
+        - training-slot-controller
+      operationId: getAllTrainingSlots
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingSlotDto"
+    post:
+      tags:
+        - training-slot-controller
+      operationId: createTrainingSlot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingSlotDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TrainingSlotDto"
+  /api/season:
+    get:
+      tags:
+        - season-controller
+      operationId: getAllSeasons
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeasonDto"
+    post:
+      tags:
+        - season-controller
+      operationId: createSeason
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeasonDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SeasonDto"
+  /api/pricing-rules:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getAllRules
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PricingRuleDto"
+    post:
+      tags:
+        - pricing-rule-controller
+      operationId: createRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingRuleDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PricingRuleDto"
+  /api/player:
+    get:
+      tags:
+        - player-controller
+      operationId: getAllPlayers
+      parameters:
+        - name: playerFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/PlayerFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerDto"
+    post:
+      tags:
+        - player-controller
+      operationId: createPlayer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PlayerDto"
+  /api/package/create:
+    post:
+      tags:
+        - package-controller
+      operationId: createPackage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PackageDto"
+  /api/invoice-summary:
+    get:
+      tags:
+        - invoice-summary-controller
+      operationId: getAllSummaries
+      parameters:
+        - name: invoiceSummaryFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/InvoiceSummaryFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InvoiceSummaryDto"
+    post:
+      tags:
+        - invoice-summary-controller
+      operationId: createInvoiceSummary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceSummaryDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InvoiceSummaryDto"
+  /api/group:
+    get:
+      tags:
+        - group-controller
+      operationId: getAllGroups
+      parameters:
+        - name: groupFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/GroupFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupDto"
+    post:
+      tags:
+        - group-controller
+      operationId: createGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GroupDto"
+  /api/enrollment:
+    get:
+      tags:
+        - enrollment-controller
+      operationId: getAllEnrollments
+      parameters:
+        - name: enrollmentFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/EnrollmentFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnrollmentDto"
+    post:
+      tags:
+        - enrollment-controller
+      operationId: createEnrollment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EnrollmentDto"
+  /api/court:
+    get:
+      tags:
+        - court-controller
+      operationId: showAllCourts
+      parameters:
+        - name: courtFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/CourtFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourtDto"
+    post:
+      tags:
+        - court-controller
+      operationId: createCourt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourtDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourtDto"
+  /api/court-block:
+    get:
+      tags:
+        - court-blocking-controller
+      operationId: getAllBlockings
+      parameters:
+        - name: courtBlockingFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/CourtBlockingFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourtBlockingDto"
+    post:
+      tags:
+        - court-blocking-controller
+      operationId: createBlocking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourtBlockingDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourtBlockingDto"
+  /api/company-info/update:
+    post:
+      tags:
+        - company-info-controller
+      operationId: updateInfo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyInfoDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CompanyInfoDto"
+  /api/coach:
+    get:
+      tags:
+        - coach-controller
+      operationId: getAllCoaches
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoachDto"
+    post:
+      tags:
+        - coach-controller
+      operationId: createCoach
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoachDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CoachDto"
+  /api/booking:
+    get:
+      tags:
+        - booking-controller
+      operationId: getAllBookings
+      parameters:
+        - name: bookingFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/BookingFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingDto"
+    post:
+      tags:
+        - booking-controller
+      operationId: createBooking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BookingDto"
+  /api/attendance:
+    get:
+      tags:
+        - attendance-controller
+      operationId: getAllAttendances
+      parameters:
+        - name: attendanceFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/AttendanceFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceDto"
+    post:
+      tags:
+        - attendance-controller
+      operationId: createAttendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceDto"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AttendanceDto"
+  /user/{id}:
+    get:
+      tags:
+        - user-controller
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+    delete:
+      tags:
+        - user-controller
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No Content
+  /user/current:
+    get:
+      tags:
+        - user-controller
+      operationId: showCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/User"
+  /user/all:
+    get:
+      tags:
+        - user-controller
+      operationId: getAllUsers
+      parameters:
+        - name: userFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UserFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+  /user/all-admins:
+    get:
+      tags:
+        - user-controller
+      operationId: getAllAdmins
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+  /api/training-slot/group/{groupId}:
+    get:
+      tags:
+        - training-slot-controller
+      operationId: getAllSlotsByGroupId
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingSlotDto"
+  /api/pricing-rules/supported-conditions:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getSupportedConditions
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/pricing-rules/per-slot-cond:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getSupportedConditionsPerSlot
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/pricing-rules/package-cond:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getSupportedConditionsPerPackage
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/pricing-rules/monthly-type-rules:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: showAllRulesWithMonthlyType
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PricingRuleDto"
+  /api/pricing-rules/month-cond:
+    get:
+      tags:
+        - pricing-rule-controller
+      operationId: getSupportedConditionsPerMonth
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/player/user/{id}:
+    get:
+      tags:
+        - player-controller
+      operationId: getPlayerByParentId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerDto"
+  /api/package/all:
+    get:
+      tags:
+        - package-controller
+      operationId: showAllPackages
+      parameters:
+        - name: packageFilter
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/PackageFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PackageDto"
+  /api/invoice-summary/user/{userId}:
+    get:
+      tags:
+        - invoice-summary-controller
+      operationId: getAllSummariesByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InvoiceSummaryDto"
+  /api/company-info:
+    get:
+      tags:
+        - company-info-controller
+      operationId: getInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CompanyInfoDto"
+  /:
+    get:
+      tags:
+        - home-controller
+      operationId: show
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /user/logout:
+    delete:
+      tags:
+        - user-controller
+      operationId: logout
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+components:
+  schemas:
+    CoachDto:
+      type: "null"
+      properties:
+        id:
+          type: integer
+          format: int64
+        user:
+          $ref: "#/components/schemas/UserDto"
+        bio:
+          type: string
+          minLength: 1
+        certification:
+          type: string
+          minLength: 1
+      required:
+        - bio
+        - certification
+        - user
+    CourtDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        surface:
+          type: string
+          enum:
+            - CLAY
+            - HARD
+            - WIMBLEDON
+        indoor:
+          type: boolean
+        lighting:
+          type: boolean
+        venue:
+          $ref: "#/components/schemas/VenueDto"
+      required:
+        - indoor
+        - lighting
+        - name
+        - surface
+        - venue
+    GroupDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        level:
+          type: string
+          enum:
+            - BEGINNER
+            - INTERMEDIATE
+            - ADVANCED
+            - PRO
+        coach:
+          $ref: "#/components/schemas/CoachDto"
+        capacity:
+          type: integer
+          format: int32
+          minimum: 1
+        season:
+          $ref: "#/components/schemas/SeasonDto"
+      required:
+        - capacity
+        - level
+        - name
+        - season
+    SeasonDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        dateFrom:
+          type: string
+          format: date-time
+        dateUntil:
+          type: string
+          format: date-time
+      required:
+        - dateFrom
+        - dateUntil
+        - name
+    TrainingSlotDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        group:
+          $ref: "#/components/schemas/GroupDto"
+        court:
+          $ref: "#/components/schemas/CourtDto"
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CANCELED
+        price:
+          type: string
+        currency:
+          type: string
+          minLength: 1
+        courtBlockingId:
+          type: integer
+          format: int64
+      required:
+        - court
+        - currency
+        - endAt
+        - group
+        - startAt
+        - status
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        telephoneNumber:
+          type: string
+        fullName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - ADMIN
+              - COACH
+              - PARENT
+              - PLAYER
+          minItems: 1
+          uniqueItems: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - email
+        - fullName
+        - roles
+    VenueDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        address:
+          type: string
+          minLength: 1
+        phoneNumber:
+          type: string
+          maxLength: 2147483647
+          minLength: 9
+      required:
+        - address
+        - name
+        - phoneNumber
+    WeatherNotesDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        trainingSlot:
+          $ref: "#/components/schemas/TrainingSlotDto"
+        weatherCondition:
+          type: string
+          enum:
+            - RAIN
+            - WIND
+            - HEAT
+            - OK
+        note:
+          type: string
+      required:
+        - trainingSlot
+    PackageDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        player:
+          $ref: "#/components/schemas/PlayerDto"
+        name:
+          type: string
+          minLength: 1
+        availableSlots:
+          type: integer
+          format: int32
+        validFrom:
+          type: string
+          format: date
+        validTo:
+          type: string
+          format: date
+        generatedAt:
+          type: string
+          format: date
+        path:
+          type: string
+        pricingRuleId:
+          type: integer
+          format: int64
+      required:
+        - name
+        - player
+        - pricingRuleId
+        - validFrom
+        - validTo
+    PlayerDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        fullName:
+          type: string
+          minLength: 1
+        birthDate:
+          type: string
+          format: date-time
+        handedness:
+          type: string
+          enum:
+            - LEFT
+            - RIGHT
+        parent:
+          $ref: "#/components/schemas/UserDto"
+        pricingType:
+          type: string
+          enum:
+            - PER_SLOT
+            - MONTHLY
+            - PACKAGE
+        note:
+          type: string
+        packagee: {}
+      required:
+        - birthDate
+        - fullName
+        - handedness
+        - parent
+    PricingRuleDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+        pricingType:
+          type: string
+          enum:
+            - PER_SLOT
+            - MONTHLY
+            - PACKAGE
+        amountCents:
+          type: integer
+          format: int32
+        currency:
+          type: string
+        conditions:
+          type: object
+          additionalProperties: {}
+        packagee:
+          type: array
+          items:
+            $ref: "#/components/schemas/PackageDto"
+      required:
+        - amountCents
+        - currency
+        - name
+        - pricingType
+    InvoiceSummaryDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        player:
+          $ref: "#/components/schemas/PlayerDto"
+        month:
+          type: string
+          enum:
+            - JANUARY
+            - FEBRUARY
+            - MARCH
+            - APRIL
+            - MAY
+            - JUNE
+            - JULY
+            - AUGUST
+            - SEPTEMBER
+            - OCTOBER
+            - NOVEMBER
+            - DECEMBER
+        totalCentsAmount:
+          type: integer
+          format: int32
+        rule:
+          $ref: "#/components/schemas/PricingRuleDto"
+        currency:
+          type: string
+          minLength: 1
+        generatedAt:
+          type: string
+          format: date-time
+        path:
+          type: string
+      required:
+        - currency
+        - month
+        - player
+    EnrollmentDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        player:
+          $ref: "#/components/schemas/PlayerDto"
+        group:
+          $ref: "#/components/schemas/GroupDto"
+        state:
+          type: string
+          enum:
+            - ACTIVE
+            - WAITLIST
+            - CANCELLED
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - group
+        - player
+    CourtBlockingDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        court:
+          $ref: "#/components/schemas/CourtDto"
+        blockedFrom:
+          type: string
+          format: date-time
+        blockedTo:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          minLength: 1
+        range:
+          $ref: "#/components/schemas/RangeLocalDateTime"
+      required:
+        - blockedFrom
+        - blockedTo
+        - court
+        - reason
+    RangeLocalDateTime:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        boundedOpen:
+          type: boolean
+        lowerBoundClosed:
+          type: boolean
+        upperBoundClosed:
+          type: boolean
+        bounded:
+          type: boolean
+    BookingDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        trainingSlot:
+          $ref: "#/components/schemas/TrainingSlotDto"
+        player:
+          $ref: "#/components/schemas/PlayerDto"
+        bookingStatus:
+          type: string
+          enum:
+            - CONFIRMED
+            - CANCELED
+            - NO_SHOW
+            - WAITLIST
+        bookedAt:
+          type: string
+          format: date-time
+      required:
+        - player
+        - trainingSlot
+    AttendanceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        booking:
+          $ref: "#/components/schemas/BookingDto"
+        present:
+          type: boolean
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - booking
+    AuthRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    LoginResponseDto:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+    RegistrationRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          maxLength: 2147483647
+          minLength: 6
+        telephoneNumber:
+          type: string
+          maxLength: 2147483647
+          minLength: 10
+        fullName:
+          type: string
+      required:
+        - email
+        - fullName
+        - password
+        - telephoneNumber
+    CompanyInfoDto:
+      type: object
+      properties:
+        companyName:
+          type: string
+        address:
+          type: string
+        businessId:
+          type: string
+        taxNumber:
+          type: string
+        email:
+          type: string
+        telNumber:
+          type: string
+        bankAccount:
+          type: string
+        bankAccountInternationalFormat:
+          type: string
+    GrantedAuthority:
+      type: object
+      properties:
+        authority:
+          type: string
+    User:
+      type: object
+      properties:
+        password:
+          type: string
+        username:
+          type: string
+        authorities:
+          type: array
+          items:
+            $ref: "#/components/schemas/GrantedAuthority"
+        accountNonExpired:
+          type: boolean
+        accountNonLocked:
+          type: boolean
+        credentialsNonExpired:
+          type: boolean
+        enabled:
+          type: boolean
+    UserFilter:
+      type: object
+      properties:
+        email:
+          type: string
+        telephoneNumber:
+          type: string
+        fullName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - ADMIN
+              - COACH
+              - PARENT
+              - PLAYER
+          uniqueItems: true
+        createdBefore:
+          type: string
+          format: date-time
+        createdAfter:
+          type: string
+          format: date-time
+        isCoach:
+          type: boolean
+    PlayerFilter:
+      type: object
+      properties:
+        name:
+          type: string
+        birthAfter:
+          type: string
+          format: date-time
+        birthBefore:
+          type: string
+          format: date-time
+        handedness:
+          type: string
+          enum:
+            - LEFT
+            - RIGHT
+        parentId:
+          type: integer
+          format: int64
+        pricingType:
+          type: string
+          enum:
+            - PER_SLOT
+            - MONTHLY
+            - PACKAGE
+        note:
+          type: string
+    PackageFilter:
+      type: object
+      properties:
+        playerId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        validAfter:
+          type: string
+          format: date
+        validBefore:
+          type: string
+          format: date
+        hasAvailableSlots:
+          type: boolean
+        availableSlotsMin:
+          type: integer
+          format: int32
+    InvoiceSummaryFilter:
+      type: object
+      properties:
+        playerId:
+          type: integer
+          format: int64
+        month:
+          type: string
+          enum:
+            - JANUARY
+            - FEBRUARY
+            - MARCH
+            - APRIL
+            - MAY
+            - JUNE
+            - JULY
+            - AUGUST
+            - SEPTEMBER
+            - OCTOBER
+            - NOVEMBER
+            - DECEMBER
+        amountOfCentsBiggerThan:
+          type: integer
+          format: int32
+        amountOfCentsLessThan:
+          type: integer
+          format: int32
+        createdAfter:
+          type: string
+          format: date-time
+        createdBefore:
+          type: string
+          format: date-time
+    GroupFilter:
+      type: object
+      properties:
+        coachId:
+          type: integer
+          format: int64
+        seasonId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        capacityMin:
+          type: integer
+          format: int32
+        capacityMax:
+          type: integer
+          format: int32
+    EnrollmentFilter:
+      type: object
+      properties:
+        playerId:
+          type: integer
+          format: int64
+        groupId:
+          type: integer
+          format: int64
+        state:
+          type: string
+          enum:
+            - ACTIVE
+            - WAITLIST
+            - CANCELLED
+        createdAfter:
+          type: string
+          format: date-time
+        createdBefore:
+          type: string
+          format: date-time
+    CourtFilter:
+      type: object
+      properties:
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        surface:
+          type: string
+          enum:
+            - CLAY
+            - HARD
+            - WIMBLEDON
+        indoor:
+          type: boolean
+        lighting:
+          type: boolean
+    CourtBlockingFilter:
+      type: object
+      properties:
+        courtId:
+          type: integer
+          format: int64
+        moreThanHour:
+          type: boolean
+        reason:
+          type: string
+    BookingFilter:
+      type: object
+      properties:
+        trainingSlotId:
+          type: integer
+          format: int64
+        playerId:
+          type: integer
+          format: int64
+        bookingStatus:
+          type: string
+          enum:
+            - CONFIRMED
+            - CANCELED
+            - NO_SHOW
+            - WAITLIST
+        createdAfter:
+          type: string
+          format: date-time
+        createdBefore:
+          type: string
+          format: date-time
+    AttendanceFilter:
+      type: object
+      properties:
+        present:
+          type: boolean
+        createdAfter:
+          type: string
+          format: date-time
+        createdBefore:
+          type: string
+          format: date-time
+        note:
+          type: string
