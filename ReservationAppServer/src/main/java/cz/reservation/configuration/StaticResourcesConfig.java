@@ -1,7 +1,9 @@
 package cz.reservation.configuration;
 
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,6 +27,16 @@ public class StaticResourcesConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:" + fileDirectory + "/");
     }
+
+
+    @Override
+    public void addCorsMappings(@Nonnull CorsRegistry registry){
+        registry.addMapping("/**")
+                .allowedMethods("GET", "POST", "PUT","DELETE")
+                .allowedOrigins("http://localhost:5173");
+    }
+
+
 
 
 }
