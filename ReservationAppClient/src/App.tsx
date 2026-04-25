@@ -8,7 +8,7 @@ function App() {
     <div>
       <Router>
         <Routes>
-          <Route index element={<PublicLayout/>}/>
+          <Route path={"/*"} element={<PublicLayout/>}/>
         </Routes>
       </Router>
     </div>

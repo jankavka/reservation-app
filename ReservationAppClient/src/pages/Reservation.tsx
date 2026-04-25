@@ -1,13 +1,13 @@
 import { Container } from "react-bootstrap";
 
-const Home = () => {
+const Reservation = () => {
   return (
-    <div>
+    <>
       <Container className="text-center">
-        <h1>Vítejte na úvodní stránce</h1>
+        <h1>Rezervace</h1>
       </Container>
-    </div>
+    </>
   );
 };
 
-export default Home;
+export default Reservation;
