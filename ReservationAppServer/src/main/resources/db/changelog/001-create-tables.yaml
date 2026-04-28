@@ -93,6 +93,9 @@ databaseChangeLog:
                   name: indoor
                   type: BOOLEAN
               - column:
+                  name: lighting
+                  type: BOOLEAN
+              - column:
                   name: venue_id
                   type: BIGINT
         - createTable:
