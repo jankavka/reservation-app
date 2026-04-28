@@ -1,5 +1,6 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { useState } from "react";
+import { useLocation } from "react-router";
 
 type menuItem = {
   label: string;
@@ -16,21 +17,30 @@ const menu: menuItem[] = [
     link: "/rezervace",
   },
   {
+    label: "Areály",
+    link: "/arealy",
+  },
+  {
     label: "Kurty",
     link: "/kurty",
   },
   {
-    label: "Kontakty",
-    link: "/kontakty",
+    label: "Trenéři",
+    link: "/treneri",
   },
   {
     label: "O nás",
     link: "/o-nas",
   },
+  {
+    label: "Kontakty",
+    link: "/kontakty",
+  },
 ];
 
 const NavLinks = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const pathname = useLocation().pathname;
   return (
     <>
       <Navbar data-bs-theme="dark" bg="dark">
@@ -42,10 +52,20 @@ const NavLinks = () => {
               <div className="text-end">Some Name</div>
             </Navbar.Text>
           ) : (
-            <Navbar.Text>
-              <Nav.Link>Přihlásit</Nav.Link>
-              <Nav.Link>Registrovat</Nav.Link>
-            </Navbar.Text>
+            <Nav>
+              <Nav.Link
+                className={pathname === "/login" ? "active" : ""}
+                href={"/login"}
+              >
+                Přihlásit
+              </Nav.Link>
+              <Nav.Link
+                className={pathname === "/registrace" ? "active" : ""}
+                href={"/registrace"}
+              >
+                Registrovat
+              </Nav.Link>
+            </Nav>
           )}
         </Container>
       </Navbar>
@@ -57,7 +77,12 @@ const NavLinks = () => {
             <Nav className="me-auto">
               {menu.map((item: menuItem, index: number) => (
                 <div key={index}>
-                  <Nav.Link href={item.link}>{item.label}</Nav.Link>
+                  <Nav.Link
+                    className={pathname === item.link ? "active" : ""}
+                    href={item.link}
+                  >
+                    {item.label}
+                  </Nav.Link>
                 </div>
               ))}
             </Nav>

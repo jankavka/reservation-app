@@ -32,7 +32,10 @@ public class StaticResourcesConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@Nonnull CorsRegistry registry){
         registry.addMapping("/**")
-                .allowedMethods("GET", "POST", "PUT","DELETE")
+                .allowedOriginPatterns("**")
+                .allowedMethods("GET", "POST", "PUT","DELETE","HEAD", "OPTIONS")
+                .allowedOrigins("**")
+                .allowedOrigins("http://127.0.0.1:5173")
                 .allowedOrigins("http://localhost:5173");
     }
 
