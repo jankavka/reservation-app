@@ -18,6 +18,7 @@ spring:
 security:
   jwt:
     expiration-time: 3600000
+    refresh-exp: 60000
 notification-api:
   client-id: ${NOTIFICATION_CLIENT_ID}
   client-secret: ${NOTIFICATION_CLIENT_SECRET}

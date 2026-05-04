@@ -3,6 +3,7 @@ package cz.reservation.service;
 import cz.reservation.service.exception.UnknownAlgorithmException;
 import cz.reservation.service.serviceinterface.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -30,6 +31,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    @Value("${security.jwt.refresh-exp}")
+    private long jwtRefreshExp;
+
 
     public JwtServiceImpl() {
         try {
@@ -43,12 +47,18 @@ public class JwtServiceImpl implements JwtService {
 
 
     @Override
-    public String generateToken(String email) {
+    public String generateAccessToken(String email) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email);
+        return createToken(claims, email, jwtExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String email) {
+    @Override
+    public String generateRefreshToken(String email) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, email, jwtRefreshExp);
+    }
+
+    private String createToken(Map<String, Object> claims, String email, long jwtExpiration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
@@ -85,10 +95,11 @@ public class JwtServiceImpl implements JwtService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
     }
 
-
-    private Boolean isTokenExpired(String token) {
+    @Override
+    public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
