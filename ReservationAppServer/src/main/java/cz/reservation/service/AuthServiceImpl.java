@@ -7,6 +7,7 @@ import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.serviceinterface.AuthService;
 import cz.reservation.service.serviceinterface.JwtService;
+import cz.reservation.service.serviceinterface.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,7 +42,9 @@ public class AuthServiceImpl implements AuthService {
                         authRequestDTO.password())
         );
         if (authentication.isAuthenticated()) {
-            var token = jwtService.generateToken(authRequestDTO.username());
+            var username = authRequestDTO.username();
+            var token = jwtService.generateAccessToken(username);
+            refreshTokenService.createRefreshToken(username);
             return new LoginResponseDto(token, jwtService.getJwtExpiration());
         } else {
             throw new UsernameNotFoundException("Invalid user request");

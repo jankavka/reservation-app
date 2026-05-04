@@ -6,11 +6,15 @@ import java.util.Date;
 
 public interface JwtService {
 
-    String generateToken(String email);
+    String generateAccessToken(String email);
+
+    String generateRefreshToken(String email);
 
     String extractUserName(String token);
 
     Date extractExpiration(String token);
+
+    Boolean isTokenExpired(String token);
 
     Boolean validateToken(String token, UserDetails userDetails);
 
