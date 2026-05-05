@@ -66,7 +66,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .getId();
 
         return refreshTokenRepository
-                .findFirstByUserIdAndRevokedFalse(userId)
+                .findFirstByUserIdAndRevokedFalseOrderByIdDesc(userId)
                 .orElseThrow(EntityNotFoundException::new);
     }
 
