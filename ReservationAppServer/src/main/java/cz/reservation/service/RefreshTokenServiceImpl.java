@@ -81,7 +81,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         createRefreshToken(username);
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(Map.of("accessToken", newAccessToken)));
+        response.getWriter()
+                .write(objectMapper.writeValueAsString(Map.of("accessToken", newAccessToken)));
     }
 
     @Transactional
@@ -103,7 +104,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public boolean isRefreshTokenNoExpired(String token) {
         try {
             return !jwtService.isTokenExpired(token);
-        } catch(ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             log.warn("{}, {}", e.getMessage(), e.getClass());
             return false;
         }
