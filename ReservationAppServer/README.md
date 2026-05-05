@@ -1,6 +1,6 @@
 # ReservationAppServer
 
-Backend server for a sports court reservation system. Enables management of training bookings, players, coaches, and pricing rules.
+Backend server for a tennis court reservation system. Enables management of tennis training bookings, players, coaches, and pricing rules.
 
 ## Technologies
 
@@ -15,7 +15,7 @@ Backend server for a sports court reservation system. Enables management of trai
 - **Hypersistence Utils** - advanced Hibernate types (JSONB support)
 - **iText 9.4** - PDF generation
 - **ZXing 3.5.4** - QR code generation
-- **NotificationAPI** - SMS and email notifications
+- **Pingram** - SMS and email notifications
 - **Docker** - containerization
 
 ## Requirements
@@ -108,7 +108,7 @@ spring:
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-notification-api:
+notification-api:  # Pingram — SMS and email notification service
   client-id: ${NOTIFICATION_CLIENT_ID}
   client-secret: ${NOTIFICATION_CLIENT_SECRET}
 ```
@@ -128,20 +128,20 @@ Spring Boot resolves these from environment variables at runtime. In a GitHub Ac
 ## Main Features
 
 - **User Management** - registration, login, roles (ADMIN, USER, COACH)
-- **Bookings** - create and manage training slot reservations
-- **Training Slots** - time slots with capacity and pricing
-- **Groups** - training groups managed by coaches
+- **Bookings** - create and manage tennis training slot reservations
+- **Training Slots** - tennis training time slots with capacity and pricing
+- **Groups** - tennis training groups managed by coaches
 - **Players** - player profiles (children) under parent accounts
-- **Coaches** - coach profiles with certifications
-- **Pricing Rules** - flexible pricing system
-- **Packages** - prepaid training packages
-- **Court Management** - venues, courts, court blocking
+- **Coaches** - tennis coach profiles with certifications
+- **Pricing Rules** - flexible pricing system for tennis lessons and packages
+- **Packages** - prepaid tennis training packages
+- **Court Management** - tennis venues, courts, and court blocking
 - **Invoicing** - invoice summaries for players
-- **Attendance** - training attendance tracking
-- **Notifications** - SMS and email notifications via NotificationAPI
-- **Seasons** - season management for scheduling
-- **Weather Notes** - weather condition tracking for outdoor courts
-- **Company Info** - company/organization settings
+- **Attendance** - tennis training attendance tracking
+- **Notifications** - SMS and email notifications via Pingram
+- **Seasons** - tennis season management for scheduling
+- **Weather Notes** - weather condition tracking for outdoor tennis courts
+- **Company Info** - tennis club/organization settings
 
 ## Project Structure
 
@@ -182,12 +182,12 @@ src/main/java/cz/reservation/
 | `/api/player` | Player management |
 | `/api/coach` | Coach management |
 | `/api/group` | Group management |
-| `/api/training-slot` | Training slots |
+| `/api/training-slot` | Tennis training slots |
 | `/api/enrollment` | Group enrollments |
 | `/api/attendance` | Attendance tracking |
 | `/api/venue` | Venue management |
-| `/api/court` | Court management |
-| `/api/court-block` | Court blocking |
+| `/api/court` | Tennis court management |
+| `/api/court-block` | Tennis court blocking |
 | `/api/pricing-rules` | Pricing rules |
 | `/api/package` | Packages |
 | `/api/invoice-summary` | Invoice summaries |
