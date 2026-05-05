@@ -51,3 +51,7 @@ files/**
 ### CLAUDE ###
 CLAUDE.md
 .claude/**
+
+
+###RUN SCRIPT###
+myRun.sh
