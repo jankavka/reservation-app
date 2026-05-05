@@ -197,13 +197,20 @@ src/main/java/cz/reservation/
 
 ## Security
 
-The application uses JWT authentication. To access protected endpoints, include the header:
+The application uses stateless JWT authentication with an access/refresh token pair.
 
-```
-Authorization: Bearer <token>
-```
+### Authentication flow
 
-Obtain a token by logging in at `/auth/login`.
+1. **Login** — `POST /auth/generateToken` returns an access token and its expiration time.
+2. **Authenticated requests** — include the access token in the header:
+   ```
+   Authorization: Bearer <access-token>
+   ```
+3. **Automatic token refresh** — when the access token expires, `JwtAuthFilter` intercepts the request and checks the refresh token stored in the database:
+   - **Refresh token valid** → returns `200` with a new `{ "accessToken": "..." }` in the response body. The client should store the new token and retry the original request.
+   - **Refresh token expired** → returns `401` with `{ "message": "Refresh token is expired. Please Login." }`. The client should redirect to the login page.
+
+Refresh tokens are persisted in the `refresh_tokens` table and marked as revoked after each use (rotation on every refresh).
 
 **Roles:** ADMIN, USER, COACH
 

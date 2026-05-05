@@ -68,7 +68,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 log.warn("JWT token expired for request: {}", request.getRequestURI());
                 handleExpiredAccessTokenException(e, response);
-                //refreshTokenReached = true;
+                return;
 
             } catch (JwtException e) {
                 log.warn("Invalid JWT token: {}", e.getMessage());
@@ -97,9 +97,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         var userName = claims.getSubject();
 
         var refreshToken = refreshTokenService.getRefreshTokenByUsername(userName);
-        refreshTokenService.markedAsRevoked(refreshToken);
 
         if (refreshTokenService.isRefreshTokenNoExpired(refreshToken.getToken())) {
+            refreshTokenService.markedAsRevoked(refreshToken);
             refreshTokenService.setNewTokenPair(refreshToken, response, userName);
         } else {
             log.error("Refresh token is expired. Please Login.");

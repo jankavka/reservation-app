@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -78,37 +77,26 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             HttpServletResponse response,
             String username) throws IOException {
 
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
-        ContentCachingResponseWrapper wrappedResponse =
-                new ContentCachingResponseWrapper(response);
-        wrappedResponse.resetBuffer();
         var newAccessToken = jwtService.generateAccessToken(username);
         createRefreshToken(username);
-        wrappedResponse
-                .getWriter()
-                .write(objectMapper.writeValueAsString(Map.of("accessToken", newAccessToken)));
-        wrappedResponse.setStatus(401);
-        wrappedResponse.copyBodyToResponse();
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(Map.of("accessToken", newAccessToken)));
     }
 
     @Transactional
     @Override
     public void refreshTokenExpiredResponse(HttpServletResponse response, String message) throws IOException {
-        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
-
-        wrappedResponse.resetBuffer();
-        wrappedResponse.setStatus(401);
-        wrappedResponse
-                .getWriter()
-                .write(objectMapper.writeValueAsString(Map.of("message", message)));
-        wrappedResponse.copyBodyToResponse();
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(Map.of("message", message)));
     }
 
     @Transactional
     @Override
     public void markedAsRevoked(RefreshToken token) {
         token.setRevoked(true);
+        refreshTokenRepository.save(token);
     }
 
     @Override
