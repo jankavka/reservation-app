@@ -1,6 +1,6 @@
 package cz.reservation.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.entity.RefreshToken;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.RefreshTokenRepository;
@@ -9,16 +9,13 @@ import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Instant;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +28,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final JwtService jwtService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
 
     @Value("${security.jwt.refresh-exp}")
     private long jwtRefreshExp;
@@ -40,7 +35,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Transactional
     @Override
-    public RefreshToken createRefreshToken(String username) {
+    public void createRefreshToken(String username) {
         UserEntity user = userRepository.findByEmail(username).orElseThrow(EntityNotFoundException::new);
         RefreshToken token = RefreshToken.builder()
                 .token(jwtService.generateRefreshToken(username))
@@ -49,13 +44,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .expirationDate(Instant.now().plusMillis(jwtRefreshExp))
                 .build();
 
-        return refreshTokenRepository.save(token);
-    }
+        refreshTokenRepository.save(token);
 
-    @Transactional(readOnly = true)
-    @Override
-    public RefreshToken getRefreshToken(String token) {
-        return refreshTokenRepository.findByToken(token).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -70,27 +60,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+
     @Transactional
     @Override
-    public void setNewTokenPair(
-            RefreshToken refreshToken,
-            HttpServletResponse response,
-            String username) throws IOException {
-
+    public LoginResponseDto setNewTokenPair(RefreshToken refreshToken, String username) {
         var newAccessToken = jwtService.generateAccessToken(username);
+        var expirationTime = jwtService.extractExpiration(newAccessToken);
         createRefreshToken(username);
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.getWriter()
-                .write(objectMapper.writeValueAsString(Map.of("accessToken", newAccessToken)));
-    }
-
-    @Transactional
-    @Override
-    public void refreshTokenExpiredResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(Map.of("message", message)));
+        return new LoginResponseDto(newAccessToken, expirationTime.toInstant().toEpochMilli());
     }
 
     @Transactional

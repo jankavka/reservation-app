@@ -1,21 +1,15 @@
 package cz.reservation.service.serviceinterface;
 
+import cz.reservation.dto.LoginResponseDto;
 import cz.reservation.entity.RefreshToken;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
 
 public interface RefreshTokenService {
 
-    RefreshToken createRefreshToken(String username);
-
-    RefreshToken getRefreshToken(String token);
+    void createRefreshToken(String username);
 
     RefreshToken getRefreshTokenByUsername(String username);
 
-    void setNewTokenPair(RefreshToken oldToken, HttpServletResponse response, String username) throws IOException;
-
-    void refreshTokenExpiredResponse(HttpServletResponse response, String message) throws IOException;
+    LoginResponseDto setNewTokenPair(RefreshToken refreshToken, String username);
 
     void markedAsRevoked(RefreshToken token);
 

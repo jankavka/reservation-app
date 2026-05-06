@@ -133,13 +133,30 @@ public class GlobalExceptionHandler {
     }
 
 
+//    @ExceptionHandler(AuthorizationDeniedException.class)
+//    public void handleAuthDeniedException(
+//            AuthorizationDeniedException e,
+//            HttpServletResponse response) throws IOException {
+//        log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getMessage());
+//    }
+
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public void handleAuthDeniedException(
+    public ResponseEntity<Map<String, String>> handleAuthDeniedException(
             AuthorizationDeniedException e,
             HttpServletResponse response) throws IOException {
         log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(MESSAGE_KEY, e.getMessage() + ". Use refresh token"));
     }
 
+    @ExceptionHandler(RefreshTokenExpiredException.class)
+    public ResponseEntity<Map<String, String>> handleRefreshTokenExpired(RefreshTokenExpiredException e) {
+        log.error(LOG_FORMAT, e.getClass(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
 
 
 }

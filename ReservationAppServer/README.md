@@ -176,7 +176,7 @@ src/main/java/cz/reservation/
 | Endpoint | Description |
 |----------|-------------|
 | `/` | Home/health check |
-| `/auth` | Authentication (register, login) |
+| `/auth` | Authentication (register, login, token refresh) |
 | `/user` | User management |
 | `/api/booking` | Booking management |
 | `/api/player` | Player management |
@@ -206,9 +206,16 @@ The application uses stateless JWT authentication with an access/refresh token p
    ```
    Authorization: Bearer <access-token>
    ```
-3. **Automatic token refresh** — when the access token expires, `JwtAuthFilter` intercepts the request and checks the refresh token stored in the database:
-   - **Refresh token valid** → returns `200` with a new `{ "accessToken": "..." }` in the response body. The client should store the new token and retry the original request.
-   - **Refresh token expired** → returns `401` with `{ "message": "Refresh token is expired. Please Login." }`. The client should redirect to the login page.
+3. **Token refresh** — when the access token expires, the client explicitly calls `POST /auth/refresh` with the expired access token in the request body:
+   ```json
+   { "accessToken": "<expired-access-token>" }
+   ```
+   - **Refresh token valid** → returns `200` with a new access token and expiration:
+     ```json
+     { "accessToken": "...", "expiresIn": 3600000 }
+     ```
+     The client stores the new token and retries the original request.
+   - **Refresh token expired** → returns `401`. The client should redirect to the login page.
 
 Refresh tokens are persisted in the `refresh_tokens` table and marked as revoked after each use (rotation on every refresh).
 

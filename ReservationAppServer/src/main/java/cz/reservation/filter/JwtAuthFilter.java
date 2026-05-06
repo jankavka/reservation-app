@@ -31,10 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final RefreshTokenService refreshTokenService;
 
-
-    @Autowired
     @Lazy
     public JwtAuthFilter(
             UserDetailsService userDetailsService,
@@ -43,7 +40,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -65,9 +61,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 userName = jwtService.extractUserName(token);
             } catch (ExpiredJwtException e) {
                 log.warn("JWT token expired for request: {}", request.getRequestURI());
-                handleExpiredAccessTokenException(e, response);
-                return;
-
             } catch (JwtException e) {
                 log.warn("Invalid JWT token: {}", e.getMessage());
             } catch (AuthorizationDeniedException e) {
@@ -89,20 +82,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-
-    void handleExpiredAccessTokenException(ExpiredJwtException e, HttpServletResponse response) throws IOException {
-        var claims = e.getClaims();
-        var userName = claims.getSubject();
-
-        var refreshToken = refreshTokenService.getRefreshTokenByUsername(userName);
-
-        if (refreshTokenService.isRefreshTokenNoExpired(refreshToken.getToken())) {
-            refreshTokenService.markedAsRevoked(refreshToken);
-            refreshTokenService.setNewTokenPair(refreshToken, response, userName);
-        } else {
-            log.error("Refresh token is expired. Please Login.");
-            refreshTokenService.refreshTokenExpiredResponse
-                    (response, "Refresh token is expired. Please Login.");
-        }
-    }
 }
