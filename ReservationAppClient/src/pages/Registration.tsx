@@ -1,4 +1,4 @@
-import { Container, Form, Button, FormGroup } from "react-bootstrap";
+import { Container, Form, Button, FormGroup, Spinner } from "react-bootstrap";
 import { useState } from "react";
 import type { RegistrationRequestDto } from "../api";
 import { useMutation } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ const Registration = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
   const api = useApi();
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>();
   const [state, setState] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -27,23 +28,31 @@ const Registration = () => {
   const createUser = useMutation({
     mutationFn: callback,
     onError: (error) => {
+      setIsSubmitted(false);
       setErrorMessage(error.message);
       setSuccess(false);
       setState(true);
       console.error(error);
     },
-    onSuccess: () => navigate("/"),
+    onSuccess: () =>
+      navigate("/login", {
+        state: {
+          success: true,
+          username: firstName.trim() + " " + surname.trim(),
+        },
+      }),
   });
 
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
-    telephoneNumber: "",
+    telephoneNumber: "+420",
     fullName: "",
   });
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    setIsSubmitted(true);
     const payload = {
       ...newUser,
       fullName: firstName.trim() + " " + surname.trim(),
@@ -79,10 +88,10 @@ const Registration = () => {
   return (
     <div>
       <Container fluid={"md"} style={{ maxWidth: "40dvw" }}>
-        <div className="mt-3">
+        <h1 className="text-center">Registrace</h1>
+        <div hidden={state} className="mt-3">
           <FlashMessage success={success} text={errorMessage} state={state} />
         </div>
-        <h1 className="text-center">Registrace</h1>
         <Form onSubmit={(e) => handleSubmit(e)}>
           <Form.Group className="mb-3">
             <Form.Label>Jméno</Form.Label>
@@ -133,13 +142,19 @@ const Registration = () => {
             <Form.Label>Telefonní číslo</Form.Label>
             <Form.Control
               name="telephoneNumber"
+              value={newUser.telephoneNumber}
               onChange={(e) => setUserObject(e)}
               placeholder="Tel. číslo"
             />
           </FormGroup>
-          <Button type="submit" variant="secondary">
-            Vytvořit účet
-          </Button>
+          <FormGroup className="d-flex align-items-center">
+            <Button type="submit" variant="secondary" className="me-3">
+              Vytvořit účet
+            </Button>
+            <Spinner animation="border" role="status" hidden={!isSubmitted}>
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </FormGroup>
         </Form>
       </Container>
     </div>

@@ -3,16 +3,21 @@ package cz.reservation.service;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.*;
 import cz.reservation.dto.mapper.UserMapper;
+import cz.reservation.entity.RefreshToken;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
+import cz.reservation.service.exception.RefreshTokenExpiredException;
 import cz.reservation.service.serviceinterface.AuthService;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -70,4 +75,30 @@ public class AuthServiceImpl implements AuthService {
 
         return userMapper.toDto(savedEntity);
     }
+
+    @Override
+    public LoginResponseDto refresh(RefreshTokenRequestDto refreshTokenRequestDto) {
+        String userName;
+
+        try {
+            userName = jwtService.extractUserName(refreshTokenRequestDto.accessToken());
+        } catch (ExpiredJwtException e) {
+            Claims claims = e.getClaims();
+            userName = claims.getSubject();
+        }
+
+        var refreshToken = refreshTokenService.getRefreshTokenByUsername(userName);
+
+        if (refreshTokenService.isRefreshTokenNoExpired(refreshToken.getToken())) {
+            refreshTokenService.markedAsRevoked(refreshToken);
+            var newAccessToken = refreshTokenService.setNewTokenPair(refreshToken, userName);
+            return new LoginResponseDto(newAccessToken.token(), newAccessToken.expiresIn());
+
+        } else {
+            throw new RefreshTokenExpiredException("Refresh token expired. Please Login");
+
+        }
+
+    }
+
 }

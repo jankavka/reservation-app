@@ -132,10 +132,10 @@ export type CourtBlockingDto = {
 
 export type RangeLocalDateTime = {
     empty?: boolean;
+    bounded?: boolean;
     boundedOpen?: boolean;
     lowerBoundClosed?: boolean;
     upperBoundClosed?: boolean;
-    bounded?: boolean;
 };
 
 export type BookingDto = {
@@ -154,14 +154,18 @@ export type AttendanceDto = {
     createdAt?: string;
 };
 
-export type AuthRequestDto = {
-    username?: string;
-    password?: string;
+export type RefreshTokenRequestDto = {
+    accessToken?: string;
 };
 
 export type LoginResponseDto = {
     token?: string;
     expiresIn?: number;
+};
+
+export type AuthRequestDto = {
+    username?: string;
+    password?: string;
 };
 
 export type RegistrationRequestDto = {
@@ -1108,6 +1112,22 @@ export type EditAttendanceResponses = {
 };
 
 export type EditAttendanceResponse = EditAttendanceResponses[keyof EditAttendanceResponses];
+
+export type RefreshData = {
+    body: RefreshTokenRequestDto;
+    path?: never;
+    query?: never;
+    url: '/auth/refresh';
+};
+
+export type RefreshResponses = {
+    /**
+     * OK
+     */
+    200: LoginResponseDto;
+};
+
+export type RefreshResponse = RefreshResponses[keyof RefreshResponses];
 
 export type AuthenticateAndGetTokenData = {
     body: AuthRequestDto;

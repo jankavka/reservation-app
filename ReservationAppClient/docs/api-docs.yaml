@@ -823,6 +823,24 @@ paths:
       responses:
         "204":
           description: No Content
+  /auth/refresh:
+    post:
+      tags:
+        - auth-controller
+      operationId: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponseDto"
   /auth/generateToken:
     post:
       tags:
@@ -2042,13 +2060,13 @@ components:
       properties:
         empty:
           type: boolean
+        bounded:
+          type: boolean
         boundedOpen:
           type: boolean
         lowerBoundClosed:
           type: boolean
         upperBoundClosed:
-          type: boolean
-        bounded:
           type: boolean
     BookingDto:
       type: object
@@ -2090,12 +2108,10 @@ components:
           format: date-time
       required:
         - booking
-    AuthRequestDTO:
+    RefreshTokenRequestDto:
       type: object
       properties:
-        username:
-          type: string
-        password:
+        accessToken:
           type: string
     LoginResponseDto:
       type: object
@@ -2105,6 +2121,13 @@ components:
         expiresIn:
           type: integer
           format: int64
+    AuthRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
     RegistrationRequestDto:
       type: object
       properties:

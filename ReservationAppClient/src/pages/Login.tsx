@@ -1,15 +1,22 @@
-import { Container, Form, Button } from "react-bootstrap";
+import { Container, Form, Button, FormGroup, Spinner } from "react-bootstrap";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useApi, type AuthRequestDto } from "../hooks/useApi";
+import { useLocation, useNavigate } from "react-router";
+import FlashMessage from "../components/FlashMessages";
 
 const Login = () => {
   const [token, setToken] = useState<string>();
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [userData, setUserData] = useState<AuthRequestDto>({
     username: "",
     password: "",
   });
   const api = useApi();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const success: boolean = false || location.state?.success;
+  const nameOfCreatedUser = location.state?.username;
 
   /**
    * callback for getting access token
@@ -22,15 +29,16 @@ const Login = () => {
       api.authenticateAndGetToken({ body: data }).then((data) => {
         console.log(data);
         setToken(data.data.token);
+        navigate("/");
         return data.data.token;
       });
     } catch (error) {
+      setIsSubmitted(false);
       console.error("Error during fetching token" + error);
       return error;
     }
     return false;
   };
-
 
   const fetchedData = useQuery({
     queryKey: ["token", userData],
@@ -40,6 +48,7 @@ const Login = () => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    setIsSubmitted(true);
     console.log(userData);
     fetchedData.refetch();
   };
@@ -58,6 +67,11 @@ const Login = () => {
     <div>
       <Container fluid={"md"} style={{ maxWidth: "40dvw" }}>
         <h1 className="text-center">Přihlášení</h1>
+        <FlashMessage
+          success={true}
+          state={success}
+          text={`Uživatel ${nameOfCreatedUser} úspěšně zaregistrován `}
+        ></FlashMessage>
         <Form onSubmit={(e) => handleSubmit(e)}>
           <Form.Group className="mb-3">
             <Form.Label htmlFor="email">Email</Form.Label>
@@ -79,9 +93,14 @@ const Login = () => {
               onChange={(e) => handleChange(e)}
             />
           </Form.Group>
-          <Button type="submit" variant="secondary">
-            Přihlásit
-          </Button>
+          <FormGroup>
+            <Button type="submit" variant="secondary">
+              Přihlásit
+            </Button>
+            <Spinner animation="border" role="status" hidden={!isSubmitted}>
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </FormGroup>
         </Form>
       </Container>
     </div>

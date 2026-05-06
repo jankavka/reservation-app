@@ -1,9 +1,6 @@
 package cz.reservation.controller;
 
-import cz.reservation.dto.AuthRequestDTO;
-import cz.reservation.dto.LoginResponseDto;
-import cz.reservation.dto.RegistrationRequestDto;
-import cz.reservation.dto.UserDto;
+import cz.reservation.dto.*;
 import cz.reservation.service.serviceinterface.AuthService;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
@@ -41,6 +38,13 @@ public class AuthController {
             HttpServletResponse res) {
 
         return authService.authenticate(authRequestDTO);
+    }
+
+    @PostMapping("/refresh")
+    public LoginResponseDto refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequest){
+        return authService.refresh(refreshTokenRequest);
+
+
     }
 
 }
