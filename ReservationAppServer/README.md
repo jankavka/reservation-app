@@ -219,7 +219,7 @@ The application uses stateless JWT authentication with an access/refresh token p
 
 Refresh tokens are persisted in the `refresh_tokens` table and marked as revoked after each use (rotation on every refresh).
 
-**Roles:** ADMIN, USER, COACH
+**Roles:** ADMIN, COACH, PARENT, PLAYER
 
 ## Build Commands
 
