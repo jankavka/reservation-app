@@ -17,7 +17,7 @@ public class UserCreatedListener {
         this.notificationSender = notificationSender;
     }
 
-    @EventListener
+    //@EventListener
     public void handleCreatedUser(CreatedUserDto createdUserDto) {
         var userId = createdUserDto.createdEntity.getId();
         var userEmail = createdUserDto.createdEntity.getEmail();

@@ -14,7 +14,7 @@ const Registration = () => {
   const api = useApi();
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>();
-  const [state, setState] = useState<boolean>(false);
+  const [state, setState] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>();
 
   const callback = async (user: RegistrationRequestDto) => {
@@ -28,10 +28,11 @@ const Registration = () => {
   const createUser = useMutation({
     mutationFn: callback,
     onError: (error) => {
+      console.log(error.message)
       setIsSubmitted(false);
       setErrorMessage(error.message);
       setSuccess(false);
-      setState(true);
+      setState(false);
       console.error(error);
     },
     onSuccess: () =>
@@ -90,7 +91,7 @@ const Registration = () => {
       <Container fluid={"md"} style={{ maxWidth: "40dvw" }}>
         <h1 className="text-center">Registrace</h1>
         <div hidden={state} className="mt-3">
-          <FlashMessage success={success} text={errorMessage} state={state} />
+          <FlashMessage success={success} text={errorMessage} state={!state} />
         </div>
         <Form onSubmit={(e) => handleSubmit(e)}>
           <Form.Group className="mb-3">

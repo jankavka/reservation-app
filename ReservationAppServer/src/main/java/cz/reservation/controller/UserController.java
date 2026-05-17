@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +30,14 @@ public class UserController {
 
     }
 
+    //@PreAuthorize("isAuthenticated() AND hasRole('PARENT')")
     @Secured("PARENT")
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable Long id) {
         return userService.getUser(id);
     }
 
+    @Secured("PARENT")
     @GetMapping("/all")
     public List<UserDto> getAllUsers(UserFilter userFilter) {
         return userService.getAllUsers(userFilter);
@@ -54,6 +57,7 @@ public class UserController {
     @DeleteMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest req) throws ServletException {
         req.logout();
+        SecurityContextHolder.getContext().setAuthentication(null);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Logged out");
         return ResponseEntity.ok(response);

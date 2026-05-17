@@ -4,8 +4,6 @@ import cz.reservation.dto.*;
 import cz.reservation.service.serviceinterface.AuthService;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,10 +31,7 @@ public class AuthController {
 
     @PostMapping("/generateToken")
     public LoginResponseDto authenticateAndGetToken(
-            @RequestBody AuthRequestDTO authRequestDTO,
-            HttpServletRequest req,
-            HttpServletResponse res) {
-
+            @RequestBody AuthRequestDTO authRequestDTO) {
         return authService.authenticate(authRequestDTO);
     }
 
