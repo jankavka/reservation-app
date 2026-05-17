@@ -1,6 +1,9 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
-import { useState } from "react";
-import { useLocation } from "react-router";
+import { Suspense} from "react";
+import { useLocation, useNavigate } from "react-router";
+import { useApi } from "../hooks/useApi";
+import { useMutation } from "@tanstack/react-query";
+import { useUserContext } from "../context/CurrentUserContext";
 
 type menuItem = {
   label: string;
@@ -39,18 +42,43 @@ const menu: menuItem[] = [
 ];
 
 const NavLinks = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { username, setUsername } = useUserContext();
+
+
   const pathname = useLocation().pathname;
+  const navigation = useNavigate();
+  const api = useApi();
+  const logoutFn = () => {
+    localStorage.removeItem("token");
+    setUsername(null)
+    return api.logout();
+  };
+
+
+
+  const logout = useMutation({
+    mutationFn: logoutFn,
+    onError: (error) => {
+      console.error(error);
+    },
+    onSuccess: () => {
+      navigation("/");
+    },
+  });
+
   return (
     <>
       <Navbar data-bs-theme="dark" bg="dark">
         <Container>
           <Navbar.Brand>Tenisový rezervační systém</Navbar.Brand>
-          {isLoggedIn ? (
-            <Navbar.Text className="justify-content-end">
-              <div>Přihlášený uživatel:</div>
-              <div className="text-end">Some Name</div>
-            </Navbar.Text>
+          {username ? (
+            <Suspense fallback={<div>Loading...</div>}>
+              <Navbar.Text className="justify-content-end">
+                <div>Přihlášený uživatel:</div>
+                <div></div>
+                <div className="text-end">{username}</div>
+              </Navbar.Text>
+            </Suspense>
           ) : (
             <Nav>
               <Nav.Link
@@ -88,9 +116,10 @@ const NavLinks = () => {
             </Nav>
           </Navbar.Collapse>
           <Navbar className="justify-content-end">
-            {isLoggedIn ? (
+            {username ? (
               <Nav>
                 <Nav.Link href="{}">Profil</Nav.Link>
+                <Nav.Link onClick={() => logout.mutate()}>Odhlásit</Nav.Link>
               </Nav>
             ) : (
               <Nav></Nav>

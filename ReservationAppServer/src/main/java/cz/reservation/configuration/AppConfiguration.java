@@ -32,5 +32,4 @@ public class AppConfiguration {
         return new ProviderManager(provider);
     }
 
-
 }

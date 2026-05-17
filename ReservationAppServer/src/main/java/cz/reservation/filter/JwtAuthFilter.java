@@ -1,5 +1,6 @@
 package cz.reservation.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -20,8 +21,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -31,12 +34,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Lazy
     public JwtAuthFilter(
             UserDetailsService userDetailsService,
-            JwtService jwtService,
-            RefreshTokenService refreshTokenService) {
+            JwtService jwtService) {
 
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
@@ -50,11 +54,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @Nonnull
             FilterChain filterChain) throws ServletException, IOException {
 
-
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String userName = null;
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
@@ -63,6 +65,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 log.warn("JWT token expired for request: {}", request.getRequestURI());
             } catch (JwtException e) {
                 log.warn("Invalid JWT token: {}", e.getMessage());
+                if(!request.getRequestURI().equals("/auth/addNewUser")) {
+                    ContentCachingResponseWrapper myResponse = new ContentCachingResponseWrapper(response);
+                    myResponse.resetBuffer();
+                    myResponse
+                            .getWriter()
+                            .write(objectMapper.writeValueAsString(Map.of("message", "Unexpected mistake")));
+                    myResponse.copyBodyToResponse();
+                }
+
             } catch (AuthorizationDeniedException e) {
                 log.error("{}, {}", e.getMessage(), e.getClass());
             }

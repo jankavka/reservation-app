@@ -9,23 +9,27 @@ import Contacts from "../pages/Contacts";
 import Registration from "../pages/Registration";
 import Coaches from "../pages/Coaches";
 import Venues from "../pages/Venues";
+import { CurrentUserProvider } from "../context/CurrentUserProvider";
 
 const PublicLayout = () => {
+
   return (
     <div>
-      <NavLinks />
+      <CurrentUserProvider>
+        <NavLinks />
 
-      <Routes>
-        <Route index element={<Home />} />
-        <Route path="/rezervace" element={<Reservation />} />
-        <Route path="/kurty" element={<Courts/>}/>
-        <Route path="/o-nas" element={<AboutUs/>}/>
-        <Route path="/kontakty" element={<Contacts/>}/>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/registrace" element={<Registration/>}/>
-        <Route path="/treneri" element={<Coaches/>} />
-        <Route path="/arealy" element={<Venues/>} />
-      </Routes>
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/rezervace" element={<Reservation />} />
+          <Route path="/kurty" element={<Courts />} />
+          <Route path="/o-nas" element={<AboutUs />} />
+          <Route path="/kontakty" element={<Contacts />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registrace" element={<Registration />} />
+          <Route path="/treneri" element={<Coaches />} />
+          <Route path="/arealy" element={<Venues />} />
+        </Routes>
+      </CurrentUserProvider>
     </div>
   );
 };

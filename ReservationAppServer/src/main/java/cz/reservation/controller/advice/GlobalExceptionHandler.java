@@ -6,11 +6,13 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -132,14 +134,6 @@ public class GlobalExceptionHandler {
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
 
-
-//    @ExceptionHandler(AuthorizationDeniedException.class)
-//    public void handleAuthDeniedException(
-//            AuthorizationDeniedException e,
-//            HttpServletResponse response) throws IOException {
-//        log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getMessage());
-//    }
-
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAuthDeniedException(
             AuthorizationDeniedException e,
@@ -147,14 +141,24 @@ public class GlobalExceptionHandler {
         log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of(MESSAGE_KEY, e.getMessage() + ". Use refresh token"));
+                .body(Map.of(MESSAGE_KEY, e.getMessage() + ". Use refresh token or Login"));
     }
+
 
     @ExceptionHandler(RefreshTokenExpiredException.class)
     public ResponseEntity<Map<String, String>> handleRefreshTokenExpired(RefreshTokenExpiredException e) {
         log.error(LOG_FORMAT, e.getClass(), e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
+
+    // 401 Unauthorized
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException e) {
+        log.error(LOG_FORMAT, e.getClass(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
 

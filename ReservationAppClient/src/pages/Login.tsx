@@ -1,67 +1,41 @@
 import { Container, Form, Button, FormGroup, Spinner } from "react-bootstrap";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useApi, type AuthRequestDto } from "../hooks/useApi";
-import { useLocation, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { type AuthRequestDto } from "../hooks/useApi";
+import { useLocation } from "react-router";
 import FlashMessage from "../components/FlashMessages";
+import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
-  const [token, setToken] = useState<string>();
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const location = useLocation();
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false || location.state?.isSubmitted);
   const [userData, setUserData] = useState<AuthRequestDto>({
     username: "",
     password: "",
   });
-  const api = useApi();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const success: boolean = false || location.state?.success;
-  const nameOfCreatedUser = location.state?.username;
+  const { mutate: login } = useAuth({
+    username: userData.username,
+    password: userData.password,
+    setIsSubmitted,
 
-  /**
-   * callback for getting access token
-   * @param data object with username and password
-   * @returns access token if success, error or false in not
-   */
-  const callback = async (data: AuthRequestDto) => {
-    console.log(data);
-    try {
-      api.authenticateAndGetToken({ body: data }).then((data) => {
-        console.log(data);
-        setToken(data.data.token);
-        navigate("/");
-        return data.data.token;
-      });
-    } catch (error) {
-      setIsSubmitted(false);
-      console.error("Error during fetching token" + error);
-      return error;
-    }
-    return false;
-  };
-
-  const fetchedData = useQuery({
-    queryKey: ["token", userData],
-    queryFn: () => callback(userData),
-    enabled: false,
   });
+  const success: boolean = false || location.state?.success;
+  const errorState: boolean = false || location.state?.errorState
+  const nameOfCreatedUser: string = location.state?.username;
+  const errorMessage: string = location.state?.errorMessage
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    console.log(userData);
-    fetchedData.refetch();
+    login();
   };
-
-  if (token) {
-    console.log(token);
-  }
 
   const handleChange = (e: any) => {
     setUserData((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
+
+  useEffect(() => {
+  }, [location.state?.errorState])
 
   return (
     <div>
@@ -71,6 +45,11 @@ const Login = () => {
           success={true}
           state={success}
           text={`Uživatel ${nameOfCreatedUser} úspěšně zaregistrován `}
+        ></FlashMessage>
+        <FlashMessage
+          success={false}
+          state={errorState}
+          text={`${errorMessage}`}
         ></FlashMessage>
         <Form onSubmit={(e) => handleSubmit(e)}>
           <Form.Group className="mb-3">

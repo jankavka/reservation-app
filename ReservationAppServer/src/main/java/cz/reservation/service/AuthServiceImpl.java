@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,19 +42,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponseDto authenticate(AuthRequestDTO authRequestDTO) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequestDTO.username(),
-                        authRequestDTO.password())
-        );
-        if (authentication.isAuthenticated()) {
-            var username = authRequestDTO.username();
-            var token = jwtService.generateAccessToken(username);
-            refreshTokenService.createRefreshToken(username);
-            return new LoginResponseDto(token, jwtService.getJwtExpiration());
-        } else {
-            throw new UsernameNotFoundException("Invalid user request");
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequestDTO.username(),
+                            authRequestDTO.password())
+            );
+
+            if (authentication.isAuthenticated()) {
+                var username = authRequestDTO.username();
+                var token = jwtService.generateAccessToken(username);
+                refreshTokenService.createRefreshToken(username);
+                return new LoginResponseDto(token, jwtService.getJwtExpiration());
+            }
+        } catch (RuntimeException e) {
+            log.error("{}, {}", e.getClass(), e.getMessage());
         }
+        throw new UsernameNotFoundException("Wrong username or password");
     }
 
     @Override

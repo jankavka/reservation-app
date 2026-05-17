@@ -12,6 +12,8 @@ import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     private static final String SERVICE_NAME = "user";
+    private static final String PROTECTED = "===PROTECTED===";
 
     @Transactional(readOnly = true)
     @Override
@@ -58,9 +61,23 @@ public class UserServiceImpl implements UserService {
     @ReadOnlyTransaction
     @Override
     public User getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("Current user: {}", authentication.getPrincipal());
-        return (User) authentication.getPrincipal();
+        Authentication authentication;
+        try {
+            authentication = SecurityContextHolder.getContext().getAuthentication();
+            log.info("Current user: {}", authentication.getPrincipal());
+            var currentUser = (User) authentication.getPrincipal();
+            return new User(
+                    currentUser.getUsername(),
+                    PROTECTED,
+                    currentUser.isEnabled(),
+                    currentUser.isAccountNonExpired(),
+                    currentUser.isCredentialsNonExpired(),
+                    currentUser.isAccountNonLocked(),
+                    currentUser.getAuthorities());
+        } catch (Exception e) {
+            log.error("Error: {}, {}", e.getMessage(), e.getClass());
+            throw new AuthorizationDeniedException("There is no authenticated user");
+        }
     }
 
     @Override
