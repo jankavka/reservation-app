@@ -136,6 +136,7 @@ Spring Boot resolves these from environment variables at runtime. In a GitHub Ac
 - **Pricing Rules** - flexible pricing system for tennis lessons and packages
 - **Packages** - prepaid tennis training packages
 - **Court Management** - tennis venues, courts, and court blocking
+- **Photo Management** - venue and court photos (multipart upload, static file serving)
 - **Invoicing** - invoice summaries for players
 - **Attendance** - tennis training attendance tracking
 - **Notifications** - SMS and email notifications via Pingram
@@ -155,13 +156,15 @@ src/main/java/cz/reservation/
 ├── dto/               # Data Transfer Objects
 │   └── mapper/        # MapStruct mappers (16 mappers)
 ├── entity/            # JPA entities (16 entities)
-│   ├── filter/        # Query filter objects (12 filters)
+│   ├── filter/        # Query filter objects (11 filters)
 │   ├── repository/    # Spring Data repositories
 │   │   └── specification/  # JPA Specifications (11 specs)
 │   └── userdetails/   # Spring Security user details
 ├── filter/            # JWT authentication filter
 └── service/           # Business logic
+    ├── annotation/    # Custom annotations (@ReadOnlyTransaction)
     ├── exception/     # Custom exceptions
+    ├── files/         # File utilities (photo saving/deleting)
     ├── invoice/       # Invoice generation engine
     ├── listener/      # Event listeners (3 listeners)
     ├── message/       # Message handling
@@ -246,6 +249,8 @@ When using Docker, the following directories are mounted:
 - `./files` → `/app/files` - general files
 - `./qr-codes` → `/app/qr-codes` - QR code images
 - `./pdf` → `/app/pdf` - generated PDF invoices
+- `./venues-photos` → `/app/venues-photos` - venue photos
+- `./court-photos` → `/app/court-photos` - court photos
 
 ## License
 
