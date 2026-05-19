@@ -98,6 +98,9 @@ databaseChangeLog:
               - column:
                   name: venue_id
                   type: BIGINT
+              - column:
+                  name: photo_url
+                  type: VARCHAR(255)
         - createTable:
             tableName: enrollments
             columns:
@@ -357,6 +360,9 @@ databaseChangeLog:
               - column:
                   name: phone_number
                   type: VARCHAR(60)
+              - column:
+                  name: photo_url
+                  type: VARCHAR(255)
         - createTable:
             tableName: weather_notes
             columns:

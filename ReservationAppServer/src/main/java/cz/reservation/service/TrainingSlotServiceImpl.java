@@ -303,6 +303,7 @@ public class TrainingSlotServiceImpl implements TrainingSlotService {
                         null,
                         null,
                         null,
+                        null,
                         null),
                 trainingSlotDto.startAt(),
                 trainingSlotDto.endAt(),

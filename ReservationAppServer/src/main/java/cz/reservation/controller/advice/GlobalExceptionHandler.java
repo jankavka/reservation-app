@@ -1,13 +1,10 @@
 package cz.reservation.controller.advice;
 
 import cz.reservation.service.exception.*;
-import cz.reservation.service.serviceinterface.RefreshTokenService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -159,6 +156,15 @@ public class GlobalExceptionHandler {
         log.error(LOG_FORMAT, e.getClass(), e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
+
+
+    @ExceptionHandler(PhotoSavingException.class)
+    public ResponseEntity<Map<String, String>> handlePhotoSavingException(PhotoSavingException e) {
+        log.error(LOG_FORMAT, e.getClass(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));
     }
 

@@ -14,5 +14,6 @@ public interface VenueMapper {
     VenueDto toDto(VenueEntity venueEntity);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "photoUrl", ignore = true)
     void updateEntity(@MappingTarget VenueEntity target, VenueDto source);
 }

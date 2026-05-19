@@ -10,7 +10,7 @@ const FlashMessage = ({ success, state, text, setTimer = false }) => {
 
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [setTimer]);
 
   if (!showComponent) {
     return <div></div>;

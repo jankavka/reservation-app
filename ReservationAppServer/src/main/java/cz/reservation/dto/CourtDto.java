@@ -20,7 +20,9 @@ public record CourtDto(
         Boolean lighting,
 
         @NotNull(message = "Venue must not be null")
-        VenueDto venue
+        VenueDto venue,
+
+        String photoUrl
 ) {
 
     @Override

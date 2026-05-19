@@ -28,3 +28,5 @@ qrcode:
   path: "/app/qr-codes"
 company-info:
   path: "files/company_info.json"
+venues-photos:
+  path: "/app/venues-photos"

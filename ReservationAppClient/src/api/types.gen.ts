@@ -13,6 +13,7 @@ export type CourtDto = {
     indoor: boolean;
     lighting: boolean;
     venue: VenueDto;
+    photoUrl?: string;
 };
 
 export type GroupDto = {
@@ -58,6 +59,7 @@ export type VenueDto = {
     name: string;
     address: string;
     phoneNumber: string;
+    photoUrl?: string;
 };
 
 export type WeatherNotesDto = {
@@ -132,10 +134,10 @@ export type CourtBlockingDto = {
 
 export type RangeLocalDateTime = {
     empty?: boolean;
-    bounded?: boolean;
     boundedOpen?: boolean;
     lowerBoundClosed?: boolean;
     upperBoundClosed?: boolean;
+    bounded?: boolean;
 };
 
 export type BookingDto = {
@@ -184,6 +186,7 @@ export type CompanyInfoDto = {
     telNumber?: string;
     bankAccount?: string;
     bankAccountInternationalFormat?: string;
+    description?: string;
 };
 
 export type GrantedAuthority = {
@@ -374,7 +377,10 @@ export type GetVenueResponses = {
 export type GetVenueResponse = GetVenueResponses[keyof GetVenueResponses];
 
 export type EditVenueData = {
-    body: VenueDto;
+    body?: {
+        venue: VenueDto;
+        file?: Blob | File;
+    };
     path: {
         id: number;
     };
@@ -862,7 +868,10 @@ export type ShowCourtResponses = {
 export type ShowCourtResponse = ShowCourtResponses[keyof ShowCourtResponses];
 
 export type EditCourtData = {
-    body: CourtDto;
+    body?: {
+        court: CourtDto;
+        file?: Blob | File;
+    };
     path: {
         id: number;
     };
@@ -1210,7 +1219,10 @@ export type GetAllVenuesResponses = {
 export type GetAllVenuesResponse = GetAllVenuesResponses[keyof GetAllVenuesResponses];
 
 export type CreateVenueData = {
-    body: VenueDto;
+    body?: {
+        venue: VenueDto;
+        file?: Blob | File;
+    };
     path?: never;
     query?: never;
     url: '/api/venue';
@@ -1492,7 +1504,10 @@ export type ShowAllCourtsResponses = {
 export type ShowAllCourtsResponse = ShowAllCourtsResponses[keyof ShowAllCourtsResponses];
 
 export type CreateCourtData = {
-    body: CourtDto;
+    body?: {
+        court: CourtDto;
+        file?: Blob | File;
+    };
     path?: never;
     query?: never;
     url: '/api/court';

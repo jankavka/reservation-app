@@ -15,6 +15,7 @@ public interface CourtMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "venue", ignore = true)
+    @Mapping(target = "photoUrl", ignore = true)
     void updateEntity(@MappingTarget CourtEntity target, CourtDto source);
 
 }

@@ -8,31 +8,47 @@ import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.entity.repository.specification.CourtSpecification;
 import cz.reservation.service.annotation.ReadOnlyTransaction;
+import cz.reservation.service.exception.PhotoSavingException;
+import cz.reservation.service.files.MyFilesUtils;
 import cz.reservation.service.serviceinterface.CourtService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CourtServiceImpl implements CourtService {
 
     private final CourtRepository courtRepository;
     private final CourtMapper courtMapper;
     private final VenueRepository venueRepository;
+    private final MyFilesUtils filesUtils;
 
     private static final String SERVICE_NAME = "court";
 
+    @Value("${court-photos.path}")
+    private String courtPhotosPath;
+
+    @Value("${court-photos.resource}")
+    private String courtResource;
+
     @Override
     @Transactional
-    public CourtDto createCourt(CourtDto courtDto) {
+    public CourtDto createCourt(CourtDto courtDto, MultipartFile file) {
+        String photoUrl = handleMultipartFile(file);
         var entityToSave = courtMapper.toEntity(courtDto);
         setForeignKeys(entityToSave, courtDto);
+        entityToSave.setPhotoUrl(photoUrl);
         var savedEntity = courtRepository.save(entityToSave);
         return courtMapper.toDto(savedEntity);
     }
@@ -65,10 +81,17 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional
-    public void editCourt(CourtDto courtDto, Long id) {
+    public void editCourt(CourtDto courtDto, Long id, MultipartFile file) {
         var entityToUpdate = courtRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+        if (file != null && !file.isEmpty()) {
+            var currentPhotoUrl = entityToUpdate.getPhotoUrl();
+            filesUtils.deleteFile(currentPhotoUrl);
+            var photoUrl = handleMultipartFile(file);
+            entityToUpdate.setPhotoUrl(photoUrl);
+
+        }
         courtMapper.updateEntity(entityToUpdate, courtDto);
         setForeignKeys(entityToUpdate, courtDto);
     }
@@ -77,6 +100,27 @@ public class CourtServiceImpl implements CourtService {
         var venueId = source.venue().id();
         target.setVenue(venueRepository
                 .findById(venueId)
-                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage("venue", venueId))));
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(
+                        "venue", venueId))));
+    }
+
+    private String handleMultipartFile(MultipartFile file) {
+        String photoUrl = "";
+        if (file != null && !file.isEmpty()) {
+            var contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                log.warn("Current content type: {}", contentType);
+                throw new PhotoSavingException("This content type is not supported. File must be image");
+            }
+
+            var fileName = file.getName();
+            var fileSuffix = filesUtils.getSuffix(file);
+            var fileUrl = courtPhotosPath + File.separator + fileName + "." + fileSuffix;
+            photoUrl = courtResource + File.separator + fileName + "." + fileSuffix;
+            File outputFile = new File(fileUrl);
+            filesUtils.savePhotoFile(file, outputFile);
+
+        }
+        return photoUrl;
     }
 }

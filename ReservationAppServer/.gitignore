@@ -42,11 +42,14 @@ build/
 pdf/**
 qr-codes/**
 files/**
+venues-photos/**
+court-photos/**
 
 !files/.gitkeep
 !pdf/.gitkeep
 !qr-codes/.gitkeep
-
+!venues-photos/.gitkeep
+!court-photos/.gitkeep
 
 ### CLAUDE ###
 CLAUDE.md

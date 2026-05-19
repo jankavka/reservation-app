@@ -11,7 +11,8 @@ services:
       - ./files:/app/files
       - ./qr-codes:/app/qr-codes
       - ./pdf:/app/pdf
-
+      - ./venues-photos:/app/venues-photos
+      - ./court-photos:/app/court-photos
   db:
     image: postgres:14.21-trixie
     ports:
@@ -24,6 +25,5 @@ services:
       POSTGRES_DB: reservation
       POSTGRES_PASSWORD: 1234
       POSTGRES_USER: postgres
-
 volumes:
   db-data:
