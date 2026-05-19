@@ -40,5 +40,8 @@ public class CourtEntity {
     @JoinColumn(name = "venue_id")
     private VenueEntity venue;
 
+    @Column
+    private String photoUrl;
+
 
 }

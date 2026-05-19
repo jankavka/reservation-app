@@ -48,9 +48,9 @@ class CourtBlockingServiceTest {
     void shouldCreateCourtBlocking() {
         var dateFrom = LocalDateTime.of(2026, Month.AUGUST, 12, 12, 0);
         var dateTo = LocalDateTime.of(2026, Month.AUGUST, 12, 13, 0);
-        var courtDto = new CourtDto(1L, null, Surface.HARD, Boolean.FALSE, Boolean.TRUE, null);
+        var courtDto = new CourtDto(1L, null, Surface.HARD, Boolean.FALSE, Boolean.TRUE, null, "url");
         var courtEntity = new CourtEntity(
-                1L, null, Surface.HARD, Boolean.FALSE, Boolean.TRUE, null, null);
+                1L, null, Surface.HARD, Boolean.FALSE, Boolean.TRUE, null, null, "url");
         var courtBlockingDto = new CourtBlockingDto(null, courtDto, dateFrom, dateTo, null, null);
         var courtBlockingEntity = new CourtBlockingEntity();
         courtBlockingEntity.setBlockedFrom(dateFrom);
@@ -83,7 +83,8 @@ class CourtBlockingServiceTest {
     void shouldThrowUnsupportedTimeRangeException() {
         var dateFrom = LocalDateTime.of(2026, Month.AUGUST, 12, 12, 1);
         var dateTo = LocalDateTime.of(2026, Month.AUGUST, 12, 13, 1);
-        var courtDto = new CourtDto(1L, null, Surface.HARD, Boolean.FALSE, Boolean.TRUE, null);
+        var courtDto = new CourtDto(1L, null, Surface.HARD, Boolean.FALSE,
+                Boolean.TRUE, null, "url");
         var courtBlockingDto = new CourtBlockingDto(null, courtDto, dateFrom, dateTo, null, null);
 
         var exception = assertThrows(
@@ -101,9 +102,10 @@ class CourtBlockingServiceTest {
     void shouldThrowEntityNotFoundException_inCaseNoRelatedCourt() {
         var dateFrom = LocalDateTime.of(2026, Month.AUGUST, 12, 12, 0);
         var dateTo = LocalDateTime.of(2026, Month.AUGUST, 12, 13, 0);
-        var courtDto = new CourtDto(99L, null, null, null, null, null);
+        var courtDto = new CourtDto(99L, null, null,
+                null, null, null, "url");
         var courtEntity = new CourtEntity(
-                99L, null, null, null, null, null, null);
+                99L, null, null, null, null, null, null, "url");
         var courtBlockingDto = new CourtBlockingDto(null, courtDto, dateFrom, dateTo, null, null);
         var courtBlockingEntity = new CourtBlockingEntity();
         courtBlockingEntity.setBlockedFrom(dateFrom);

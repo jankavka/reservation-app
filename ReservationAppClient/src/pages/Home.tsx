@@ -4,7 +4,9 @@ import { useLocation } from "react-router";
 
 const Home = () => {
   const location = useLocation();
-  const succeSstate = location.state?.successState;
+  const successState = location.state?.successState;
+  const logoutSuccess = false || location.state?.logoutSuccess;
+  const logoutText = location.state?.logoutText;
   const text = `Uživatel ${location.state?.name} úspěšně přihlášen`;
 
   return (
@@ -13,10 +15,18 @@ const Home = () => {
         <div className="mt-3">
           <FlashMessage
             success={true}
-            state={succeSstate}
+            state={successState}
             text={text}
-            setTimer={true}
-          ></FlashMessage>
+            setTimer={successState}
+          />
+        </div>
+        <div>
+          <FlashMessage
+            success={true}
+            state={logoutSuccess}
+            text={logoutText}
+            setTimer={logoutSuccess}
+          />
         </div>
         <h1>Vítejte na úvodní stránce</h1>
       </Container>

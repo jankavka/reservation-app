@@ -25,3 +25,7 @@ linkedIn.txt
 *.njsproj
 *.sln
 *.sw?
+
+# assets
+public/**
+!public/.gitkeep

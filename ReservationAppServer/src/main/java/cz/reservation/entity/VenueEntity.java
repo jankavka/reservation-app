@@ -31,4 +31,7 @@ public class VenueEntity{
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourtEntity> courts;
+
+    @Column
+    private String photoUrl;
 }

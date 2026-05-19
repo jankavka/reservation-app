@@ -1,5 +1,5 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
-import { Suspense} from "react";
+import { Suspense } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useApi } from "../hooks/useApi";
 import { useMutation } from "@tanstack/react-query";
@@ -44,17 +44,14 @@ const menu: menuItem[] = [
 const NavLinks = () => {
   const { username, setUsername } = useUserContext();
 
-
   const pathname = useLocation().pathname;
   const navigation = useNavigate();
   const api = useApi();
   const logoutFn = () => {
     localStorage.removeItem("token");
-    setUsername(null)
+    setUsername(null);
     return api.logout();
   };
-
-
 
   const logout = useMutation({
     mutationFn: logoutFn,
@@ -62,7 +59,12 @@ const NavLinks = () => {
       console.error(error);
     },
     onSuccess: () => {
-      navigation("/");
+      navigation("/", {
+        state: {
+          logoutSuccess: true,
+          logoutText: "Odhlášení proběhlo úspěšně",
+        },
+      });
     },
   });
 

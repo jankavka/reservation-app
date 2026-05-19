@@ -91,10 +91,17 @@ paths:
             format: int64
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/VenueDto"
-        required: true
+              type: object
+              properties:
+                venue:
+                  $ref: "#/components/schemas/VenueDto"
+                file:
+                  type: string
+                  format: binary
+              required:
+                - venue
       responses:
         "204":
           description: No Content
@@ -569,10 +576,17 @@ paths:
             format: int64
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/CourtDto"
-        required: true
+              type: object
+              properties:
+                court:
+                  $ref: "#/components/schemas/CourtDto"
+                file:
+                  type: string
+                  format: binary
+              required:
+                - court
       responses:
         "204":
           description: No Content
@@ -928,10 +942,17 @@ paths:
       operationId: createVenue
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/VenueDto"
-        required: true
+              type: object
+              properties:
+                venue:
+                  $ref: "#/components/schemas/VenueDto"
+                file:
+                  type: string
+                  format: binary
+              required:
+                - venue
       responses:
         "200":
           description: OK
@@ -1224,10 +1245,17 @@ paths:
       operationId: createCourt
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/CourtDto"
-        required: true
+              type: object
+              properties:
+                court:
+                  $ref: "#/components/schemas/CourtDto"
+                file:
+                  type: string
+                  format: binary
+              required:
+                - court
       responses:
         "201":
           description: Created
@@ -1708,6 +1736,8 @@ components:
           type: boolean
         venue:
           $ref: "#/components/schemas/VenueDto"
+        photoUrl:
+          type: string
       required:
         - indoor
         - lighting
@@ -1847,6 +1877,8 @@ components:
           type: string
           maxLength: 2147483647
           minLength: 9
+        photoUrl:
+          type: string
       required:
         - address
         - name
@@ -2060,13 +2092,13 @@ components:
       properties:
         empty:
           type: boolean
-        bounded:
-          type: boolean
         boundedOpen:
           type: boolean
         lowerBoundClosed:
           type: boolean
         upperBoundClosed:
+          type: boolean
+        bounded:
           type: boolean
     BookingDto:
       type: object
@@ -2167,6 +2199,8 @@ components:
         bankAccount:
           type: string
         bankAccountInternationalFormat:
+          type: string
+        description:
           type: string
     GrantedAuthority:
       type: object

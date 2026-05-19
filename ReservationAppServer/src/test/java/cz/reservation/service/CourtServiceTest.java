@@ -9,6 +9,7 @@ import cz.reservation.entity.VenueEntity;
 import cz.reservation.entity.filter.CourtFilter;
 import cz.reservation.entity.repository.CourtRepository;
 import cz.reservation.entity.repository.VenueRepository;
+import cz.reservation.service.files.MyFilesUtils;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,26 +42,37 @@ class CourtServiceTest {
     @InjectMocks
     CourtServiceImpl courtService;
 
+    @Mock
+    MyFilesUtils filesUtils;
+
     @Test
     void shouldCreateCourtAndReturnDto() {
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "file",
+                "image/jpeg",
+                new byte[1024]);
         var venue = new VenueEntity(
                 1L,
                 "NAME",
                 "ADDRESS",
                 "123456789",
-                null);
+                null,
+                "url");
         var venueDto = new VenueDto(
                 1L,
                 "NAME",
                 "ADDRESS",
-                "123456789");
+                "123456789",
+                "url");
         var courtDtoToSave = new CourtDto(
                 1L,
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
                 Boolean.TRUE,
-                venueDto);
+                venueDto,
+                "url");
         var courtEntityToSave = new CourtEntity(
                 1L,
                 "N",
@@ -66,7 +80,8 @@ class CourtServiceTest {
                 Boolean.FALSE,
                 Boolean.TRUE,
                 null,
-                venue);
+                venue,
+                "url");
         var savedCourtEntity = new CourtEntity(
                 1L,
                 "N",
@@ -74,21 +89,23 @@ class CourtServiceTest {
                 Boolean.FALSE,
                 Boolean.TRUE,
                 null,
-                venue);
+                venue,
+                "url");
         var returnedCourtDto = new CourtDto(
                 1L,
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
                 Boolean.TRUE,
-                venueDto);
+                venueDto,
+                "url");
 
         when(courtMapper.toEntity(courtDtoToSave)).thenReturn(courtEntityToSave);
         when(venueRepository.findById(venueDto.id())).thenReturn(Optional.of(venue));
         when(courtRepository.save(courtEntityToSave)).thenReturn(savedCourtEntity);
         when(courtMapper.toDto(savedCourtEntity)).thenReturn(returnedCourtDto);
 
-        var result = courtService.createCourt(courtDtoToSave);
+        var result = courtService.createCourt(courtDtoToSave, file);
 
         assertEquals(returnedCourtDto, result);
         verify(courtRepository).save(courtEntityToSave);
@@ -104,14 +121,16 @@ class CourtServiceTest {
                 Boolean.FALSE,
                 Boolean.TRUE,
                 null,
-                null);
+                null,
+                "url");
         var courtDto = new CourtDto(
                 1L,
                 "N",
                 Surface.CLAY,
                 Boolean.FALSE,
                 Boolean.TRUE,
-                null);
+                null,
+                "url");
 
         when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
         when(courtMapper.toDto(courtEntity)).thenReturn(courtDto);
@@ -141,14 +160,16 @@ class CourtServiceTest {
                 Surface.CLAY,
                 Boolean.FALSE,
                 Boolean.TRUE,
-                null);
+                null,
+                "url");
         var court2dto = new CourtDto(
                 2L,
                 "M",
                 Surface.HARD,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                null);
+                null,
+                "url");
         var court1Entity = new CourtEntity(
                 1L,
                 "N",
@@ -156,7 +177,8 @@ class CourtServiceTest {
                 Boolean.FALSE,
                 Boolean.TRUE,
                 null,
-                null);
+                null,
+                "url");
         var court2Entity = new CourtEntity(
                 2L,
                 "M",
@@ -164,7 +186,8 @@ class CourtServiceTest {
                 Boolean.TRUE,
                 Boolean.TRUE,
                 null,
-                null);
+                null,
+                "url");
 
         when(courtRepository.findAll(any(Specification.class))).thenReturn(List.of(court1Entity, court2Entity));
         when(courtMapper.toDto(court1Entity)).thenReturn(court1dto);
@@ -200,24 +223,32 @@ class CourtServiceTest {
     @Test
     void shouldEditCourtSuccessfully() {
         var id = 1L;
+        var multipartFile = new MockMultipartFile(
+                "file",
+                "file",
+                "image/jpeg",
+                new byte[1024]);
         var venue = new VenueEntity(
                 1L,
                 "NAME",
                 "ADDRESS",
                 "123456789",
-                null);
+                null,
+                "url");
         var venueDto = new VenueDto(
                 1L,
                 "NAME",
                 "ADDRESS",
-                "123456789");
+                "123456789",
+                "url");
         var dtoToSave = new CourtDto(
                 1L,
                 "N",
                 Surface.HARD,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                venueDto);
+                venueDto,
+                "url");
         var courtEntity = new CourtEntity(
                 1L,
                 "N",
@@ -225,12 +256,13 @@ class CourtServiceTest {
                 Boolean.TRUE,
                 Boolean.TRUE,
                 null,
-                venue);
+                venue,
+                "url");
 
         when(courtRepository.findById(id)).thenReturn(Optional.of(courtEntity));
         when(venueRepository.findById(venueDto.id())).thenReturn(Optional.of(venue));
 
-        assertDoesNotThrow(() -> courtService.editCourt(dtoToSave, id));
+        assertDoesNotThrow(() -> courtService.editCourt(dtoToSave, id, multipartFile));
 
         verify(courtRepository).findById(id);
         verify(courtMapper).updateEntity(courtEntity, dtoToSave);
@@ -238,6 +270,7 @@ class CourtServiceTest {
 
     @Test
     void shouldThrowEntityNotFoundWhileEditing() {
+        var multipartFile = new MockMultipartFile("file", new byte[1024]);
         var id = 99L;
         var dtoToSave = new CourtDto(
                 id,
@@ -245,8 +278,11 @@ class CourtServiceTest {
                 Surface.HARD,
                 Boolean.TRUE,
                 Boolean.TRUE,
-                null);
-        var exception = assertThrows(EntityNotFoundException.class, () -> courtService.editCourt(dtoToSave, id));
+                null,
+                "url");
+        var exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> courtService.editCourt(dtoToSave, id, multipartFile));
 
         assertInstanceOf(EntityNotFoundException.class, exception);
         assertEquals(entityNotFoundExceptionMessage("court", id), exception.getMessage());

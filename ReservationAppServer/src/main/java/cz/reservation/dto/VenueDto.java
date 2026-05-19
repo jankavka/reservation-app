@@ -14,6 +14,8 @@ public record VenueDto(
 
         @NotBlank(message = "Phone number must not be empty")
         @Size(min = 9, message = "Phone number has to have 9 numbers at least")
-        String phoneNumber
+        String phoneNumber,
+
+        String photoUrl
 ) {
 }

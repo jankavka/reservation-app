@@ -14,6 +14,14 @@ public class StaticResourcesConfig implements WebMvcConfigurer {
     @Value("${file.directory}")
     private String fileDirectory;
 
+    @Value("${venues-photos.path}")
+    private String venuesPhotos;
+
+    @Value("${court-photos.path}")
+    private String courtPhotos;
+
+    private static final String FILE_KEY = "file:";
+
 
     /**
      * Adds resource handlers to application. Method addResourceHandler() determines a URL where we find
@@ -24,8 +32,10 @@ public class StaticResourcesConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/files/**")
-                .addResourceLocations("file:" + fileDirectory + "/");
+        registry.addResourceHandler("/files/**", "/venues-photos/**", "/court-photos/**")
+                .addResourceLocations(FILE_KEY + fileDirectory + "/")
+                .addResourceLocations(FILE_KEY + venuesPhotos + "/" )
+                .addResourceLocations(FILE_KEY + courtPhotos );
     }
 
 

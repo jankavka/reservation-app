@@ -40,7 +40,7 @@ class CompanyInfoServiceTest {
 
         CompanyInfoDto infoDto = new CompanyInfoDto("Name", "address",
                 "12345", "12345", "email", "12345",
-                "12345", "1234567");
+                "12345", "1234567", "desc");
         ObjectMapper mapper = new ObjectMapper();
         var myService = service(mapper);
 
@@ -55,7 +55,8 @@ class CompanyInfoServiceTest {
     void shouldThrowExceptionDuringSavingCompanyInfo() throws IOException {
         CompanyInfoDto infoDto = new CompanyInfoDto(
                 "Name", "address", "12345", "12345",
-                "email", "12345", "12345", "1234567");
+                "email", "12345", "12345", "1234567",
+                "desc");
 
         ObjectMapper mapper = mock(ObjectMapper.class);
         var myService = service(mapper);
@@ -73,7 +74,7 @@ class CompanyInfoServiceTest {
     void shouldGetCompanyInfo() throws IOException {
         CompanyInfoDto infoDto = new CompanyInfoDto(
                 "Name", "address", "12345", "12345", "email",
-                "12345", "12345", "1234567");
+                "12345", "12345", "1234567","desc");
         ObjectMapper mapper = new ObjectMapper();
         CompanyInfoServiceImpl service = service(mapper);
         mapper.writeValue(file, infoDto);

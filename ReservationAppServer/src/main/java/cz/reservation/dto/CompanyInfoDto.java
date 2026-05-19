@@ -8,7 +8,8 @@ public record CompanyInfoDto(
         String email,
         String telNumber,
         String bankAccount,
-        String bankAccountInternationalFormat
+        String bankAccountInternationalFormat,
+        String description
 
 ) {
 }
