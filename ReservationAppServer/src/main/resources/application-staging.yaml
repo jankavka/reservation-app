@@ -30,3 +30,7 @@ company-info:
   path: "files/company_info.json"
 venues-photos:
   path: "/app/venues-photos"
+  resource: "/venues-photos"
+court-photos:
+  path: "/app/court-photos"
+  resource: "/court-photos"
