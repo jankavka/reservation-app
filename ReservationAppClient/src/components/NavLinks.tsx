@@ -1,9 +1,7 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
-import { Suspense } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useApi } from "../hooks/useApi";
 import { useMutation } from "@tanstack/react-query";
-import { useUserContext } from "../context/CurrentUserContext";
 
 type menuItem = {
   label: string;
@@ -42,14 +40,14 @@ const menu: menuItem[] = [
 ];
 
 const NavLinks = () => {
-  const { username, setUsername } = useUserContext();
+  const username = localStorage.getItem("currentUser");
 
   const pathname = useLocation().pathname;
   const navigation = useNavigate();
   const api = useApi();
   const logoutFn = () => {
     localStorage.removeItem("token");
-    setUsername(null);
+    localStorage.removeItem("currentUser");
     return api.logout();
   };
 
@@ -70,17 +68,16 @@ const NavLinks = () => {
 
   return (
     <>
-      <Navbar data-bs-theme="dark" bg="dark">
-        <Container>
+      <Navbar data-bs-theme="dark" bg="dark" style={{ height: "8dvh" }}>
+        <Container style={{height: "5dvh"}}>
           <Navbar.Brand>Tenisový rezervační systém</Navbar.Brand>
           {username ? (
-            <Suspense fallback={<div>Loading...</div>}>
+            <Nav>
               <Navbar.Text className="justify-content-end">
                 <div>Přihlášený uživatel:</div>
-                <div></div>
                 <div className="text-end">{username}</div>
               </Navbar.Text>
-            </Suspense>
+            </Nav>
           ) : (
             <Nav>
               <Nav.Link

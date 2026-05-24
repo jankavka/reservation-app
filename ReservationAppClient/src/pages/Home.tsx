@@ -12,6 +12,7 @@ const Home = () => {
   return (
     <div>
       <Container className="text-center">
+        <h1>Vítejte na úvodní stránce</h1>
         <div className="mt-3">
           <FlashMessage
             success={true}
@@ -28,7 +29,6 @@ const Home = () => {
             setTimer={logoutSuccess}
           />
         </div>
-        <h1>Vítejte na úvodní stránce</h1>
       </Container>
     </div>
   );
