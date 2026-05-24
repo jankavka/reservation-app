@@ -3,14 +3,12 @@ import { useState } from "react";
 import { type LoginResponseDto } from "../api";
 import { useApi } from "./useApi";
 import { useNavigate } from "react-router";
-import { useUserContext } from "../context/CurrentUserContext";
 import { client } from "../api/client.gen";
 
 export const useAuth = (props: any) => {
   const [authResponse, setAuthResponse] = useState<LoginResponseDto>();
   const api = useApi();
   const navigate = useNavigate();
-  const { setUsername } = useUserContext();
   const callback = () => {
     props.setIsSubmitted(true);
     return api.authenticateAndGetToken({
@@ -26,14 +24,15 @@ export const useAuth = (props: any) => {
       }
       setAuthResponse(data.data);
       localStorage.removeItem("token");
+      localStorage.removeItem("currentUser")
       localStorage.setItem("token", data.data?.token);
+      localStorage.setItem("currentUser", props.username)
       client.setConfig({
         baseUrl: "http://localhost:8080/",
         headers: {
           Authorization: "Bearer " + data.data?.token,
         },
       });
-      setUsername(props.username);
       navigate("/", { state: { successState: true, name: props.username } });
     },
     onError: (error) => {
