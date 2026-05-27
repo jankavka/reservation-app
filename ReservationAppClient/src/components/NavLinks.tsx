@@ -1,14 +1,13 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router";
-import { useApi } from "../hooks/useApi";
-import { useMutation } from "@tanstack/react-query";
+import { useLocation } from "react-router";
+import { useAuth } from "../hooks/useAuth";
 
-type menuItem = {
+export type menuItem = {
   label: string;
   link: string;
 };
 
-const menu: menuItem[] = [
+ const menu: menuItem[] = [
   {
     label: "Domů",
     link: "/",
@@ -39,38 +38,30 @@ const menu: menuItem[] = [
   },
 ];
 
-const NavLinks = () => {
+export const NavLinks = () => {
   const username = localStorage.getItem("currentUser");
-
   const pathname = useLocation().pathname;
-  const navigation = useNavigate();
-  const api = useApi();
-  const logoutFn = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("currentUser");
-    return api.logout();
-  };
+  const {logout} = useAuth({username});
 
-  const logout = useMutation({
-    mutationFn: logoutFn,
-    onError: (error) => {
-      console.error(error);
-    },
-    onSuccess: () => {
-      navigation("/", {
-        state: {
-          logoutSuccess: true,
-          logoutText: "Odhlášení proběhlo úspěšně",
-        },
-      });
-    },
-  });
 
   return (
     <>
-      <Navbar data-bs-theme="dark" bg="dark" style={{ height: "8dvh" }}>
-        <Container style={{height: "5dvh"}}>
-          <Navbar.Brand>Tenisový rezervační systém</Navbar.Brand>
+      <Navbar data-bs-theme="dark" bg="dark">
+        <Container
+          style={{
+            height: `${window.innerWidth > 440 ? "5dvh" : "15dvh"}`,
+            display: `${window.innerWidth > 440 ? "" : "flex"}`,
+            flexDirection: `${window.innerWidth > 440 ? "row" : "column"}`,
+          }}
+        >
+          <Nav style={{ display: "flex", alignItems: "center" }}>
+            <Navbar.Brand>Tenisový rezervační systém</Navbar.Brand>
+            <img
+              src="/src/assets/tennis.png"
+              alt="tennis-ball"
+              style={{ maxHeight: "3dvh" }}
+            />
+          </Nav>
           {username ? (
             <Nav>
               <Navbar.Text className="justify-content-end">
@@ -96,7 +87,7 @@ const NavLinks = () => {
           )}
         </Container>
       </Navbar>
-      <Navbar expand="lg" data-bs-theme="dark" bg="dark">
+      <Navbar expand="lg" data-bs-theme="dark" bg="dark" sticky="top">
         <br />
         <Container>
           <Navbar.Toggle aria-controls="basic-nav" />
@@ -117,8 +108,8 @@ const NavLinks = () => {
           <Navbar className="justify-content-end">
             {username ? (
               <Nav>
-                <Nav.Link href="{}">Profil</Nav.Link>
-                <Nav.Link onClick={() => logout.mutate()}>Odhlásit</Nav.Link>
+                <Nav.Link href="/profil">Profil</Nav.Link>
+                <Nav.Link onClick={() => logout()}>Odhlásit</Nav.Link>
               </Nav>
             ) : (
               <Nav></Nav>
@@ -129,5 +120,3 @@ const NavLinks = () => {
     </>
   );
 };
-
-export default NavLinks;

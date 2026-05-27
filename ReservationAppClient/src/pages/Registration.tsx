@@ -20,7 +20,9 @@ const Registration = () => {
   const callback = async (user: RegistrationRequestDto) => {
     const response = await api.createUser({ body: user });
     if (response.error) {
-      const values = Object.values(response.error).join(", ");
+      const values =
+        Object.values(response.error).join(", ") ||
+        "Some error occured. Please try again later";
       throw new Error(values);
     }
   };
@@ -28,7 +30,7 @@ const Registration = () => {
   const createUser = useMutation({
     mutationFn: callback,
     onError: (error) => {
-      console.log(error.message)
+      console.log(error.message);
       setIsSubmitted(false);
       setErrorMessage(error.message);
       setSuccess(false);

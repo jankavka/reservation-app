@@ -1,4 +1,4 @@
-import NavLinks from "../components/NavLinks";
+import { NavLinks } from "../components/NavLinks";
 import { Route, Routes } from "react-router";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
@@ -9,6 +9,7 @@ import Contacts from "../pages/Contacts";
 import Registration from "../pages/Registration";
 import Coaches from "../pages/Coaches";
 import Venues from "../pages/Venues";
+import Profile from "../pages/Profile";
 
 const PublicLayout = () => {
   return (
@@ -24,6 +25,7 @@ const PublicLayout = () => {
         <Route path="/registrace" element={<Registration />} />
         <Route path="/treneri" element={<Coaches />} />
         <Route path="/arealy" element={<Venues />} />
+        <Route path="/profil" element={<Profile/>}/>
       </Routes>
     </div>
   );
