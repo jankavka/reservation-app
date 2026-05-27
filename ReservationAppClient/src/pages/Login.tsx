@@ -12,7 +12,7 @@ const Login = () => {
     username: "",
     password: "",
   });
-  const { mutate: login } = useAuth({
+  const { login } = useAuth({
     username: userData.username,
     password: userData.password,
     setIsSubmitted,
