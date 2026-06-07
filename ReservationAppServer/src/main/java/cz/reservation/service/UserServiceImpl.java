@@ -97,6 +97,13 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    @Override
+    public UserDto getProfile(String username) {
+        return userMapper.toDto(userRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " not found")));
+    }
+
     @ReadOnlyTransaction
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

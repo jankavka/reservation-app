@@ -18,4 +18,6 @@ public interface UserService extends UserDetailsService {
     void deleteUser(Long id);
 
     List<UserDto> getAllAdmins();
+
+    UserDto getProfile(String username);
 }

@@ -25,7 +25,7 @@ const PublicLayout = () => {
         <Route path="/registrace" element={<Registration />} />
         <Route path="/treneri" element={<Coaches />} />
         <Route path="/arealy" element={<Venues />} />
-        <Route path="/profil" element={<Profile/>}/>
+        <Route path="/profil" element={<Profile />} />
       </Routes>
     </div>
   );

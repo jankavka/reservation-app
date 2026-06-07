@@ -12,10 +12,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+
+import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final UserRepository userRepository;
 
     private final JwtService jwtService;
+
+    private static final String SERVICE_NAME = "Refresh token";
 
 
     @Value("${security.jwt.refresh-exp}")
@@ -52,12 +58,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken getRefreshTokenByUsername(String username) {
         var userId = userRepository.findByEmail(username)
-                .orElseThrow(EntityNotFoundException::new)
+                .orElseThrow(() -> new EntityNotFoundException("Not found refresh token with username" + username))
                 .getId();
 
         return refreshTokenRepository
                 .findFirstByUserIdAndRevokedFalseOrderByIdDesc(userId)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, userId)));
     }
 
 
@@ -84,6 +90,36 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         } catch (ExpiredJwtException e) {
             log.warn("{}, {}", e.getMessage(), e.getClass());
             return false;
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteRefreshToken(Long id) {
+        if (refreshTokenRepository.existsById(id)) {
+            refreshTokenRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
+        }
+    }
+
+    @Override
+    public List<RefreshToken> getAllRefreshTokens() {
+        return refreshTokenRepository.findAll();
+
+    }
+
+    //TODO: make repo methods which will replace cycle
+    @Scheduled(cron = "@monthly")
+    public void deleteOldTokens() {
+        var tokens = getAllRefreshTokens();
+        for (RefreshToken t : tokens) {
+            if (t.getExpirationDate().isBefore(Instant.now())) {
+                refreshTokenRepository.delete(t);
+            }
+            if (t.isRevoked()) {
+                refreshTokenRepository.delete(t);
+            }
         }
     }
 

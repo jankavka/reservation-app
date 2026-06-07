@@ -15,6 +15,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -82,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toDto(savedEntity);
     }
 
+    @Transactional
     @Override
     public LoginResponseDto refresh(RefreshTokenRequestDto refreshTokenRequestDto) {
         String userName;
@@ -106,5 +109,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
     }
+
 
 }

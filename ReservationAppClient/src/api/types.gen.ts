@@ -1708,6 +1708,24 @@ export type GetUserResponses = {
 
 export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
+export type GetProfileData = {
+    body?: never;
+    path: {
+        username: string;
+    };
+    query?: never;
+    url: '/user/profile/{username}';
+};
+
+export type GetProfileResponses = {
+    /**
+     * OK
+     */
+    200: UserDto;
+};
+
+export type GetProfileResponse = GetProfileResponses[keyof GetProfileResponses];
+
 export type ShowCurrentUserData = {
     body?: never;
     path?: never;
