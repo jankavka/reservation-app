@@ -49,7 +49,6 @@ public class UserController {
 
     @GetMapping("/profile/{username}")
     public UserDto getProfile(@PathVariable("username") String username) {
-        System.out.println("truggered");
         return userService.getProfile(username);
     }
 

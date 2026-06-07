@@ -99,7 +99,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getProfile(String username) {
-        System.out.println(userRepository.findByEmail(username));
         return userMapper.toDto(userRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " not found")));
