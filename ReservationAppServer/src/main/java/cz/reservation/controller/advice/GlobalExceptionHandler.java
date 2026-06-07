@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAuthDeniedException(
             AuthorizationDeniedException e,
-            HttpServletResponse response) throws IOException {
+            HttpServletRequest request) throws IOException {
         log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -154,6 +154,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error(LOG_FORMAT, e.getClass(), e.getMessage());
+        System.out.println("THIS");
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));

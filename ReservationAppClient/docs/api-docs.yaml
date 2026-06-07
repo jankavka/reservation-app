@@ -1456,6 +1456,24 @@ paths:
       responses:
         "204":
           description: No Content
+  /user/profile/{username}:
+    get:
+      tags:
+        - user-controller
+      operationId: getProfile
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
   /user/current:
     get:
       tags:

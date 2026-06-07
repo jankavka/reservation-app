@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +30,12 @@ public class UserController {
 
     }
 
-    //@PreAuthorize("isAuthenticated() AND hasRole('PARENT')")
-    @Secured("PARENT")
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable Long id) {
         return userService.getUser(id);
     }
 
-    @Secured("PARENT")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
     public List<UserDto> getAllUsers(UserFilter userFilter) {
         return userService.getAllUsers(userFilter);
@@ -47,6 +45,12 @@ public class UserController {
     @GetMapping("/current")
     public User showCurrentUser() {
         return userService.getCurrentUser();
+    }
+
+    @GetMapping("/profile/{username}")
+    public UserDto getProfile(@PathVariable("username") String username) {
+        System.out.println("truggered");
+        return userService.getProfile(username);
     }
 
     @GetMapping("/all-admins")
@@ -64,6 +68,7 @@ public class UserController {
 
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {

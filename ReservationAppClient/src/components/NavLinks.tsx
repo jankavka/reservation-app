@@ -1,13 +1,16 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { useLocation } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { showCurrentUserOptions } from "../api/@tanstack/react-query.gen";
+import { useEffect, useState } from "react";
 
 export type menuItem = {
   label: string;
   link: string;
 };
 
- const menu: menuItem[] = [
+const menu: menuItem[] = [
   {
     label: "Domů",
     link: "/",
@@ -41,8 +44,24 @@ export type menuItem = {
 export const NavLinks = () => {
   const username = localStorage.getItem("currentUser");
   const pathname = useLocation().pathname;
-  const {logout} = useAuth({username});
+  const { logout } = useAuth({ username });
+  const { data, isPending } = useQuery({
+    ...showCurrentUserOptions({}),
+    enabled: Boolean(username),
+  });
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
+  // USE this or not?
+  useEffect(() => {
+    if (!isPending) {
+      const array = data.authorities;
+      for (let d of array) {
+        if (d.authority.includes("ADMIN")) {
+          setIsAdmin(true);
+        }
+      }
+    }
+  });
 
   return (
     <>
@@ -110,6 +129,7 @@ export const NavLinks = () => {
               <Nav>
                 <Nav.Link href="/profil">Profil</Nav.Link>
                 <Nav.Link onClick={() => logout()}>Odhlásit</Nav.Link>
+                {isAdmin ? <Nav.Link href="/admin">Admin page</Nav.Link> : null}
               </Nav>
             ) : (
               <Nav></Nav>

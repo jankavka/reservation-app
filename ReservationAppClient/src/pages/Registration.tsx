@@ -2,7 +2,7 @@ import { Container, Form, Button, FormGroup, Spinner } from "react-bootstrap";
 import { useState } from "react";
 import type { RegistrationRequestDto } from "../api";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useApi } from "../hooks/useApi";
 import FlashMessage from "../components/FlashMessages";
 
@@ -12,6 +12,7 @@ const Registration = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
   const api = useApi();
+  const location = useLocation();
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>();
   const [state, setState] = useState<boolean>(true);
@@ -91,7 +92,9 @@ const Registration = () => {
   return (
     <div>
       <Container fluid={"md"} style={{ maxWidth: "40dvw" }}>
-        <h1 className="text-center">Registrace</h1>
+        <h1 className="text-center">
+          {location.pathname.includes("admin") ? "Nový uživatel" : "Registrace"}
+        </h1>
         <div hidden={state} className="mt-3">
           <FlashMessage success={success} text={errorMessage} state={!state} />
         </div>

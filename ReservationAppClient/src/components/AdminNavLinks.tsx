@@ -1,4 +1,4 @@
-import { useLocation} from "react-router";
+import { useLocation } from "react-router";
 import type { menuItem } from "./NavLinks";
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
@@ -7,6 +7,10 @@ const menu: menuItem[] = [
   {
     label: "Domů",
     link: "/admin",
+  },
+  {
+    label: "Uživatelé",
+    link: "/admin/uzivatele",
   },
   {
     label: "Rezervace",
@@ -36,18 +40,15 @@ const menu: menuItem[] = [
 
 const AdminNavLinks = () => {
   const pathname = useLocation().pathname;
-  const username = "NIC";
-  const {logout} = useAuth({username});
-
+  const username = "user";
+  const { logout } = useAuth({ username });
 
   return (
     <div>
       <Navbar expand="lg" bg="primary" sticky="top">
         <Container>
           <Nav>
-            <Navbar.Brand>
-              ADMIN PAGE
-            </Navbar.Brand>
+            <Navbar.Brand>ADMIN PAGE</Navbar.Brand>
           </Nav>
         </Container>
       </Navbar>
@@ -72,8 +73,9 @@ const AdminNavLinks = () => {
           <Navbar className="justify-content-end">
             {username ? (
               <Nav>
-                <Nav.Link href="/admin/profil">Profil</Nav.Link>
+                <Nav.Link href={"/admin/profil"}>Profil</Nav.Link>
                 <Nav.Link onClick={() => logout()}>Odhlásit</Nav.Link>
+                <Nav.Link href={"/"}>Public</Nav.Link>
               </Nav>
             ) : (
               <Nav></Nav>

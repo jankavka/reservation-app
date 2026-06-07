@@ -10,6 +10,7 @@ try {
         name: "@hey-api/sdk",
       },
     ],
+
   });
 } catch (e) {
   console.error("Error generating api ", e);
