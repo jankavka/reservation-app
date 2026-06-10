@@ -1,4 +1,4 @@
-import { Container, Table, Button, Form } from "react-bootstrap";
+import { Container, Table, Button, Form, Collapse } from "react-bootstrap";
 import { useMutation } from "@tanstack/react-query";
 import type { UserDto, UserFilter } from "../../api";
 import { useEffect, useState } from "react";
@@ -9,9 +9,9 @@ import FormControlElement from "react";
 import useDateFormat from "../../hooks/useDateFormat";
 
 const AdminUsers = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const api = useApi();
-  const width = window.innerWidth > 720;
-  const [isFilterHidden, setIsFilterHidden] = useState<boolean>(true);
+  const width = window.innerWidth > 600;
   const [filter, setFilter] = useState<UserFilter>({
     email: "",
     telephoneNumber: "",
@@ -94,94 +94,98 @@ const AdminUsers = () => {
     <Container>
       <h1 className="mb-3 text-center">Správa uživatelů</h1>
       <Button
-        className="mb-3"
-        onClick={() => setIsFilterHidden((prev) => !prev)}
-      >{`${isFilterHidden ? "Zobrazit filter" : "Skrýt filter"}`}</Button>
-      <div hidden={isFilterHidden}>
-        <Form onSubmit={(e) => handleSubmit(e)}>
-          <div
-            className={`d-flex ${
-              width ? "" : "flex-column"
-            } mb-3 justify-content-between`}
-          >
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                name="email"
-                value={filter.email}
-                onChange={(
-                  e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
-                ) => handleChange(e)}
-              />
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-controls="filter"
+        aria-expanded={isOpen}
+        className="mb-5"
+      >{`${isOpen ? "Skrýt filter" : "Zobrazit filter"}`}</Button>
+      <Collapse in={isOpen}>
+        <div id="filter">
+          <Form onSubmit={(e) => handleSubmit(e)}>
+            <div
+              className={`d-flex ${
+                width ? "flex-row" : "flex-column"
+              } mb-3 justify-content-between`}
+            >
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  name="email"
+                  value={filter.email}
+                  onChange={(
+                    e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
+                  ) => handleChange(e)}
+                />
+              </Form.Group>
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Jméno</Form.Label>
+                <Form.Control
+                  name="fullName"
+                  value={filter.fullName}
+                  onChange={(
+                    e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
+                  ) => handleChange(e)}
+                />
+              </Form.Group>
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Tel</Form.Label>
+                <Form.Control
+                  name="telephoneNumber"
+                  value={filter.telephoneNumber}
+                  onChange={(
+                    e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
+                  ) => handleChange(e)}
+                />
+              </Form.Group>
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Role</Form.Label>
+                <Form.Select
+                  multiple={true}
+                  value={filter.roles}
+                  aria-label="Default select example"
+                  onChange={(e) => handleRolesChange(e)}
+                >
+                  <option value="ADMIN">admin</option>
+                  <option value="PARENT">parent</option>
+                  <option value="COACH">coach</option>
+                </Form.Select>
+              </Form.Group>
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Vytvořeno po</Form.Label>
+                <Form.Control
+                  onChange={(
+                    e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
+                  ) => handleDateChange(e)}
+                  value={useDateFormat(filter.createdAfter)}
+                  name="createdAfter"
+                  type="date"
+                />
+              </Form.Group>
+              <Form.Group className={`${width ? "" : "mb-3"}`}>
+                <Form.Label>Vytvořeno před</Form.Label>
+                <Form.Control
+                  onChange={(
+                    e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
+                  ) => handleDateChange(e)}
+                  value={useDateFormat(filter.createdBefore)}
+                  name="createdBefore"
+                  type="date"
+                />
+              </Form.Group>
+            </div>
+
+            <Form.Group>
+              <Button className="me-2" type="submit" variant="primary">
+                Filtruj
+              </Button>
+              <Button type="button" onClick={() => handleClearFilter()}>
+                Vynuluj Filtr
+              </Button>
             </Form.Group>
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Jméno</Form.Label>
-              <Form.Control
-                name="fullName"
-                value={filter.fullName}
-                onChange={(
-                  e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
-                ) => handleChange(e)}
-              />
-            </Form.Group>
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Tel</Form.Label>
-              <Form.Control
-                name="telephoneNumber"
-                value={filter.telephoneNumber}
-                onChange={(
-                  e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
-                ) => handleChange(e)}
-              />
-            </Form.Group>
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Role</Form.Label>
-              <Form.Select
-                multiple={true}
-                value={filter.roles}
-                aria-label="Default select example"
-                onChange={(e) => handleRolesChange(e)}
-              >
-                <option>Open this select menu</option>
-                <option value="ADMIN">admin</option>
-                <option value="PARENT">parent</option>
-                <option value="COACH">coach</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Vytvořeno po</Form.Label>
-              <Form.Control
-                onChange={(
-                  e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
-                ) => handleDateChange(e)}
-                value={useDateFormat(filter.createdAfter)}
-                name="createdAfter"
-                type="date"
-              />
-            </Form.Group>
-            <Form.Group className={`${width ? "" : "mb-3"}`}>
-              <Form.Label>Vytvořeno před</Form.Label>
-              <Form.Control
-                onChange={(
-                  e: FormControlElement.ChangeEvent<HTMLInputElement, Element>
-                ) => handleDateChange(e)}
-                value={useDateFormat(filter.createdBefore)}
-                name="createdBefore"
-                type="date"
-              />
-            </Form.Group>
-          </div>
-          <Form.Group>
-            <Button className="me-2" type="submit" variant="primary">
-              Filtruj
-            </Button>
-            <Button type="button" onClick={() => handleClearFilter()}>
-              Vynuluj Filtr
-            </Button>
-          </Form.Group>
-        </Form>
-      </div>
-      <div className="text-end mb-3">
+          </Form>
+        </div>
+      </Collapse>
+      <div className="text-end mb-3 me-3">
         <Link className="btn btn-success" to={"/admin/uzivatele/novy"}>
           Nový uživatel{" "}
         </Link>

@@ -23,7 +23,7 @@ public class UserCreatedListener {
         var userEmail = createdUserDto.createdEntity.getEmail();
         var userName = createdUserDto.createdEntity.getFullName();
         var htmlContent = "<h3>Ahoj " + userName + "!</h3>" +
-                "<p>Tvoje regestrace v rezervačním systému je tímto potvrzena!</p>";
+                "<p>Tvoje registrace v rezervačním systému je tímto potvrzena!</p>";
 
         User newUser = new User(userId.toString())
                 .setEmail(userEmail);

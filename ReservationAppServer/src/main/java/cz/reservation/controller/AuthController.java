@@ -6,6 +6,7 @@ import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,10 +37,17 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public LoginResponseDto refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequest){
+    public LoginResponseDto refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequest) {
         return authService.refresh(refreshTokenRequest);
 
 
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/addNewUserByAdmin")
+    public UserDto createUserByAdmin(@RequestBody @Valid CreateUserByAdminDto createUserByAdminDto) {
+        return authService.createUserByAdmin(createUserByAdminDto);
+    }
+
 
 }

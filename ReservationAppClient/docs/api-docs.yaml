@@ -22,7 +22,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/WeatherNotesDto"
     put:
@@ -75,7 +75,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/VenueDto"
     put:
@@ -135,7 +135,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/TrainingSlotDto"
     put:
@@ -188,7 +188,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/SeasonDto"
     put:
@@ -241,7 +241,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/PricingRuleDto"
     put:
@@ -294,7 +294,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
                 additionalProperties: {}
@@ -348,7 +348,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/PackageDto"
     put:
@@ -401,7 +401,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/InvoiceSummaryDto"
     put:
@@ -454,7 +454,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/GroupDto"
     put:
@@ -507,7 +507,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/EnrollmentDto"
     put:
@@ -560,7 +560,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CourtDto"
     put:
@@ -620,7 +620,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CourtBlockingDto"
     put:
@@ -673,7 +673,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CoachDto"
     put:
@@ -726,7 +726,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/BookingDto"
     put:
@@ -800,7 +800,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AttendanceDto"
     put:
@@ -852,7 +852,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/LoginResponseDto"
   /auth/generateToken:
@@ -870,7 +870,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/LoginResponseDto"
   /auth/addNewUser:
@@ -888,7 +888,25 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /auth/addNewUserByAdmin:
+    post:
+      tags:
+        - auth-controller
+      operationId: createUserByAdmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserByAdminDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            "*/*":
               schema:
                 $ref: "#/components/schemas/UserDto"
   /api/weather-notes:
@@ -900,7 +918,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -919,7 +937,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/WeatherNotesDto"
   /api/venue:
@@ -931,7 +949,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -957,7 +975,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/VenueDto"
   /api/training-slot:
@@ -969,7 +987,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -988,7 +1006,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/TrainingSlotDto"
   /api/season:
@@ -1000,7 +1018,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1019,7 +1037,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/SeasonDto"
   /api/pricing-rules:
@@ -1031,7 +1049,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1050,7 +1068,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/PricingRuleDto"
   /api/player:
@@ -1068,7 +1086,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1087,7 +1105,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/PlayerDto"
   /api/package/create:
@@ -1105,7 +1123,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/PackageDto"
   /api/invoice-summary:
@@ -1123,7 +1141,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1142,7 +1160,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/InvoiceSummaryDto"
   /api/group:
@@ -1160,7 +1178,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1179,7 +1197,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/GroupDto"
   /api/enrollment:
@@ -1197,7 +1215,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1216,7 +1234,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/EnrollmentDto"
   /api/court:
@@ -1234,7 +1252,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1260,7 +1278,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CourtDto"
   /api/court-block:
@@ -1278,7 +1296,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1297,7 +1315,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CourtBlockingDto"
   /api/company-info/update:
@@ -1315,7 +1333,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CompanyInfoDto"
   /api/coach:
@@ -1327,7 +1345,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1346,7 +1364,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CoachDto"
   /api/booking:
@@ -1364,7 +1382,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1383,7 +1401,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/BookingDto"
   /api/attendance:
@@ -1401,7 +1419,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1420,7 +1438,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/AttendanceDto"
   /user/{id}:
@@ -1439,7 +1457,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/UserDto"
     delete:
@@ -1471,7 +1489,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/UserDto"
   /user/current:
@@ -1483,7 +1501,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/User"
   /user/all:
@@ -1501,7 +1519,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1515,7 +1533,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1536,7 +1554,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1550,7 +1568,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1564,7 +1582,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1578,7 +1596,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1592,7 +1610,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1606,7 +1624,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1627,7 +1645,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1647,7 +1665,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1668,7 +1686,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
@@ -1682,7 +1700,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 $ref: "#/components/schemas/CompanyInfoDto"
   /:
@@ -1694,7 +1712,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
                 additionalProperties:
@@ -1708,7 +1726,7 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
                 additionalProperties:
@@ -2198,6 +2216,34 @@ components:
         - email
         - fullName
         - password
+        - telephoneNumber
+    CreateUserByAdminDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        telephoneNumber:
+          type: string
+          maxLength: 2147483647
+          minLength: 10
+        fullName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - ADMIN
+              - COACH
+              - PARENT
+              - PLAYER
+          minItems: 1
+          uniqueItems: true
+      required:
+        - email
+        - fullName
+        - roles
         - telephoneNumber
     CompanyInfoDto:
       type: object

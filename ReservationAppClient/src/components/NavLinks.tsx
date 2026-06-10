@@ -54,14 +54,16 @@ export const NavLinks = () => {
   // USE this or not?
   useEffect(() => {
     if (!isPending) {
-      const array = data.authorities;
-      for (let d of array) {
-        if (d.authority.includes("ADMIN")) {
-          setIsAdmin(true);
+      const array = data?.authorities;
+      if (array) {
+        for (let d of array) {
+          if (d.authority.includes("ADMIN")) {
+            setIsAdmin(true);
+          }
         }
       }
     }
-  });
+  }, [isPending]);
 
   return (
     <>

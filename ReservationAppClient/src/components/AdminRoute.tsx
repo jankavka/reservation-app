@@ -31,6 +31,7 @@ const AdminRoute = ({ children }) => {
   } else if (error?.message?.includes("Use refresh token or Login")) {
     console.log("catched");
   } else if (!isPending) {
+    console.log("here");
     return (
       <div>
         <Navigate to={"/"} />

@@ -1,4 +1,4 @@
-import { Container, Table } from "react-bootstrap";
+import { Container, Table, Button } from "react-bootstrap";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "../../components/DateFormat";
 import {
@@ -13,19 +13,12 @@ const AdminProfile = () => {
 
   const { data: profile, isPending } = useQuery({
     ...getProfileOptions({ path: { username: current.username } }),
-    enabled: !isCurrentPending
+    enabled: !isCurrentPending,
   });
 
   const roleFormat = (items: Array<string>) => {
     return items?.join(", ");
   };
-
-//   if (isError) {
-//     console.log(error.message);
-//   }
-
-
-  //   console.log(current);
 
   if (!isPending) {
     return (
@@ -56,6 +49,11 @@ const AdminProfile = () => {
               </tr>
             </tbody>
           </Table>
+          <div className="text-start">
+            <Button className="align-self-start" variant="secondary">
+              Upravit
+            </Button>
+          </div>
         </div>
       </Container>
     );
