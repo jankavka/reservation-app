@@ -177,6 +177,13 @@ export type RegistrationRequestDto = {
     fullName: string;
 };
 
+export type CreateUserByAdminDto = {
+    email: string;
+    telephoneNumber: string;
+    fullName: string;
+    roles: Array<'ADMIN' | 'COACH' | 'PARENT' | 'PLAYER'>;
+};
+
 export type CompanyInfoDto = {
     companyName?: string;
     address?: string;
@@ -1169,6 +1176,22 @@ export type CreateUserResponses = {
 };
 
 export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+
+export type CreateUserByAdminData = {
+    body: CreateUserByAdminDto;
+    path?: never;
+    query?: never;
+    url: '/auth/addNewUserByAdmin';
+};
+
+export type CreateUserByAdminResponses = {
+    /**
+     * OK
+     */
+    200: UserDto;
+};
+
+export type CreateUserByAdminResponse = CreateUserByAdminResponses[keyof CreateUserByAdminResponses];
 
 export type GetAllWeatherNotesData = {
     body?: never;

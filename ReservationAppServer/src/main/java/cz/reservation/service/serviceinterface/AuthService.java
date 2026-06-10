@@ -8,5 +8,7 @@ public interface AuthService {
 
     UserDto createUser(RegistrationRequestDto registrationRequestDto);
 
+    UserDto createUserByAdmin(CreateUserByAdminDto createUserByAdminDto);
+
     LoginResponseDto refresh(RefreshTokenRequestDto refreshTokenRequestDto);
 }

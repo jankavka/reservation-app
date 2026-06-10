@@ -14,6 +14,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -83,6 +85,30 @@ public class AuthServiceImpl implements AuthService {
 
         return userMapper.toDto(savedEntity);
     }
+
+    @Transactional
+    @Override
+    public UserDto createUserByAdmin(CreateUserByAdminDto createUserByAdminDto) {
+        log.info("New user created by admin: {}", createUserByAdminDto.email());
+        var generatedPassword = RandomStringUtils.random(
+                12, 0, 0, true, true, null, new Random());
+
+        var entityToSave = UserEntity.builder()
+                .email(createUserByAdminDto.email())
+                .fullName(createUserByAdminDto.fullName())
+                .roles(createUserByAdminDto.roles())
+                .createdAt(LocalDateTime.now())
+                .password(passwordEncoder.encode(generatedPassword))
+                .telephoneNumber(createUserByAdminDto.telephoneNumber())
+                .build();
+
+        UserEntity savedEntity = userRepository.save(entityToSave);
+        publisher.publishEvent(new CreatedUserByAdminDto(this, savedEntity));
+
+        return userMapper.toDto(savedEntity);
+
+    }
+
 
     @Transactional
     @Override

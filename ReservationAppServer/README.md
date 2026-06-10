@@ -166,7 +166,7 @@ src/main/java/cz/reservation/
     ├── exception/     # Custom exceptions
     ├── files/         # File utilities (photo saving/deleting)
     ├── invoice/       # Invoice generation engine
-    ├── listener/      # Event listeners (3 listeners)
+    ├── listener/      # Event listeners (4 listeners)
     ├── message/       # Message handling
     ├── pricing/       # Pricing strategy pattern
     │   ├── pricinginterface/  # PricingEngine interface
@@ -179,7 +179,7 @@ src/main/java/cz/reservation/
 | Endpoint | Description |
 |----------|-------------|
 | `/` | Home/health check |
-| `/auth` | Authentication (register, login, token refresh) |
+| `/auth` | Authentication (register, login, token refresh, admin user creation) |
 | `/user` | User management |
 | `/api/booking` | Booking management |
 | `/api/player` | Player management |
