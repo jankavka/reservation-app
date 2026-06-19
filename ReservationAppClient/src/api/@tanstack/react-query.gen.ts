@@ -3,13 +3,13 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { authenticateAndGetToken, createAttendance, createBlocking, createBooking, createCoach, createCourt, createEnrollment, createGroup, createInvoiceSummary, createPackage, createPlayer, createRule, createSeason, createTrainingSlot, createUser, createUserByAdmin, createVenue, createWeatherNote, deleteAttendance, deleteBlocking, deleteBooking, deleteCoach, deleteCourt, deleteEnrollment, deleteGroup, deletePackage, deletePlayer, deleteRule, deleteSeason, deleteSummary, deleteTrainingSlot, deleteUser, deleteVenue, deleteWeatherNote, editAttendance, editBlocking, editBooking, editBookingAsAdmin, editCoach, editCourt, editEnrollment, editGroup, editPackage, editPlayer, editSeason, editSummary, editTrainingSlot, editVenue, editWeatherNote, getAllAdmins, getAllAttendances, getAllBlockings, getAllBookings, getAllCoaches, getAllEnrollments, getAllGroups, getAllPlayers, getAllRules, getAllSeasons, getAllSlotsByGroupId, getAllSummaries, getAllSummariesByUser, getAllTrainingSlots, getAllUsers, getAllVenues, getAllWeatherNotes, getAttendance, getBlocking, getBooking, getCoach, getEnrollment, getGroup, getInfo, getPlayer, getPlayerByParentId, getProfile, getRule, getSeason, getSummary, getSupportedConditions, getSupportedConditionsPerMonth, getSupportedConditionsPerPackage, getSupportedConditionsPerSlot, getTrainingSlot, getUser, getVenue, getWeatherNote, logout, type Options, refresh, show, showAllCourts, showAllPackages, showAllRulesWithMonthlyType, showCourt, showCurrentUser, showPackage, updateInfo, updateRule } from '../sdk.gen';
-import type { AuthenticateAndGetTokenData, AuthenticateAndGetTokenResponse, CreateAttendanceData, CreateAttendanceResponse, CreateBlockingData, CreateBlockingResponse, CreateBookingData, CreateBookingResponse, CreateCoachData, CreateCoachResponse, CreateCourtData, CreateCourtResponse, CreateEnrollmentData, CreateEnrollmentResponse, CreateGroupData, CreateGroupResponse, CreateInvoiceSummaryData, CreateInvoiceSummaryResponse, CreatePackageData, CreatePackageResponse, CreatePlayerData, CreatePlayerResponse, CreateRuleData, CreateRuleResponse, CreateSeasonData, CreateSeasonResponse, CreateTrainingSlotData, CreateTrainingSlotResponse, CreateUserByAdminData, CreateUserByAdminResponse, CreateUserData, CreateUserResponse, CreateVenueData, CreateVenueResponse, CreateWeatherNoteData, CreateWeatherNoteResponse, DeleteAttendanceData, DeleteAttendanceResponse, DeleteBlockingData, DeleteBlockingResponse, DeleteBookingData, DeleteBookingResponse, DeleteCoachData, DeleteCoachResponse, DeleteCourtData, DeleteCourtResponse, DeleteEnrollmentData, DeleteEnrollmentResponse, DeleteGroupData, DeleteGroupResponse, DeletePackageData, DeletePackageResponse, DeletePlayerData, DeletePlayerResponse, DeleteRuleData, DeleteRuleResponse, DeleteSeasonData, DeleteSeasonResponse, DeleteSummaryData, DeleteSummaryResponse, DeleteTrainingSlotData, DeleteTrainingSlotResponse, DeleteUserData, DeleteUserResponse, DeleteVenueData, DeleteVenueResponse, DeleteWeatherNoteData, DeleteWeatherNoteResponse, EditAttendanceData, EditAttendanceResponse, EditBlockingData, EditBlockingResponse, EditBookingAsAdminData, EditBookingAsAdminResponse, EditBookingData, EditBookingResponse, EditCoachData, EditCoachResponse, EditCourtData, EditCourtResponse, EditEnrollmentData, EditEnrollmentResponse, EditGroupData, EditGroupResponse, EditPackageData, EditPackageResponse, EditPlayerData, EditPlayerResponse, EditSeasonData, EditSeasonResponse, EditSummaryData, EditSummaryResponse, EditTrainingSlotData, EditTrainingSlotResponse, EditVenueData, EditVenueResponse, EditWeatherNoteData, EditWeatherNoteResponse, GetAllAdminsData, GetAllAdminsResponse, GetAllAttendancesData, GetAllAttendancesResponse, GetAllBlockingsData, GetAllBlockingsResponse, GetAllBookingsData, GetAllBookingsResponse, GetAllCoachesData, GetAllCoachesResponse, GetAllEnrollmentsData, GetAllEnrollmentsResponse, GetAllGroupsData, GetAllGroupsResponse, GetAllPlayersData, GetAllPlayersResponse, GetAllRulesData, GetAllRulesResponse, GetAllSeasonsData, GetAllSeasonsResponse, GetAllSlotsByGroupIdData, GetAllSlotsByGroupIdResponse, GetAllSummariesByUserData, GetAllSummariesByUserResponse, GetAllSummariesData, GetAllSummariesResponse, GetAllTrainingSlotsData, GetAllTrainingSlotsResponse, GetAllUsersData, GetAllUsersResponse, GetAllVenuesData, GetAllVenuesResponse, GetAllWeatherNotesData, GetAllWeatherNotesResponse, GetAttendanceData, GetAttendanceResponse, GetBlockingData, GetBlockingResponse, GetBookingData, GetBookingResponse, GetCoachData, GetCoachResponse, GetEnrollmentData, GetEnrollmentResponse, GetGroupData, GetGroupResponse, GetInfoData, GetInfoResponse, GetPlayerByParentIdData, GetPlayerByParentIdResponse, GetPlayerData, GetPlayerResponse, GetProfileData, GetProfileResponse, GetRuleData, GetRuleResponse, GetSeasonData, GetSeasonResponse, GetSummaryData, GetSummaryResponse, GetSupportedConditionsData, GetSupportedConditionsPerMonthData, GetSupportedConditionsPerMonthResponse, GetSupportedConditionsPerPackageData, GetSupportedConditionsPerPackageResponse, GetSupportedConditionsPerSlotData, GetSupportedConditionsPerSlotResponse, GetSupportedConditionsResponse, GetTrainingSlotData, GetTrainingSlotResponse, GetUserData, GetUserResponse, GetVenueData, GetVenueResponse, GetWeatherNoteData, GetWeatherNoteResponse, LogoutData, LogoutResponse, RefreshData, RefreshResponse, ShowAllCourtsData, ShowAllCourtsResponse, ShowAllPackagesData, ShowAllPackagesResponse, ShowAllRulesWithMonthlyTypeData, ShowAllRulesWithMonthlyTypeResponse, ShowCourtData, ShowCourtResponse, ShowCurrentUserData, ShowCurrentUserResponse, ShowData, ShowPackageData, ShowPackageResponse, ShowResponse, UpdateInfoData, UpdateInfoResponse, UpdateRuleData, UpdateRuleResponse } from '../types.gen';
+import { authenticateAndGetToken, createAttendance, createBlocking, createBooking, createCoach, createCourt, createEnrollment, createGroup, createInvoiceSummary, createPackage, createPlayer, createRule, createSeason, createTrainingSlot, createUser, createUserByAdmin, createVenue, createWeatherNote, deleteAttendance, deleteBlocking, deleteBooking, deleteCoach, deleteCourt, deleteEnrollment, deleteGroup, deletePackage, deletePlayer, deleteRule, deleteSeason, deleteSummary, deleteTrainingSlot, deleteUser, deleteVenue, deleteWeatherNote, editAttendance, editBlocking, editBooking, editBookingAsAdmin, editCoach, editCourt, editEnrollment, editGroup, editPackage, editPlayer, editSeason, editSummary, editTrainingSlot, editVenue, editWeatherNote, getAllAdmins, getAllAttendances, getAllBlockings, getAllBookings, getAllCoaches, getAllEnrollments, getAllGroups, getAllPlayers, getAllRules, getAllSeasons, getAllSlotsByGroupId, getAllSummaries, getAllSummariesByUser, getAllTrainingSlots, getAllUsers, getAllVenues, getAllWeatherNotes, getAttendance, getBlocking, getBooking, getCoach, getEnrollment, getGroup, getInfo, getPlayer, getPlayerByParentId, getProfile, getRule, getSeason, getSummary, getSupportedConditions, getSupportedConditionsPerMonth, getSupportedConditionsPerPackage, getSupportedConditionsPerSlot, getTrainingSlot, getUser, getVenue, getWeatherNote, logout, type Options, refresh, show, showAllCourts, showAllPackages, showAllRulesWithMonthlyType, showCourt, showCurrentUser, showPackage, updateInfo, updateProfile, updateRule, updateUserByAdmin } from '../sdk.gen';
+import type { AuthenticateAndGetTokenData, AuthenticateAndGetTokenResponse, CreateAttendanceData, CreateAttendanceResponse, CreateBlockingData, CreateBlockingResponse, CreateBookingData, CreateBookingResponse, CreateCoachData, CreateCoachResponse, CreateCourtData, CreateCourtResponse, CreateEnrollmentData, CreateEnrollmentResponse, CreateGroupData, CreateGroupResponse, CreateInvoiceSummaryData, CreateInvoiceSummaryResponse, CreatePackageData, CreatePackageResponse, CreatePlayerData, CreatePlayerResponse, CreateRuleData, CreateRuleResponse, CreateSeasonData, CreateSeasonResponse, CreateTrainingSlotData, CreateTrainingSlotResponse, CreateUserByAdminData, CreateUserByAdminResponse, CreateUserData, CreateUserResponse, CreateVenueData, CreateVenueResponse, CreateWeatherNoteData, CreateWeatherNoteResponse, DeleteAttendanceData, DeleteAttendanceResponse, DeleteBlockingData, DeleteBlockingResponse, DeleteBookingData, DeleteBookingResponse, DeleteCoachData, DeleteCoachResponse, DeleteCourtData, DeleteCourtResponse, DeleteEnrollmentData, DeleteEnrollmentResponse, DeleteGroupData, DeleteGroupResponse, DeletePackageData, DeletePackageResponse, DeletePlayerData, DeletePlayerResponse, DeleteRuleData, DeleteRuleResponse, DeleteSeasonData, DeleteSeasonResponse, DeleteSummaryData, DeleteSummaryResponse, DeleteTrainingSlotData, DeleteTrainingSlotResponse, DeleteUserData, DeleteUserResponse, DeleteVenueData, DeleteVenueResponse, DeleteWeatherNoteData, DeleteWeatherNoteResponse, EditAttendanceData, EditAttendanceResponse, EditBlockingData, EditBlockingResponse, EditBookingAsAdminData, EditBookingAsAdminResponse, EditBookingData, EditBookingResponse, EditCoachData, EditCoachResponse, EditCourtData, EditCourtResponse, EditEnrollmentData, EditEnrollmentResponse, EditGroupData, EditGroupResponse, EditPackageData, EditPackageResponse, EditPlayerData, EditPlayerResponse, EditSeasonData, EditSeasonResponse, EditSummaryData, EditSummaryResponse, EditTrainingSlotData, EditTrainingSlotResponse, EditVenueData, EditVenueResponse, EditWeatherNoteData, EditWeatherNoteResponse, GetAllAdminsData, GetAllAdminsResponse, GetAllAttendancesData, GetAllAttendancesResponse, GetAllBlockingsData, GetAllBlockingsResponse, GetAllBookingsData, GetAllBookingsResponse, GetAllCoachesData, GetAllCoachesResponse, GetAllEnrollmentsData, GetAllEnrollmentsResponse, GetAllGroupsData, GetAllGroupsResponse, GetAllPlayersData, GetAllPlayersResponse, GetAllRulesData, GetAllRulesResponse, GetAllSeasonsData, GetAllSeasonsResponse, GetAllSlotsByGroupIdData, GetAllSlotsByGroupIdResponse, GetAllSummariesByUserData, GetAllSummariesByUserResponse, GetAllSummariesData, GetAllSummariesResponse, GetAllTrainingSlotsData, GetAllTrainingSlotsResponse, GetAllUsersData, GetAllUsersResponse, GetAllVenuesData, GetAllVenuesResponse, GetAllWeatherNotesData, GetAllWeatherNotesResponse, GetAttendanceData, GetAttendanceResponse, GetBlockingData, GetBlockingResponse, GetBookingData, GetBookingResponse, GetCoachData, GetCoachResponse, GetEnrollmentData, GetEnrollmentResponse, GetGroupData, GetGroupResponse, GetInfoData, GetInfoResponse, GetPlayerByParentIdData, GetPlayerByParentIdResponse, GetPlayerData, GetPlayerResponse, GetProfileData, GetProfileResponse, GetRuleData, GetRuleResponse, GetSeasonData, GetSeasonResponse, GetSummaryData, GetSummaryResponse, GetSupportedConditionsData, GetSupportedConditionsPerMonthData, GetSupportedConditionsPerMonthResponse, GetSupportedConditionsPerPackageData, GetSupportedConditionsPerPackageResponse, GetSupportedConditionsPerSlotData, GetSupportedConditionsPerSlotResponse, GetSupportedConditionsResponse, GetTrainingSlotData, GetTrainingSlotResponse, GetUserData, GetUserResponse, GetVenueData, GetVenueResponse, GetWeatherNoteData, GetWeatherNoteResponse, LogoutData, LogoutResponse, RefreshData, RefreshResponse, ShowAllCourtsData, ShowAllCourtsResponse, ShowAllPackagesData, ShowAllPackagesResponse, ShowAllRulesWithMonthlyTypeData, ShowAllRulesWithMonthlyTypeResponse, ShowCourtData, ShowCourtResponse, ShowCurrentUserData, ShowCurrentUserResponse, ShowData, ShowPackageData, ShowPackageResponse, ShowResponse, UpdateInfoData, UpdateInfoResponse, UpdateProfileData, UpdateRuleData, UpdateRuleResponse, UpdateUserByAdminData } from '../types.gen';
 
-export const deleteWeatherNoteMutation = (options?: Partial<Options<DeleteWeatherNoteData>>): UseMutationOptions<DeleteWeatherNoteResponse, DefaultError, Options<DeleteWeatherNoteData>> => {
-    const mutationOptions: UseMutationOptions<DeleteWeatherNoteResponse, DefaultError, Options<DeleteWeatherNoteData>> = {
+export const deleteUserMutation = (options?: Partial<Options<DeleteUserData>>): UseMutationOptions<DeleteUserResponse, DefaultError, Options<DeleteUserData>> => {
+    const mutationOptions: UseMutationOptions<DeleteUserResponse, DefaultError, Options<DeleteUserData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await deleteWeatherNote({
+            const { data } = await deleteUser({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -51,6 +51,63 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
         params.query = options.query;
     }
     return [params];
+};
+
+export const getUserQueryKey = (options: Options<GetUserData>) => createQueryKey('getUser', options);
+
+export const getUserOptions = (options: Options<GetUserData>) => queryOptions<GetUserResponse, DefaultError, GetUserResponse, ReturnType<typeof getUserQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getUser({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getUserQueryKey(options)
+});
+
+export const updateUserByAdminMutation = (options?: Partial<Options<UpdateUserByAdminData>>): UseMutationOptions<unknown, DefaultError, Options<UpdateUserByAdminData>> => {
+    const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<UpdateUserByAdminData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateUserByAdmin({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateProfileMutation = (options?: Partial<Options<UpdateProfileData>>): UseMutationOptions<unknown, DefaultError, Options<UpdateProfileData>> => {
+    const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<UpdateProfileData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateProfile({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteWeatherNoteMutation = (options?: Partial<Options<DeleteWeatherNoteData>>): UseMutationOptions<DeleteWeatherNoteResponse, DefaultError, Options<DeleteWeatherNoteData>> => {
+    const mutationOptions: UseMutationOptions<DeleteWeatherNoteResponse, DefaultError, Options<DeleteWeatherNoteData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteWeatherNote({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 export const getWeatherNoteQueryKey = (options: Options<GetWeatherNoteData>) => createQueryKey('getWeatherNote', options);
@@ -1187,35 +1244,6 @@ export const createAttendanceMutation = (options?: Partial<Options<CreateAttenda
     };
     return mutationOptions;
 };
-
-export const deleteUserMutation = (options?: Partial<Options<DeleteUserData>>): UseMutationOptions<DeleteUserResponse, DefaultError, Options<DeleteUserData>> => {
-    const mutationOptions: UseMutationOptions<DeleteUserResponse, DefaultError, Options<DeleteUserData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await deleteUser({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const getUserQueryKey = (options: Options<GetUserData>) => createQueryKey('getUser', options);
-
-export const getUserOptions = (options: Options<GetUserData>) => queryOptions<GetUserResponse, DefaultError, GetUserResponse, ReturnType<typeof getUserQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getUser({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: getUserQueryKey(options)
-});
 
 export const getProfileQueryKey = (options: Options<GetProfileData>) => createQueryKey('getProfile', options);
 

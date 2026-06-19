@@ -8,6 +8,7 @@ import cz.reservation.entity.repository.specification.UserSpecification;
 import cz.reservation.entity.userdetails.CustomUserDetails;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.annotation.ReadOnlyTransaction;
+import cz.reservation.service.exception.UnauthorizedEventException;
 import cz.reservation.service.serviceinterface.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,33 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id));
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    @Override
+    public void editProfile(UserDto userDto) {
+        var currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (currentUser.getUsername().equals(userDto.fullName())) {
+            var currentEntity = userRepository
+                    .findByEmail(userDto.email())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            entityNotFoundExceptionMessage(SERVICE_NAME, userDto.id())));
+
+            userMapper.updateEntity(currentEntity, userDto);
+
+        } else {
+            throw new UnauthorizedEventException("User have to rights for this action");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void editUserByAdmin(UserDto userDto, Long id) {
+        var currentUser = userRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityNotFoundExceptionMessage(SERVICE_NAME, id)));
+
+        userMapper.updateEntity(currentUser, userDto);
     }
 
     @Override

@@ -2,15 +2,19 @@ import { Container, Table, Button, Form, Collapse } from "react-bootstrap";
 import { useMutation } from "@tanstack/react-query";
 import type { UserDto, UserFilter } from "../../api";
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import formatDate from "../../components/DateFormat";
 import { useApi } from "../../hooks/useApi";
 import FormControlElement from "react";
 import useDateFormat from "../../hooks/useDateFormat";
+import FlashMessage from "../../components/FlashMessages";
 
 const AdminUsers = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const api = useApi();
+  const location = useLocation();
+  const success: boolean = location.state?.success || false;
+  const text: string = `Uživatel ${location.state?.user} úspěšně upraven`;
   const width = window.innerWidth > 600;
   const [filter, setFilter] = useState<UserFilter>({
     email: "",
@@ -93,6 +97,7 @@ const AdminUsers = () => {
   return (
     <Container>
       <h1 className="mb-3 text-center">Správa uživatelů</h1>
+      <FlashMessage success={success} state={success} text={text} setTimer={success}/>
       <Button
         onClick={() => setIsOpen((prev) => !prev)}
         aria-controls="filter"
@@ -213,7 +218,7 @@ const AdminUsers = () => {
               <td>{formatDate(new Date(user.createdAt))}</td>
               <th>
                 <p>
-                  <Link className="btn btn-primary" to={""}>
+                  <Link className="btn btn-primary" to={"/admin/uzivatele/upravit/" + user.id}>
                     Upravit
                   </Link>
                 </p>

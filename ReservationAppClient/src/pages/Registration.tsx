@@ -4,7 +4,6 @@ import {
   Button,
   FormGroup,
   Spinner,
-  FormLabel,
 } from "react-bootstrap";
 import { useState } from "react";
 import { type RegistrationRequestDto, type CreateUserByAdminDto } from "../api";
@@ -240,7 +239,7 @@ const Registration = () => {
           </FormGroup>
           {isAdmin ? (
             <FormGroup className="mb-3">
-              <FormLabel>Role</FormLabel>
+              <Form.Label>Role</Form.Label>
               <Form.Select
                 multiple={true}
                 value={newUserByAdmin.roles}

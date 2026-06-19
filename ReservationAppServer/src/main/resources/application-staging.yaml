@@ -15,6 +15,10 @@ spring:
     drop-first: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
     default-schema: public
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 security:
   jwt:
     expiration-time: 3600000

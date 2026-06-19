@@ -58,8 +58,11 @@ npx tsx scripts/apigen.ts
 | `/admin/` | Admin dashboard |
 | `/admin/uzivatele` | User management |
 | `/admin/uzivatele/novy` | Create new user |
+| `/admin/uzivatele/upravit/:id` | Edit user |
 | `/admin/rezervace` | Reservation management |
 | `/admin/arealy` | Venue management |
+| `/admin/arealy/novy` | Create new venue |
+| `/admin/arealy/upravit/:id` | Edit venue |
 | `/admin/kurty` | Court management |
 | `/admin/treneri` | Coach management |
 | `/admin/o-nas` | About Us management |
@@ -91,6 +94,9 @@ TanStack Query v5 is integrated — generated hooks are available in `src/api/@t
 
 React Bootstrap v2 + Bootstrap 5. No Tailwind or custom CSS framework.
 
+- **yet-another-react-lightbox** — used in venue management for fullscreen photo preview
+- **@tanstack/react-form** — used for form state management (e.g. venue creation form)
+
 ### Components & Hooks
 
 | File | Description |
@@ -105,3 +111,7 @@ React Bootstrap v2 + Bootstrap 5. No Tailwind or custom CSS framework.
 | `useApi.ts` | Hook for calling API services |
 | `useRefresh.ts` | Hook for refreshing the JWT token |
 | `useDateFormat.ts` | Hook for date formatting |
+| `DateFormat.ts` | Utility function for formatting dates in Czech locale |
+| `Filter.tsx` | Collapsible filter/form component built with `@tanstack/react-form` |
+| `MySerializer.ts` | Serializes a plain object to `multipart/form-data` (handles `File`/`Blob` fields) |
+| `constant/constant.ts` | Shared constants — exports `API_URL` (`http://localhost:8080`) |

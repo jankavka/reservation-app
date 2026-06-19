@@ -3,7 +3,6 @@ package cz.reservation.service;
 import cz.reservation.constant.Role;
 import cz.reservation.dto.*;
 import cz.reservation.dto.mapper.UserMapper;
-import cz.reservation.entity.RefreshToken;
 import cz.reservation.entity.UserEntity;
 import cz.reservation.entity.repository.UserRepository;
 import cz.reservation.service.exception.RefreshTokenExpiredException;
@@ -12,24 +11,24 @@ import cz.reservation.service.serviceinterface.JwtService;
 import cz.reservation.service.serviceinterface.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.Set;
+
+import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 
 @Service
 @RequiredArgsConstructor

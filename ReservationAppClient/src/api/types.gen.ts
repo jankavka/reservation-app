@@ -4,6 +4,15 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8080' | (string & {});
 };
 
+export type UserDto = {
+    id?: number;
+    email: string;
+    telephoneNumber?: string;
+    fullName: string;
+    roles: Array<'ADMIN' | 'COACH' | 'PARENT' | 'PLAYER'>;
+    createdAt?: string;
+};
+
 export type CoachDto = null;
 
 export type CourtDto = {
@@ -43,15 +52,6 @@ export type TrainingSlotDto = {
     price?: string;
     currency: string;
     courtBlockingId?: number;
-};
-
-export type UserDto = {
-    id?: number;
-    email: string;
-    telephoneNumber?: string;
-    fullName: string;
-    roles: Array<'ADMIN' | 'COACH' | 'PARENT' | 'PLAYER'>;
-    createdAt?: string;
 };
 
 export type VenueDto = {
@@ -291,6 +291,72 @@ export type AttendanceFilter = {
     createdAfter?: string;
     createdBefore?: string;
     note?: string;
+};
+
+export type DeleteUserData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/user/{id}';
+};
+
+export type DeleteUserResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
+
+export type GetUserData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/user/{id}';
+};
+
+export type GetUserResponses = {
+    /**
+     * OK
+     */
+    200: UserDto;
+};
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
+
+export type UpdateUserByAdminData = {
+    body: UserDto;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/user/{id}';
+};
+
+export type UpdateUserByAdminResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type UpdateProfileData = {
+    body: UserDto;
+    path?: never;
+    query?: never;
+    url: '/user/profile/{id}';
+};
+
+export type UpdateProfileResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
 };
 
 export type DeleteWeatherNoteData = {
@@ -1694,42 +1760,6 @@ export type CreateAttendanceResponses = {
 };
 
 export type CreateAttendanceResponse = CreateAttendanceResponses[keyof CreateAttendanceResponses];
-
-export type DeleteUserData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/user/{id}';
-};
-
-export type DeleteUserResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
-
-export type GetUserData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/user/{id}';
-};
-
-export type GetUserResponses = {
-    /**
-     * OK
-     */
-    200: UserDto;
-};
-
-export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type GetProfileData = {
     body?: never;
