@@ -6,6 +6,7 @@ import cz.reservation.entity.repository.VenueRepository;
 import cz.reservation.service.annotation.ReadOnlyTransaction;
 import cz.reservation.service.exception.PhotoSavingException;
 import cz.reservation.service.files.MyFilesUtils;
+import cz.reservation.service.normalize.MyNormalizer;
 import cz.reservation.service.serviceinterface.VenueService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Objects;
 
 import static cz.reservation.service.message.MessageHandling.entityNotFoundExceptionMessage;
 
@@ -113,10 +116,11 @@ public class VenueServiceImpl implements VenueService {
                 throw new PhotoSavingException("Bad file format");
             }
 
-            var fileName = file.getName();
-            var fileSuffix = filesUtils.getSuffix(file);
-            var fileUrl = venuesPhotosPath + File.separator + fileName + "." + fileSuffix;
-            photoUrl = venuesPhotoResource + File.separator + fileName + "." + fileSuffix;
+            var fileName = Objects.requireNonNull(file.getOriginalFilename());
+            var normalizedString = MyNormalizer.normalizeFileName(fileName);
+
+            var fileUrl = venuesPhotosPath + File.separator + normalizedString;
+            photoUrl = venuesPhotoResource + File.separator + normalizedString;
             File outputFile = new File(fileUrl);
             filesUtils.savePhotoFile(file, outputFile);
 

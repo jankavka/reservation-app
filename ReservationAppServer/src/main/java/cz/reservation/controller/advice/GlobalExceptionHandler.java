@@ -154,7 +154,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error(LOG_FORMAT, e.getClass(), e.getMessage());
-        System.out.println("THIS");
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));
@@ -167,6 +166,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of(MESSAGE_KEY, e.getMessage()));
+    }
+
+    //Handler for unsupported operations due to user authorities
+    @ExceptionHandler(UnauthorizedEventException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedEventException(UnauthorizedEventException e) {
+        log.error(LOG_FORMAT, e.getClass(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
+
     }
 
 

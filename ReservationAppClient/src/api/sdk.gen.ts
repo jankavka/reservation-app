@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthenticateAndGetTokenData, AuthenticateAndGetTokenResponses, CreateAttendanceData, CreateAttendanceResponses, CreateBlockingData, CreateBlockingResponses, CreateBookingData, CreateBookingResponses, CreateCoachData, CreateCoachResponses, CreateCourtData, CreateCourtResponses, CreateEnrollmentData, CreateEnrollmentResponses, CreateGroupData, CreateGroupResponses, CreateInvoiceSummaryData, CreateInvoiceSummaryResponses, CreatePackageData, CreatePackageResponses, CreatePlayerData, CreatePlayerResponses, CreateRuleData, CreateRuleResponses, CreateSeasonData, CreateSeasonResponses, CreateTrainingSlotData, CreateTrainingSlotResponses, CreateUserByAdminData, CreateUserByAdminResponses, CreateUserData, CreateUserResponses, CreateVenueData, CreateVenueResponses, CreateWeatherNoteData, CreateWeatherNoteResponses, DeleteAttendanceData, DeleteAttendanceResponses, DeleteBlockingData, DeleteBlockingResponses, DeleteBookingData, DeleteBookingResponses, DeleteCoachData, DeleteCoachResponses, DeleteCourtData, DeleteCourtResponses, DeleteEnrollmentData, DeleteEnrollmentResponses, DeleteGroupData, DeleteGroupResponses, DeletePackageData, DeletePackageResponses, DeletePlayerData, DeletePlayerResponses, DeleteRuleData, DeleteRuleResponses, DeleteSeasonData, DeleteSeasonResponses, DeleteSummaryData, DeleteSummaryResponses, DeleteTrainingSlotData, DeleteTrainingSlotResponses, DeleteUserData, DeleteUserResponses, DeleteVenueData, DeleteVenueResponses, DeleteWeatherNoteData, DeleteWeatherNoteResponses, EditAttendanceData, EditAttendanceResponses, EditBlockingData, EditBlockingResponses, EditBookingAsAdminData, EditBookingAsAdminResponses, EditBookingData, EditBookingResponses, EditCoachData, EditCoachResponses, EditCourtData, EditCourtResponses, EditEnrollmentData, EditEnrollmentResponses, EditGroupData, EditGroupResponses, EditPackageData, EditPackageResponses, EditPlayerData, EditPlayerResponses, EditSeasonData, EditSeasonResponses, EditSummaryData, EditSummaryResponses, EditTrainingSlotData, EditTrainingSlotResponses, EditVenueData, EditVenueResponses, EditWeatherNoteData, EditWeatherNoteResponses, GetAllAdminsData, GetAllAdminsResponses, GetAllAttendancesData, GetAllAttendancesResponses, GetAllBlockingsData, GetAllBlockingsResponses, GetAllBookingsData, GetAllBookingsResponses, GetAllCoachesData, GetAllCoachesResponses, GetAllEnrollmentsData, GetAllEnrollmentsResponses, GetAllGroupsData, GetAllGroupsResponses, GetAllPlayersData, GetAllPlayersResponses, GetAllRulesData, GetAllRulesResponses, GetAllSeasonsData, GetAllSeasonsResponses, GetAllSlotsByGroupIdData, GetAllSlotsByGroupIdResponses, GetAllSummariesByUserData, GetAllSummariesByUserResponses, GetAllSummariesData, GetAllSummariesResponses, GetAllTrainingSlotsData, GetAllTrainingSlotsResponses, GetAllUsersData, GetAllUsersResponses, GetAllVenuesData, GetAllVenuesResponses, GetAllWeatherNotesData, GetAllWeatherNotesResponses, GetAttendanceData, GetAttendanceResponses, GetBlockingData, GetBlockingResponses, GetBookingData, GetBookingResponses, GetCoachData, GetCoachResponses, GetEnrollmentData, GetEnrollmentResponses, GetGroupData, GetGroupResponses, GetInfoData, GetInfoResponses, GetPlayerByParentIdData, GetPlayerByParentIdResponses, GetPlayerData, GetPlayerResponses, GetProfileData, GetProfileResponses, GetRuleData, GetRuleResponses, GetSeasonData, GetSeasonResponses, GetSummaryData, GetSummaryResponses, GetSupportedConditionsData, GetSupportedConditionsPerMonthData, GetSupportedConditionsPerMonthResponses, GetSupportedConditionsPerPackageData, GetSupportedConditionsPerPackageResponses, GetSupportedConditionsPerSlotData, GetSupportedConditionsPerSlotResponses, GetSupportedConditionsResponses, GetTrainingSlotData, GetTrainingSlotResponses, GetUserData, GetUserResponses, GetVenueData, GetVenueResponses, GetWeatherNoteData, GetWeatherNoteResponses, LogoutData, LogoutResponses, RefreshData, RefreshResponses, ShowAllCourtsData, ShowAllCourtsResponses, ShowAllPackagesData, ShowAllPackagesResponses, ShowAllRulesWithMonthlyTypeData, ShowAllRulesWithMonthlyTypeResponses, ShowCourtData, ShowCourtResponses, ShowCurrentUserData, ShowCurrentUserResponses, ShowData, ShowPackageData, ShowPackageResponses, ShowResponses, UpdateInfoData, UpdateInfoResponses, UpdateRuleData, UpdateRuleResponses } from './types.gen';
+import type { AuthenticateAndGetTokenData, AuthenticateAndGetTokenResponses, CreateAttendanceData, CreateAttendanceResponses, CreateBlockingData, CreateBlockingResponses, CreateBookingData, CreateBookingResponses, CreateCoachData, CreateCoachResponses, CreateCourtData, CreateCourtResponses, CreateEnrollmentData, CreateEnrollmentResponses, CreateGroupData, CreateGroupResponses, CreateInvoiceSummaryData, CreateInvoiceSummaryResponses, CreatePackageData, CreatePackageResponses, CreatePlayerData, CreatePlayerResponses, CreateRuleData, CreateRuleResponses, CreateSeasonData, CreateSeasonResponses, CreateTrainingSlotData, CreateTrainingSlotResponses, CreateUserByAdminData, CreateUserByAdminResponses, CreateUserData, CreateUserResponses, CreateVenueData, CreateVenueResponses, CreateWeatherNoteData, CreateWeatherNoteResponses, DeleteAttendanceData, DeleteAttendanceResponses, DeleteBlockingData, DeleteBlockingResponses, DeleteBookingData, DeleteBookingResponses, DeleteCoachData, DeleteCoachResponses, DeleteCourtData, DeleteCourtResponses, DeleteEnrollmentData, DeleteEnrollmentResponses, DeleteGroupData, DeleteGroupResponses, DeletePackageData, DeletePackageResponses, DeletePlayerData, DeletePlayerResponses, DeleteRuleData, DeleteRuleResponses, DeleteSeasonData, DeleteSeasonResponses, DeleteSummaryData, DeleteSummaryResponses, DeleteTrainingSlotData, DeleteTrainingSlotResponses, DeleteUserData, DeleteUserResponses, DeleteVenueData, DeleteVenueResponses, DeleteWeatherNoteData, DeleteWeatherNoteResponses, EditAttendanceData, EditAttendanceResponses, EditBlockingData, EditBlockingResponses, EditBookingAsAdminData, EditBookingAsAdminResponses, EditBookingData, EditBookingResponses, EditCoachData, EditCoachResponses, EditCourtData, EditCourtResponses, EditEnrollmentData, EditEnrollmentResponses, EditGroupData, EditGroupResponses, EditPackageData, EditPackageResponses, EditPlayerData, EditPlayerResponses, EditSeasonData, EditSeasonResponses, EditSummaryData, EditSummaryResponses, EditTrainingSlotData, EditTrainingSlotResponses, EditVenueData, EditVenueResponses, EditWeatherNoteData, EditWeatherNoteResponses, GetAllAdminsData, GetAllAdminsResponses, GetAllAttendancesData, GetAllAttendancesResponses, GetAllBlockingsData, GetAllBlockingsResponses, GetAllBookingsData, GetAllBookingsResponses, GetAllCoachesData, GetAllCoachesResponses, GetAllEnrollmentsData, GetAllEnrollmentsResponses, GetAllGroupsData, GetAllGroupsResponses, GetAllPlayersData, GetAllPlayersResponses, GetAllRulesData, GetAllRulesResponses, GetAllSeasonsData, GetAllSeasonsResponses, GetAllSlotsByGroupIdData, GetAllSlotsByGroupIdResponses, GetAllSummariesByUserData, GetAllSummariesByUserResponses, GetAllSummariesData, GetAllSummariesResponses, GetAllTrainingSlotsData, GetAllTrainingSlotsResponses, GetAllUsersData, GetAllUsersResponses, GetAllVenuesData, GetAllVenuesResponses, GetAllWeatherNotesData, GetAllWeatherNotesResponses, GetAttendanceData, GetAttendanceResponses, GetBlockingData, GetBlockingResponses, GetBookingData, GetBookingResponses, GetCoachData, GetCoachResponses, GetEnrollmentData, GetEnrollmentResponses, GetGroupData, GetGroupResponses, GetInfoData, GetInfoResponses, GetPlayerByParentIdData, GetPlayerByParentIdResponses, GetPlayerData, GetPlayerResponses, GetProfileData, GetProfileResponses, GetRuleData, GetRuleResponses, GetSeasonData, GetSeasonResponses, GetSummaryData, GetSummaryResponses, GetSupportedConditionsData, GetSupportedConditionsPerMonthData, GetSupportedConditionsPerMonthResponses, GetSupportedConditionsPerPackageData, GetSupportedConditionsPerPackageResponses, GetSupportedConditionsPerSlotData, GetSupportedConditionsPerSlotResponses, GetSupportedConditionsResponses, GetTrainingSlotData, GetTrainingSlotResponses, GetUserData, GetUserResponses, GetVenueData, GetVenueResponses, GetWeatherNoteData, GetWeatherNoteResponses, LogoutData, LogoutResponses, RefreshData, RefreshResponses, ShowAllCourtsData, ShowAllCourtsResponses, ShowAllPackagesData, ShowAllPackagesResponses, ShowAllRulesWithMonthlyTypeData, ShowAllRulesWithMonthlyTypeResponses, ShowCourtData, ShowCourtResponses, ShowCurrentUserData, ShowCurrentUserResponses, ShowData, ShowPackageData, ShowPackageResponses, ShowResponses, UpdateInfoData, UpdateInfoResponses, UpdateProfileData, UpdateProfileResponses, UpdateRuleData, UpdateRuleResponses, UpdateUserByAdminData, UpdateUserByAdminResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,28 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+export const deleteUser = <ThrowOnError extends boolean = false>(options: Options<DeleteUserData, ThrowOnError>) => (options.client ?? client).delete<DeleteUserResponses, unknown, ThrowOnError>({ url: '/user/{id}', ...options });
+
+export const getUser = <ThrowOnError extends boolean = false>(options: Options<GetUserData, ThrowOnError>) => (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError>({ url: '/user/{id}', ...options });
+
+export const updateUserByAdmin = <ThrowOnError extends boolean = false>(options: Options<UpdateUserByAdminData, ThrowOnError>) => (options.client ?? client).put<UpdateUserByAdminResponses, unknown, ThrowOnError>({
+    url: '/user/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const updateProfile = <ThrowOnError extends boolean = false>(options: Options<UpdateProfileData, ThrowOnError>) => (options.client ?? client).put<UpdateProfileResponses, unknown, ThrowOnError>({
+    url: '/user/profile/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 export const deleteWeatherNote = <ThrowOnError extends boolean = false>(options: Options<DeleteWeatherNoteData, ThrowOnError>) => (options.client ?? client).delete<DeleteWeatherNoteResponses, unknown, ThrowOnError>({ url: '/api/weather-notes/{id}', ...options });
 
@@ -36,11 +58,10 @@ export const deleteVenue = <ThrowOnError extends boolean = false>(options: Optio
 export const getVenue = <ThrowOnError extends boolean = false>(options: Options<GetVenueData, ThrowOnError>) => (options.client ?? client).get<GetVenueResponses, unknown, ThrowOnError>({ url: '/api/venue/{id}', ...options });
 
 export const editVenue = <ThrowOnError extends boolean = false>(options: Options<EditVenueData, ThrowOnError>) => (options.client ?? client).put<EditVenueResponses, unknown, ThrowOnError>({
-    ...formDataBodySerializer,
     url: '/api/venue/{id}',
     ...options,
     headers: {
-        'Content-Type': null,
+        'Content-Type': 'application/json',
         ...options.headers
     }
 });
@@ -274,11 +295,10 @@ export const createWeatherNote = <ThrowOnError extends boolean = false>(options:
 export const getAllVenues = <ThrowOnError extends boolean = false>(options?: Options<GetAllVenuesData, ThrowOnError>) => (options?.client ?? client).get<GetAllVenuesResponses, unknown, ThrowOnError>({ url: '/api/venue', ...options });
 
 export const createVenue = <ThrowOnError extends boolean = false>(options?: Options<CreateVenueData, ThrowOnError>) => (options?.client ?? client).post<CreateVenueResponses, unknown, ThrowOnError>({
-    ...formDataBodySerializer,
     url: '/api/venue',
     ...options,
     headers: {
-        'Content-Type': null,
+        'Content-Type': 'application/json',
         ...options?.headers
     }
 });
@@ -433,10 +453,6 @@ export const createAttendance = <ThrowOnError extends boolean = false>(options: 
         ...options.headers
     }
 });
-
-export const deleteUser = <ThrowOnError extends boolean = false>(options: Options<DeleteUserData, ThrowOnError>) => (options.client ?? client).delete<DeleteUserResponses, unknown, ThrowOnError>({ url: '/user/{id}', ...options });
-
-export const getUser = <ThrowOnError extends boolean = false>(options: Options<GetUserData, ThrowOnError>) => (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError>({ url: '/user/{id}', ...options });
 
 export const getProfile = <ThrowOnError extends boolean = false>(options: Options<GetProfileData, ThrowOnError>) => (options.client ?? client).get<GetProfileResponses, unknown, ThrowOnError>({ url: '/user/profile/{username}', ...options });
 

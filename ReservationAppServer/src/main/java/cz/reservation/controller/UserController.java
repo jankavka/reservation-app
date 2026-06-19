@@ -67,6 +67,19 @@ public class UserController {
 
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/profile/{id}")
+    public void updateProfile(@RequestBody UserDto userDto) {
+        userService.editProfile(userDto);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{id}")
+    public void updateUserByAdmin(@RequestBody UserDto userDto, @PathVariable Long id) {
+        userService.editUserByAdmin(userDto, id);
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

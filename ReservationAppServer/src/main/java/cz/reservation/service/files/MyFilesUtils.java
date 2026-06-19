@@ -64,10 +64,16 @@ public class MyFilesUtils {
      * @return file suffix
      */
     public String getSuffix(MultipartFile file) {
-        return Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
+        var originalFileName = file.getOriginalFilename();
+        if (!file.isEmpty() && originalFileName != null) {
+            var splitName = Objects.requireNonNull(originalFileName.split("\\."));
+            return Objects.requireNonNull(splitName[splitName.length - 1]);
+        }
+        return null;
+
     }
 
-    public String getFileName(String path){
+    public String getFileName(String path) {
         return Objects.requireNonNull(path.split("/"))[2];
     }
 

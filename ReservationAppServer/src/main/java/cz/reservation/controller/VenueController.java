@@ -19,7 +19,7 @@ public class VenueController {
 
     private final VenueService venueService;
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping
     public ResponseEntity<VenueDto> createVenue(
             @RequestPart("venue") @Valid VenueDto venueDto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
@@ -34,7 +34,7 @@ public class VenueController {
         return venueService.getVenue(id);
     }
 
-    @PutMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editVenue(
             @PathVariable Long id,

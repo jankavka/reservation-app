@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthProvider from "./components/AuthProvider";
 import AdminRoute from "./components/AdminRoute";
 import AdminLayout from "./layouts/AdminLayout";
+import "yet-another-react-lightbox/styles.css";
+
 
 function App() {
   const queryClient = new QueryClient();

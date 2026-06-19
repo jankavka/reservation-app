@@ -10,25 +10,29 @@ import AdminContacts from "../pages/admin/AdminContacts";
 import AdminProfile from "../pages/admin/AdminProfile";
 import AdminUsers from "../pages/admin/AdminUsers";
 import Registration from "../pages/Registration";
+import AdminEditUser from "../pages/admin/AdminEditUser";
+import AdminVenueForm from "../pages/admin/AdminVenueForm";
+import AdminVenueEdit from "../pages/admin/AdminVenueEdit";
 
 const AdminLayout = () => {
   return (
     <div>
-
-        <AdminNavLinks />
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="/uzivatele" element={<AdminUsers />} />
-          <Route path="uzivatele/novy" element={<Registration/>}/>
-          <Route path="/rezervace" element={<AdminReservation />} />
-          <Route path="/arealy" element={<AdminVenues />} />
-          <Route path="/kurty" element={<AdminCourts />} />
-          <Route path="/treneri" element={<AdminCoaches />} />
-          <Route path="/o-nas" element={<AdminAboutUs />} />
-          <Route path="/kontakty" element={<AdminContacts />} />
-          <Route path="/profil" element={<AdminProfile />} />
-        </Routes>
-
+      <AdminNavLinks />
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="/uzivatele" element={<AdminUsers />} />
+        <Route path="/uzivatele/novy" element={<Registration />} />
+        <Route path="/uzivatele/upravit/:id" element={<AdminEditUser />} />
+        <Route path="/rezervace" element={<AdminReservation />} />
+        <Route path="/arealy" element={<AdminVenues />} />
+        <Route path="/arealy/novy" element={<AdminVenueForm />} />
+        <Route path="/arealy/upravit/:id" element={<AdminVenueEdit />} />
+        <Route path="/kurty" element={<AdminCourts />} />
+        <Route path="/treneri" element={<AdminCoaches />} />
+        <Route path="/o-nas" element={<AdminAboutUs />} />
+        <Route path="/kontakty" element={<AdminContacts />} />
+        <Route path="/profil" element={<AdminProfile />} />
+      </Routes>
     </div>
   );
 };

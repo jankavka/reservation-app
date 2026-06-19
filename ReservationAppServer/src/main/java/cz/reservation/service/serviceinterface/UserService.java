@@ -17,6 +17,10 @@ public interface UserService extends UserDetailsService {
 
     void deleteUser(Long id);
 
+    void editProfile(UserDto userDto);
+
+    void editUserByAdmin(UserDto userDto, Long id);
+
     List<UserDto> getAllAdmins();
 
     UserDto getProfile(String username);
