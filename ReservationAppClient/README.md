@@ -59,14 +59,19 @@ npx tsx scripts/apigen.ts
 | `/admin/uzivatele` | User management |
 | `/admin/uzivatele/novy` | Create new user |
 | `/admin/uzivatele/upravit/:id` | Edit user |
+| `/admin/uzivatele/:id` | User detail |
 | `/admin/rezervace` | Reservation management |
 | `/admin/arealy` | Venue management |
 | `/admin/arealy/novy` | Create new venue |
 | `/admin/arealy/upravit/:id` | Edit venue |
+| `/admin/arealy/:id` | Venue detail |
 | `/admin/kurty` | Court management |
+| `/admin/kurty/novy` | Create new court |
+| `/admin/kurty/:id` | Court detail |
 | `/admin/treneri` | Coach management |
-| `/admin/o-nas` | About Us management |
-| `/admin/kontakty` | Contact management |
+| `/admin/info` | About Us / Info page |
+| `/admin/info/upravit` | Edit About Us / Info |
+| `/admin/kontakty/upravit` | Edit contacts |
 | `/admin/profil` | Admin profile |
 
 ### Authentication
@@ -96,6 +101,7 @@ React Bootstrap v2 + Bootstrap 5. No Tailwind or custom CSS framework.
 
 - **yet-another-react-lightbox** — used in venue management for fullscreen photo preview
 - **@tanstack/react-form** — used for form state management (e.g. venue creation form)
+- **@tinymce/tinymce-react** — rich text editor (TinyMCE), used in About Us / Info editing; self-hosted via `/public/tinymce/`
 
 ### Components & Hooks
 
@@ -113,5 +119,7 @@ React Bootstrap v2 + Bootstrap 5. No Tailwind or custom CSS framework.
 | `useDateFormat.ts` | Hook for date formatting |
 | `DateFormat.ts` | Utility function for formatting dates in Czech locale |
 | `Filter.tsx` | Collapsible filter/form component built with `@tanstack/react-form` |
+| `FormFields.tsx` | Reusable `@tanstack/react-form` field wrappers (e.g. `FormInput`) |
+| `MyEditor.tsx` | TinyMCE rich text editor wrapper for use in forms |
 | `MySerializer.ts` | Serializes a plain object to `multipart/form-data` (handles `File`/`Blob` fields) |
 | `constant/constant.ts` | Shared constants — exports `API_URL` (`http://localhost:8080`) |

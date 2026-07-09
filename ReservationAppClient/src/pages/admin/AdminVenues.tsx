@@ -39,7 +39,7 @@ const AdminVenues = () => {
     },
     onError: (error) => {
       navigate("/admin/arealy");
-      console.log(error.message);
+      console.error(error.message);
     },
   });
 
@@ -89,10 +89,12 @@ const AdminVenues = () => {
         text={deleteText}
         setTimer={deleteSuccess}
       />
-      <Link className="btn btn-success" to={"/admin/arealy/novy"}>
-        Nový areál
-      </Link>
-      <Table>
+      <div className="text-end mb-3 me-5">
+        <Link className="btn btn-success" to={"/admin/arealy/novy"}>
+          Nový areál
+        </Link>
+      </div>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>id</th>
@@ -125,8 +127,8 @@ const AdminVenues = () => {
                 </td>
                 <td>
                   <div
-                    className="d-flex flex-column justify-content-between align-items-center h-100 w-100"
-                    style={{ minHeight: "10dvh" }}
+                    className="d-flex flex-column justify-content-between"
+                    style={{ minHeight: "15dvh" }}
                   >
                     <Button
                       onClick={() => handleShowModal(item.name, item.id)}
@@ -140,6 +142,12 @@ const AdminVenues = () => {
                     >
                       Upravit
                     </Link>
+                    <Button
+                    variant="secondary"
+                      onClick={() => navigate("/admin/arealy/" + item.id)}
+                    >
+                      Detail
+                    </Button>
                   </div>
                 </td>
               </tr>

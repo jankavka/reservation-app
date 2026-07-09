@@ -19,7 +19,8 @@ export const useAuth = (props: any) => {
   const logoutFn = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
-    return api.logout();
+    // return null;
+     return api.logout();
   };
 
   const { mutate: logout } = useMutation({
@@ -35,6 +36,7 @@ export const useAuth = (props: any) => {
         },
       });
     },
+    retry: 3,
   });
 
   const { mutate: login } = useMutation({
@@ -63,6 +65,7 @@ export const useAuth = (props: any) => {
     onError: (error) => {
       console.error(error);
       localStorage.removeItem("token");
+      localStorage.removeItem("currentUser");
       navigate("/login", {
         state: {
           errorState: true,

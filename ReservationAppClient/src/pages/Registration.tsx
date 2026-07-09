@@ -93,7 +93,7 @@ const Registration = () => {
       console.error(error);
     },
     onSuccess: () =>
-      navigate("/admin", {
+      navigate("/admin/uzivatele", {
         state: {
           success: true,
           username: concatNameAndSurname(firstName, surname),
@@ -248,6 +248,7 @@ const Registration = () => {
                 <option value="ADMIN">admin</option>
                 <option value="PARENT">parent</option>
                 <option value="COACH">coach</option>
+                <option value="PLAYER">player</option>
               </Form.Select>
             </FormGroup>
           ) : null}

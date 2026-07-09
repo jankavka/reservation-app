@@ -15,5 +15,6 @@ public interface UserMapper {
     UserEntity toEntity(UserDto toDTO);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     void updateEntity(@MappingTarget UserEntity target, UserDto source);
 }

@@ -127,7 +127,7 @@ Spring Boot resolves these from environment variables at runtime. In a GitHub Ac
 
 ## Main Features
 
-- **User Management** - registration, login, roles (ADMIN, USER, COACH)
+- **User Management** - registration, login, roles (ADMIN, COACH, PARENT, PLAYER)
 - **Bookings** - create and manage tennis training slot reservations
 - **Training Slots** - tennis training time slots with capacity and pricing
 - **Groups** - tennis training groups managed by coaches
@@ -155,7 +155,7 @@ src/main/java/cz/reservation/
 │   └── advice/        # Global exception handler
 ├── dto/               # Data Transfer Objects
 │   └── mapper/        # MapStruct mappers (16 mappers)
-├── entity/            # JPA entities (16 entities)
+├── entity/            # JPA entities (17 entities)
 │   ├── filter/        # Query filter objects (11 filters)
 │   ├── repository/    # Spring Data repositories
 │   │   └── specification/  # JPA Specifications (11 specs)
@@ -168,10 +168,12 @@ src/main/java/cz/reservation/
     ├── invoice/       # Invoice generation engine
     ├── listener/      # Event listeners (4 listeners)
     ├── message/       # Message handling
+    ├── normalize/     # Input normalization utilities
+    ├── notification/  # Notification sender abstraction
     ├── pricing/       # Pricing strategy pattern
     │   ├── pricinginterface/  # PricingEngine interface
     │   └── resolver/  # Strategy resolver
-    └── serviceinterface/  # Service interfaces (19 interfaces)
+    └── serviceinterface/  # Service interfaces (20 interfaces)
 ```
 
 ## API Endpoints

@@ -15,7 +15,7 @@ public class UserCreatedByAdminListener {
 
     private final NotificationSender notificationSender;
 
-    @EventListener
+    //@EventListener
     public void handleCreateUserByAdmin(CreatedUserByAdminDto createUserByAdminDto) {
         var userId = createUserByAdminDto.userEntity.getId();
         var userEmail = createUserByAdminDto.userEntity.getEmail();
