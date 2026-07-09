@@ -22,7 +22,7 @@ const AboutUs = () => {
       <Container>
         <h1 className="text-center">O nás</h1>
         <div>
-          <p>{data?.description}</p>
+          <p dangerouslySetInnerHTML={{ __html: data?.description }}></p>
         </div>
       </Container>
     </>

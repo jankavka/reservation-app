@@ -29,12 +29,8 @@ const menu: menuItem[] = [
     link: "/admin/treneri",
   },
   {
-    label: "O nás",
-    link: "/admin/o-nas",
-  },
-  {
-    label: "Kontakty",
-    link: "/admin/kontakty",
+    label: "Company Info",
+    link: "/admin/info",
   },
 ];
 

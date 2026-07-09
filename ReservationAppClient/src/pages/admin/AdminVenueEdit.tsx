@@ -39,8 +39,7 @@ const AdminVenueEdit = () => {
       headers: { "Content-Type": null },
       bodySerializer: mySerializer,
     }),
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
       navigate("/admin/arealy", {
         state: { editSuccess: true, nameOfEdited: defaultValues?.name },
       });

@@ -4,10 +4,16 @@ import { Navigate } from "react-router";
 import Loading from "./Loading";
 
 const AdminRoute = ({ children }) => {
-  const { data, isSuccess, isPending, error } = useQuery({
+  const { data, isSuccess, isPending, isError } = useQuery({
     ...showCurrentUserOptions({}),
     enabled: Boolean(localStorage.getItem("token")),
+    retry: 3,
   });
+
+  const autoLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
+  };
 
   if (isPending) {
     return (
@@ -28,13 +34,18 @@ const AdminRoute = ({ children }) => {
     data?.authorities?.find((user) => user.authority.includes("ADMIN"))
   ) {
     return <div>{children}</div>;
-  } else if (error?.message?.includes("Use refresh token or Login")) {
-    console.log("catched");
-  } else if (!isPending) {
-    console.log("here");
+  } else if (!isPending && isError) {
+    autoLogout();
+
     return (
       <div>
-        <Navigate to={"/"} />
+        <Navigate
+          to={"/"}
+          state={{
+            logoutSuccess: true,
+            logoutText: "Odhlášení proběhlo úspěšně",
+          }}
+        />
       </div>
     );
   }

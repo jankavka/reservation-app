@@ -41,6 +41,15 @@ const AdminEditUser = () => {
       body: user,
       path: { id: parseInt(id.trim()) },
     }),
+    onSuccess: () => {
+      navigate("/admin/uzivatele", {
+        state: { success: true, user: firstName + " " + surname },
+      });
+      setIsLoading(false);
+    },
+    onError: (error) => {
+      console.error(error.message);
+    },
   });
 
   const handleChange = (e: any) => {
@@ -74,10 +83,6 @@ const AdminEditUser = () => {
     };
 
     mutate({ body: payload, path: { id: payload.id } });
-    navigate("/admin/uzivatele", {
-      state: { success: true, user: payload.fullName },
-    });
-    setIsLoading(false);
   };
 
   return (
@@ -134,6 +139,7 @@ const AdminEditUser = () => {
               <option value="ADMIN">admin</option>
               <option value="PARENT">parent</option>
               <option value="COACH">coach</option>
+              <option value="PLAYER">player</option>
             </Form.Select>
           </FormGroup>
           <FormGroup>
