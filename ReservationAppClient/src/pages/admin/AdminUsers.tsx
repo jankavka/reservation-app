@@ -129,7 +129,9 @@ const AdminUsers = () => {
         aria-controls="filter"
         aria-expanded={isOpen}
         className="mb-5"
-      >{`${isOpen ? "Skrýt filter" : "Zobrazit filter"}`}</Button>
+      >
+        {isOpen ? "Skrýt filter" : "Zobrazit filter"}
+      </Button>
       <Collapse in={isOpen}>
         <div id="filter">
           <Form onSubmit={(e) => handleSubmitFilter(e)}>
