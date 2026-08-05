@@ -21,13 +21,18 @@ export const FormInputCheck = ({ formLabel, field }) => {
         label={formLabel}
         value={field.state.value}
         onBlur={field.handleBlur}
-        onChange={() => field.handleChange((prev: any) => !prev)}
+        onChange={(e) =>
+          field.handleChange(() => {
+            if (e.target.checked) return true;
+            return false;
+          })
+        }
       />
     </FormGroup>
   );
 };
 
-export const FormInputSelect = ({ formLabel, field, options }) => {
+export const FormInputSelect = ({ formLabel, field, options}) => {
   return (
     <FormGroup>
       <FormLabel>{formLabel}</FormLabel>
@@ -35,8 +40,9 @@ export const FormInputSelect = ({ formLabel, field, options }) => {
         onChange={(e) => field.handleChange(e.target.value)}
         value={field.state?.value || undefined}
         onBlur={field.handleBlur}
+
       >
-        <option value={""}>Vyberte možnost</option>
+        <option defaultValue={" "} value={" "}>Vyberte možnost</option>
         {options.map((option: string, index: number) => (
           <option key={index} value={option}>
             {option}
