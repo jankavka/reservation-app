@@ -1,6 +1,5 @@
 package cz.reservation.dto;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,7 +17,6 @@ public record InvoiceSummaryDto(
 
         Integer totalCentsAmount,
 
-        @Nullable
         PricingRuleDto rule,
 
         @NotBlank(message = "Currency must not be blank")

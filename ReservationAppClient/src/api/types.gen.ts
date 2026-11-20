@@ -13,7 +13,12 @@ export type UserDto = {
     createdAt?: string;
 };
 
-export type CoachDto = null;
+export type CoachDto = {
+    id?: number;
+    user: UserDto;
+    bio: string;
+    certification: string;
+};
 
 export type CourtDto = {
     id?: number;
