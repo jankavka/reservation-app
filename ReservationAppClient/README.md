@@ -22,7 +22,7 @@ npm run lint       # Run ESLint
 npm run preview    # Preview production build
 
 # Regenerate API client from OpenAPI spec (after backend changes)
-npx tsx scripts/apigen.ts
+npm run openapi-ts
 ```
 
 ## Architecture
@@ -86,7 +86,7 @@ npx tsx scripts/apigen.ts
 The entire API client (`src/api/`) is **auto-generated** from `docs/api-docs.yaml` using `@hey-api/openapi-ts`. Do not edit files in `src/api/` manually. After changing the OpenAPI spec, run:
 
 ```bash
-npx tsx scripts/apigen.ts
+npm run openapi-ts
 ```
 
 The base URL is configured in `AuthProvider` as `http://localhost:8080/`.
